@@ -1,0 +1,98 @@
+import 'package:cream_ventory/screen/adding/category/category_add_controller.dart';
+import 'package:cream_ventory/widgets/text_field.dart';
+import 'package:flutter/material.dart';
+
+
+class CategoryImagePicker extends StatelessWidget {
+  final CategoryAddController controller;
+  final Function onImagePicked;
+
+  const CategoryImagePicker({
+    super.key,
+    required this.controller,
+    required this.onImagePicked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    return GestureDetector(
+      onTap: controller.isPickingImage ? null : () => onImagePicked(),
+      child: CircleAvatar(
+        radius: screenWidth * 0.12,
+        backgroundImage: controller.selectedImage != null
+            ? FileImage(controller.selectedImage!)
+            : null,
+        backgroundColor: controller.selectedImage == null
+            ? Colors.grey[200]
+            : null,
+        child: controller.selectedImage == null
+            ? Icon(
+                Icons.add_a_photo,
+                size: screenWidth * 0.08,
+                color: Colors.grey[600],
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+class CategoryErrorText extends StatelessWidget {
+  final String? errorText;
+  final double screenHeight;
+
+  const CategoryErrorText({
+    super.key,
+    required this.errorText,
+    required this.screenHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (errorText == null) return const SizedBox.shrink();
+    
+    return Padding(
+      padding: EdgeInsets.only(top: screenHeight * 0.01),
+      child: Text(
+        errorText!,
+        style: const TextStyle(
+          color: Colors.red,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
+}
+
+class CategoryFormFields extends StatelessWidget {
+  final CategoryAddController controller;
+  final double screenHeight;
+
+  const CategoryFormFields({
+    super.key,
+    required this.controller,
+    required this.screenHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CustomTextField(
+          labelText: 'Category Name',
+          errorText: controller.nameError,
+          controller: controller.nameController,
+        ),
+        SizedBox(height: screenHeight * 0.025),
+        CustomTextField(
+          labelText: 'Category Description',
+          errorText: controller.descriptionError,
+          controller: controller.descriptionController,
+          maxLines: 4,
+        ),
+      ],
+    );
+  }
+}
