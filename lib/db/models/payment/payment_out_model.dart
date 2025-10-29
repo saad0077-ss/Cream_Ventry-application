@@ -29,7 +29,7 @@ class PaymentOutModel extends HiveObject {
   String? note;
 
   @HiveField(8) 
-  String? imagePath;
+  String? imagePath; 
 
   @HiveField(9)
   String userId;

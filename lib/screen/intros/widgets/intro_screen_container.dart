@@ -1,4 +1,3 @@
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 
 class IntroBottomContainer extends StatelessWidget {
@@ -15,22 +14,20 @@ class IntroBottomContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context);
-
     return Positioned(
-      bottom: SizeConfig.blockHeight * 2, // Slightly elevate from bottom for floating effect
-      left: SizeConfig.blockWidth * 2, // Margin from left
-      right: SizeConfig.blockWidth * 2, // Margin from right
+      bottom: 16, // Fixed pixel elevation from bottom
+      left: 8, // Fixed pixel margin from left
+      right: 8, // Fixed pixel margin from right
       child: Container(
-        height: containerHeight ?? SizeConfig.screenHeight * 0.39, 
-        padding: EdgeInsets.symmetric(
-          horizontal: SizeConfig.blockWidth * 2, 
-          vertical: SizeConfig.blockHeight * 4,
+        height: containerHeight ?? 300, // Default to 300 pixels (~39% of typical mobile screen height)
+        padding: const EdgeInsets.symmetric(
+          horizontal: 6, // Fixed pixel padding
+          vertical: 26, // Fixed pixel padding
         ),
         decoration: BoxDecoration(
           color: const Color.fromARGB(113, 0, 0, 0),
-          borderRadius: BorderRadius.all(
-            Radius.circular(SizeConfig.blockWidth * 5), // Rounded corners on all sides
+          borderRadius: const BorderRadius.all(
+            Radius.circular(20), // Fixed pixel radius for rounded corners
           ),
           boxShadow: [
             BoxShadow( 
@@ -46,12 +43,12 @@ class IntroBottomContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: EdgeInsets.only(top: SizeConfig.blockHeight * 2),
+              padding: const EdgeInsets.only(top: 16), // Fixed pixel padding
               child: Text(
                 description,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: SizeConfig.textMultiplier *1.9, 
+                style: const TextStyle(
+                  fontSize: 16, // Fixed pixel font size
                   fontFamily: 'holtwood',
                   color: Colors.white,
                   height: 1.6,

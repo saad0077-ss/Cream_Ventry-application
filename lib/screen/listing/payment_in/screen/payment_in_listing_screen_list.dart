@@ -1,8 +1,8 @@
 import 'package:cream_ventory/db/models/payment/payment_in_model.dart';
-import 'package:cream_ventory/screen/adding/payment-in/payment_in.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-in/payment_in_add_screen.dart';
 import 'package:cream_ventory/widgets/listing_screen_list.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
-import 'package:cream_ventory/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/utils/adding/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
 
 class PaymentInList extends StatelessWidget {

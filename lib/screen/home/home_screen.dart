@@ -1,7 +1,6 @@
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
 import 'package:cream_ventory/db/functions/stock_db.dart';
-import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
 import 'package:cream_ventory/db/models/items/products/stock_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
@@ -9,11 +8,11 @@ import 'package:cream_ventory/db/models/user/user_model.dart';
 import 'package:cream_ventory/screen/home/simple_e.dart';
 import 'package:cream_ventory/screen/home/widgets/home_menu_provider.dart';
 import 'package:cream_ventory/screen/home/widgets/home_menu_tile.dart';
-import 'package:cream_ventory/screen/home/widgets/sale_graph.dart';
 import 'package:cream_ventory/screen/home/widgets/home_screen_stat_card.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,10 +27,10 @@ class ScreenHome extends StatelessWidget {
       await prefs.setBool(
         'hasLoggedIn_${user.id}',
         true,
-      ); // Mark user as logged in
+      ); 
     }
     return isNew;
-  }
+  }                       
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +38,22 @@ class ScreenHome extends StatelessWidget {
     final String today = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
     // Fetch the current user from UserDB for comparison
-    final currentUser = UserDB.getCurrentUser(); // Assuming this is a Future
-    // Since build is synchronous, we'll handle this asynchronously
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final fetchedUser = await currentUser;
-      if (fetchedUser.id != user.id) {
-        debugPrint(
-          'User ID mismatch! Passed: ${user.id}, Current: ${fetchedUser.id}',
-        );
-        // Optionally, you can show a snackbar or handle the mismatch
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text('User ID mismatch detected!')),
-        // );
-      } else {
-        debugPrint('User ID match confirmed: ${user.id}');
-      }
-    });
+    // final currentUser = UserDB.getCurrentUser(); // Assuming this is a Future
+    // // Since build is synchronous, we'll handle this asynchronously
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   final fetchedUser = await currentUser;
+    //   if (fetchedUser.id != user.id) {
+    //     debugPrint(
+    //       'User ID mismatch! Passed: ${user.id}, Current: ${fetchedUser.id}',
+    //     );
+    //     // Optionally, you can show a snackbar or handle the mismatch
+    //     // ScaffoldMessenger.of(context).showSnackBar(
+    //     //   SnackBar(content: Text('User ID mismatch detected!')),
+    //     // );
+    //   } else { 
+    //     debugPrint('User ID match confirmed: ${user.id}');
+    //   }
+    // });
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -63,23 +62,23 @@ class ScreenHome extends StatelessWidget {
         center: false,
         notificationIcon: const Icon(Icons.notifications),
         onNotificationPressed: () async {
-          Navigator.push(
+          Navigator.push(  
             context,
-            MaterialPageRoute(builder: (context) => const AweseomSnackBarExample()),  
+            MaterialPageRoute(builder: (context) => const DropdownDemoScreen()),  
           );
           // final prefs = await SharedPreferences.getInstance();
           // final currentUserId = prefs.getString('currentUserId');
           // debugPrint("-----------------------------------------------------$currentUserId");
         },
         fontSize: 30,
-      ),
+      ), 
       body: Container(
         decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.04,
-              vertical: 20,
+              horizontal: MediaQuery.of(context).size.width * 0.04, 
+              vertical: 20.h,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,31 +112,31 @@ class ScreenHome extends StatelessWidget {
                               isNewUser
                                   ? "Manage your inventory with ease and efficiency."
                                   : "Good to see you again! Let's manage your inventory.",
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 color: Colors.black,
-                                fontSize: 15,
-                                fontFamily: 'ABeeZee',
+                                fontSize: 12.sp,
+                                fontFamily: 'ABeeZee', 
                               ),
                             ),
                           ],
                         );
                       },
-                    ),
+                    ), 
                   ],
-                ),
-                SizedBox(height: 20),
+                ), 
+                SizedBox(height: 20.h),
                 // 🔝 Sales Graph Card
-                SizedBox(
-                  height: 300, // Define a specific height for SalesGraph
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: SalesGraph(),
-                      ), // Use Expanded to fill available space
-                    ],
-                  ),
-                ),
+                // SizedBox(
+                //   height: 300, // Define a specific height for SalesGraph
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.center,
+                //     children: [
+                //       Expanded(
+                //         child: SalesGraph(),
+                //       ), // Use Expanded to fill available space
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(height: 20),
                 Column(
                   children: [

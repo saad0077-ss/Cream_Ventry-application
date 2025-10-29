@@ -1,13 +1,11 @@
-import 'package:cream_ventory/screen/auth/widgets/common/texts/auth_screen_center_text.dart';
-import 'package:cream_ventory/screen/auth/widgets/common/texts/sign_in_screen_text_container.dart';
+import 'package:cream_ventory/screen/auth/widgets/common/auth_screen_center_text.dart';
+import 'package:cream_ventory/screen/auth/widgets/common/sign_in_screen_text_container.dart';
 import 'package:cream_ventory/screen/auth/widgets/signUp/sign_up_screen_form_feild.dart';
-import 'package:cream_ventory/utils/responsive_util.dart';
-import 'package:cream_ventory/widgets/background_image.dart';
 import 'package:cream_ventory/widgets/container.dart';
 import 'package:cream_ventory/widgets/positioned.dart';
-import 'package:flutter/foundation.dart'
-    show kIsWeb; // Import for platform detection
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ScreenSignUp extends StatefulWidget {
   const ScreenSignUp({super.key});
@@ -16,76 +14,114 @@ class ScreenSignUp extends StatefulWidget {
   State<ScreenSignUp> createState() => _ScreenSignUpState();
 }
 
-class _ScreenSignUpState extends State<ScreenSignUp> {
+class _ScreenSignUpState extends State<ScreenSignUp>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _breatheAnimation;
+  late Animation<Color?> _gradientAnimation1;
+  late Animation<Color?> _gradientAnimation2;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize animation controller for breathing effect and gradient
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 4),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    // Breathing animation for subtle scale effect
+    _breatheAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Gradient color animation
+    _gradientAnimation1 = ColorTween(
+      begin: Colors.blue.shade300,
+      end: Colors.purple.shade300,
+    ).animate(_animationController);
+
+    _gradientAnimation2 = ColorTween(
+      begin: Colors.purple.shade700,
+      end: Colors.blue.shade700,
+    ).animate(_animationController);
+  }
+
+  @override 
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Initialize SizeConfig to ensure responsive calculations
-    SizeConfig.init(context);
+    // Define responsive sizes using ScreenUtil
+    final double bottomPadding = 21.3.h; // ~3% of 812px design height
+    final double horizontalPadding = 22.w; // ~6% of 375px design width
+    // Adjust container height for web/desktop to avoid overflow
+    final double containerHeight = kIsWeb
+        ? MediaQuery.of(context).size.height * 0.5 // Larger height for web
+        : 398.h; // ~49% of 812px design height
+    final double containerPaddingHorizontal = 22.5.w; // ~6% of 375px design width
+    final double containerPaddingVertical = 20.h; // ~3% of 812px design height
 
-    return Scaffold(
-      // Disable resizeToAvoidBottomInset on web/desktop to prevent unnecessary resizing
-      resizeToAvoidBottomInset: false,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Get screen dimensions for additional flexibility
-          final double screenWidth = constraints.maxWidth;
-          final double screenHeight = constraints.maxHeight;
-
-          // Define responsive padding and sizes using SizeConfig
-          final double bottomPadding =
-              SizeConfig.blockHeight * 3; // 3% of screen height
-          final double horizontalPadding =
-              SizeConfig.blockWidth * 6; // 6% of screen width
-          // Adjust container height for web/desktop to avoid overflow
-          final double containerHeight = kIsWeb
-              ? screenHeight *
-                    0.5 // Larger height for web
-              : SizeConfig.screenHeight * 0.49; // 40% for mobile
-          final double containerPaddingHorizontal =
-              SizeConfig.blockWidth * 6; // 5% of screen width
-          final double containerPaddingVertical =
-              SizeConfig.blockHeight * 3; // 3% of screen height
-          final double borderRadius =
-              SizeConfig.blockWidth *
-              3; // 3% of screen width for rounded corners
-
-          return Stack(
-            children: [
-              // Background image, assumed to be responsive
-              Positioned.fill(
-                child: IntroBackground(
-                  imagePath: 'assets/image/icecream cxard 2.jpg',
-                ),
-              ),
-              // Semi-transparent overlay for better contrast
-              Container(color: const Color.fromARGB(49, 0, 0, 0)),
-              // Text container, assumed to handle its own responsiveness
-              TextContainer(),
-              // Center text for sign-up, assumed to handle its own responsiveness
-              CenterTextSignUp(),
-              // Positioned container for form fields
-              CustomPositioned(
-                type: PositionedType.fill,
-                bottom: bottomPadding,
-                left: horizontalPadding,
-                right: horizontalPadding,
-                child: ReusableContainer(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: containerPaddingHorizontal,
-                    vertical: containerPaddingVertical,
+    return Scaffold( 
+      body: Stack(
+        children: [
+          // Animated colored container replacing the background image
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      _gradientAnimation1.value ?? Colors.blue.shade300,
+                      _gradientAnimation2.value ?? Colors.purple.shade700,
+                    ],
+                    begin: Alignment.topLeft,  
+                    end: Alignment.bottomRight,
+                    stops: const [0.0, 1.0],
                   ),
-                  height: containerHeight,
-                  width:
-                      screenWidth -
-                      (2 * horizontalPadding), // Full width minus padding
-                  color: const Color.fromARGB(186, 0, 0, 0),
-                  borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-                  child: SingleChildScrollView(child: FormFeild()),
                 ),
-              ),
-            ],
-          );
-        },
+              );
+            },
+          ),
+          // Semi-transparent overlay for better contrast
+          Container(color: const Color.fromARGB(49, 0, 0, 0)),
+          // Text container, assumed to handle its own responsiveness
+          TextContainer(),
+          // Center text for sign-up, assumed to handle its own responsiveness
+          CenterTextSignUp(),
+          // Positioned container for form fields with breathing animation
+          CustomPositioned(
+            type: PositionedType.fill,
+            bottom: bottomPadding,
+            left: horizontalPadding,
+            right: horizontalPadding,
+            child: AnimatedBuilder(
+              animation: _breatheAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _breatheAnimation.value,
+                  child: ReusableContainer(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: containerPaddingHorizontal,
+                      vertical: containerPaddingVertical,
+                    ),
+                    height: containerHeight,
+                    width: MediaQuery.of(context).size.width - (2 * horizontalPadding),
+                    color: Colors.black26,
+                    child: SingleChildScrollView(child: FormFeild()),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

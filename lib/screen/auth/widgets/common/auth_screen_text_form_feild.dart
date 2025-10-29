@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController controller;
@@ -21,7 +22,7 @@ class CustomTextFormField extends StatelessWidget {
     this.isPassword = false,
     this.isPasswordVisible = false,
     this.togglePasswordVisibility,
-    this.fontFamily = 'ABeeZee',
+    this.fontFamily = 'ABeeZee',                  
     this.textColor,
     this.fillColor,
   });
@@ -37,30 +38,31 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: isPassword && !isPasswordVisible,
-      style: TextStyle(color: effectiveTextColor),
+      style: TextStyle(color: effectiveTextColor, fontSize: 16), // Added responsive font size 
       keyboardType: type,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
           color: effectiveTextColor.withOpacity(0.8),
-          fontSize: 20,
+          fontSize: 20, // Responsive font size
           fontFamily: fontFamily,
         ),
-        filled: true,
+        filled: true,  
         fillColor: effectiveFillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.w), // Responsive border radius
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 20,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 30, // Responsive horizontal padding
+          vertical: 20, // Responsive vertical padding
         ),
-        suffixIcon: isPassword
+        suffixIcon: isPassword 
             ? IconButton(
-                icon: Icon(
+                icon: Icon( 
                   isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                   color: effectiveTextColor,
+                  size: 24, // Responsive icon size
                 ),
                 onPressed: togglePasswordVisibility,
               )

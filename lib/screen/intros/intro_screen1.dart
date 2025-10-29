@@ -10,51 +10,49 @@ class ScreenIntro1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            // Calculate the aspect ratio of the screen
-            final double aspectRatio = constraints.maxWidth / constraints.maxHeight;
-            
-
-            // Print constraints for debugging
-            print('Screen size: ${constraints.maxWidth}x${constraints.maxHeight}, Aspect ratio: $aspectRatio');
-
-            return Stack(
-              children: [
-                IntroBackground(                                        
-                  imagePath: 'assets/animation/Untitled file.json',
-                  fit: BoxFit.cover, // Ensure animation scales nicely
-                  loopAnimation: false, // Loop the animation     
-                  animationSpeed: 0.5, // Slightly slower for smooth effect       
-                  gradientOverlay: LinearGradient(     
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,                                                                                                           
-                    colors: [
-                      Colors.blueAccent.withOpacity(0.3), // Pastel blue
-                      Colors.pinkAccent.withOpacity(0.3), // Pastel pink
-                    ],
-                  ),
-                  animateChild: true, // Fade-in effect for child
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          // Calculate the aspect ratio of the screen
+          final double aspectRatio = constraints.maxWidth / constraints.maxHeight;
+          
+    
+          // Print constraints for debugging
+          print('Screen size: ${constraints.maxWidth}x${constraints.maxHeight}, Aspect ratio: $aspectRatio');
+    
+          return Stack(
+            children: [ 
+              IntroBackground(                                        
+                imagePath: 'assets/animation/Untitled file.json',
+                fit: BoxFit.cover, // Ensure animation scales nicely
+                loopAnimation: false, // Loop the animation     
+                animationSpeed: 0.5, // Slightly slower for smooth effect       
+                gradientOverlay: LinearGradient(     
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,                                                                                                           
+                  colors: [
+                    Colors.blueAccent.withOpacity(0.3), // Pastel blue
+                    Colors.pinkAccent.withOpacity(0.3), // Pastel pink
+                  ],
                 ),
-                IntroSkipButton(),  
-                IntroBottomContainer(
-                  description:
-                      '"WELCOME TO Creamventory!🍦\nKEEP YOUR FLAVORS FRESH,\nYOUR STOCK FULL, AND YOUR\nCUSTOMERS HAPPY. LET\'S\nMANAGE YOUR ICE CREAM\nINVENTORY WITH A CHERRY\nON TOP!"',
-                  button: CustomButton(
-                    label: 'EXPLORE',
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const ScreenIntro2()),
-                      );
-                    },
-                  ),
+                animateChild: true, // Fade-in effect for child
+              ),
+              IntroSkipButton(),  
+              IntroBottomContainer(
+                description:
+                    '"WELCOME TO Creamventory!🍦\nKEEP YOUR FLAVORS FRESH,\nYOUR STOCK FULL, AND YOUR\nCUSTOMERS HAPPY. LET\'S\nMANAGE YOUR ICE CREAM\nINVENTORY WITH A CHERRY\nON TOP!"',
+                button: CustomButton(
+                  label: 'EXPLORE',
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const ScreenIntro2()),
+                    );
+                  },
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

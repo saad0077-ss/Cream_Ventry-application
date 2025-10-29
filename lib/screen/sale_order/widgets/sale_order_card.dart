@@ -1,5 +1,5 @@
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
-import 'package:cream_ventory/screen/adding/sale/add_sale.dart';
+import 'package:cream_ventory/screen/adding/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screen/sale_order/widgets/info_column.dart';
 import 'package:flutter/material.dart';
 

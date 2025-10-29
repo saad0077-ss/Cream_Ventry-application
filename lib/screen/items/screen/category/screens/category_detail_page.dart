@@ -223,7 +223,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
         ),
       ),
     );
-  }
+  }   
 
   Widget _infoBox(String label, String value, double screenWidth) {
     return Column(
@@ -237,14 +237,14 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
+        Container( 
           width: screenWidth * 0.4,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Colors.grey[100],
             boxShadow: [
-              BoxShadow(
+              BoxShadow( 
                 color: Colors.grey.withOpacity(0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
@@ -252,7 +252,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
             ],
           ),
           child: Text(
-            value,
+            value,   
             style: AppTextStyles.bold13.copyWith(
               fontSize: 16,
               color: Colors.black87,

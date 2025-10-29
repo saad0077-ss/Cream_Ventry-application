@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatCard<T> extends StatelessWidget {
   final String title; // Card title (e.g., "Total Products")
@@ -35,7 +36,7 @@ class StatCard<T> extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(color: Colors.black.withOpacity(0.3), width: 1),
-      ),
+      ),  
       clipBehavior: Clip.antiAlias,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -50,19 +51,19 @@ class StatCard<T> extends StatelessWidget {
               color: Colors.black.withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
-            ), 
+            ),  
           ], 
             
             ),
             child: Padding(
               padding: padding,
               child: Column(
-                 mainAxisAlignment: MainAxisAlignment.center, 
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [  
                         ClipOval(
                           child: BackdropFilter(
                             filter: ImageFilter.blur(
@@ -77,23 +78,23 @@ class StatCard<T> extends StatelessWidget {
                               ),
                               child: AnimatedScale(
                                 scale: 1.2, // Placeholder for future animation    
-                                duration: const Duration(milliseconds: 200),
+                                duration: const Duration(milliseconds: 200), 
                                 child: Icon(
                                   icon,
-                                  size: 20,
+                                  size: 20.r,
                                   color: const Color(0xFF8B0000), // Deep Crimson Red
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4), // Space between icon and title
+                         SizedBox(width: 2.w), // Space between icon and title
                         Expanded(
                           child: Text(
                             title,
                             style: titleStyle ??
                                 TextStyle( 
-                                  fontSize: 15,
+                                  fontSize: 12.r,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                   letterSpacing: 0.5,
@@ -102,13 +103,13 @@ class StatCard<T> extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                     SizedBox(height: 5.h),
                   ] else ...[
                     Text(
                       title,
                       style: titleStyle ??
                           TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.r,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                             letterSpacing: 0.5,
@@ -121,7 +122,7 @@ class StatCard<T> extends StatelessWidget {
                             ],
                           ),
                     ),
-                    const SizedBox(height: 8),
+                     SizedBox(height: 8.h),
                   ],
                   ValueListenableBuilder<T>(
                     valueListenable: valueListenable,
@@ -138,8 +139,8 @@ class StatCard<T> extends StatelessWidget {
                           valueBuilder(value),
                           key: ValueKey(value),
                           style: valueStyle ??
-                              const TextStyle(
-                                fontSize: 24, 
+                               TextStyle(
+                                fontSize: 24.r, 
                                 fontWeight: FontWeight.w900,
                                 fontFamily: 'ABeeZee',
                                 color: Colors.black,

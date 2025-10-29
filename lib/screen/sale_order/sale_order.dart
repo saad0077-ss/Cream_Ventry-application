@@ -1,12 +1,11 @@
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
-import 'package:cream_ventory/screen/adding/sale/add_sale.dart';
+import 'package:cream_ventory/screen/adding/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screen/sale_order/widgets/sale_order_card.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/utils/sale_order/sale_order_utils.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class SaleOrder extends StatefulWidget {
   const SaleOrder({super.key});

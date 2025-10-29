@@ -3,7 +3,7 @@ import 'package:cream_ventory/db/functions/sale/sale_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/parties/party_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
-import 'package:cream_ventory/screen/adding/party/add_party.dart';
+import 'package:cream_ventory/screen/adding/party/add_party_screen.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:cream_ventory/widgets/search_bar.dart';
@@ -541,9 +541,9 @@ class _PartyDetailState extends State<PartyDetail>
   void _editParty(BuildContext context, PartyModel party) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddParty(party: party)),
+      MaterialPageRoute(builder: (context) => AddPartyPage(party: party)),
     );
-    await PartyDb.calculatePartySummary(widget.partyId);
+    await PartyDb.calculatePartySummary(widget.partyId);    
     setState(() {});
   }
 }

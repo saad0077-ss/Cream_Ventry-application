@@ -1,9 +1,9 @@
 
 import 'package:cream_ventory/db/models/payment/payment_out_model.dart';
-import 'package:cream_ventory/screen/adding/payment-out/payment_out.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-out/payment_out_add_screen.dart';
 import 'package:cream_ventory/widgets/listing_screen_list.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
-import 'package:cream_ventory/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/utils/adding/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
 
 class PaymentOutList extends StatelessWidget {

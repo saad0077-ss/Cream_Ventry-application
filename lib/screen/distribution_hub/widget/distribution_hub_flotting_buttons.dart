@@ -1,7 +1,5 @@
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-
 
 class ActionButtons extends StatelessWidget {
   final VoidCallback onTakePayment;
@@ -17,13 +15,11 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context);
-
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SizeConfig.blockWidth * 2,
-        vertical: SizeConfig.blockHeight * 0.5,
-      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8, // Fixed pixel value
+        vertical: 4, // Fixed pixel value
+      ), 
       child: Row( 
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -34,15 +30,15 @@ class ActionButtons extends StatelessWidget {
               onPressed: onTakePayment,
             ),
           ),
-          SizedBox(width: SizeConfig.blockWidth * 1),
+          const SizedBox(width: 4), // Fixed pixel value
           FloatingActionButton(
             onPressed: onAddAction,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(SizeConfig.blockWidth * 6),
+              borderRadius: BorderRadius.circular(24), // Fixed pixel value
             ),
             child: const Icon(Icons.add),
           ),
-          SizedBox(width: SizeConfig.blockWidth * 1),
+          const SizedBox(width: 4), // Fixed pixel value
           Expanded(
             child: CustomActionButton(
               label: 'Add Sale',

@@ -1,10 +1,10 @@
 import 'package:cream_ventory/db/functions/payment_db.dart';
 import 'package:cream_ventory/db/models/payment/payment_in_model.dart';
-import 'package:cream_ventory/screen/adding/payment-in/payment_in.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-in/payment_in_add_screen.dart';
 import 'package:cream_ventory/screen/listing/payment_in/screen/payment_in_listing_screen_list.dart';
 import 'package:cream_ventory/widgets/listing_screen_summary_card.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
-import 'package:cream_ventory/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/utils/adding/expence/date_amount_format.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:cream_ventory/widgets/data_Range_Selector.dart';

@@ -1,12 +1,42 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PrivacyPolicyPage extends StatelessWidget {
+class PrivacyPolicyPage extends StatefulWidget {
   const PrivacyPolicyPage({super.key});
 
   @override
+  State<PrivacyPolicyPage> createState() => _PrivacyPolicyPageState();
+}
+
+class _PrivacyPolicyPageState extends State<PrivacyPolicyPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812));
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -15,182 +45,118 @@ class PrivacyPolicyPage extends StatelessWidget {
         elevation: 0,
         leading: SafeArea(
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_outlined, size: 30, color: Colors.black),
+            icon: Icon(
+              Icons.arrow_back_ios_new_outlined,
+              size: 28.sp,
+              color: Colors.black,
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Privacy Policy',
           style: TextStyle(
-            color: Colors.black,
+            color: Colors.white70,
             fontWeight: FontWeight.bold,
-            fontSize: 25,
-            fontFamily: 'holtwood' 
+            fontSize: 24.sp,
+            fontFamily: 'holtwood',
+            shadows: const [
+              Shadow(
+                offset: Offset(0, 1),
+                blurRadius: 4,
+                color: Colors.blueGrey,
+              ),
+            ],
           ),
         ),
         centerTitle: true,
-        ),
-      
+      ),
       body: Stack(
         children: [
-          // Background image
+          // ───── Animated Gradient Background ─────
           Positioned.fill(
-            child: Image.asset(
-              'assets/image/into ice.jpg',
-              height: double.infinity,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
+            child: AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration( 
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft, 
+                      end: Alignment.bottomRight,
+                      colors: const [
+                       Color(0xFF87CEEB), // Sky Blue
+                        Color(0xFFB3E5FC), // Lighter Sky
+                        Color(0xFFE3F2FD), // Very Light Blue
+                        Color(0xFFFFFFFF), // Pure White
+                      ],
+                      stops: const [0.0, 0.4, 0.7, 1.0],
+                      transform: GradientRotation(
+                        _animation.value * 2 * 3.14159,
+                      ), // Full rotation
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          // Text content in a scrollable container
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              width: screenWidth,
-              height: screenHeight,
-              color: Colors.white10,
-              padding: const EdgeInsets.all(16.0),
+
+          // ───── Subtle Frosted Glass Blur Effect ─────
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+
+          // ───── Dark Overlay for Text Contrast ─────
+          Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.35)),
+          ),
+
+          // ───── Scrollable Content ─────
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  SizedBox(height: 80),
-                  
-                  SizedBox(height: 8),
-                  Text(
-                    'LAST UPDATED: [DATE]',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'INFORMATION WE COLLECT:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+                children: [
+
+                  _buildTitle('INFORMATION WE COLLECT:'),
+                  _buildBody(
                     'We collect personal information (name, email, address) to enhance user experience, process transactions, and send relevant updates.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'HOW WE USE YOUR INFORMATION:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+
+                  _buildTitle('HOW WE USE YOUR INFORMATION:'),
+                  _buildBody(
                     'We use collected information to improve our app, personalize user experience, and communicate essential updates or services.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'DATA SECURITY:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+
+                  _buildTitle('DATA SECURITY:'),
+                  _buildBody(
                     'We employ security measures to protect against unauthorized access, disclosure, or destruction of user data.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'NO SHARING OF PERSONAL INFORMATION:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+
+                  _buildTitle('NO SHARING OF PERSONAL INFORMATION:'),
+                  _buildBody(
                     'We do not sell, trade, or rent user information to third parties.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'CHANGES TO POLICY:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+
+                  _buildTitle('CHANGES TO POLICY:'),
+                  _buildBody(
                     'We may update this policy; users are encouraged to review it periodically.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'ACCEPTANCE OF TERMS:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
+
+                  _buildTitle('ACCEPTANCE OF TERMS:'),
+                  _buildBody(
                     'By using our app, you agree to the terms outlined in this policy.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'CONTACT US:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+
+                  _buildTitle('CONTACT US:'),
+                  _buildBody(
+                    'For questions or concerns, contact Muhammed Saad C at muhammedsaad@gmail.com.',
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'For questions or concerns, contact (Your Company Name) at (Your Contact Information).',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'EFFECTIVE AS OF [DATE].',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
+
+                  SizedBox(height: 40.h),
                 ],
               ),
             ),
@@ -199,4 +165,23 @@ class PrivacyPolicyPage extends StatelessWidget {
       ),
     );
   }
+
+  // ───── Helper Widgets ─────
+  Widget _buildTitle(String text) => Padding(
+    padding: EdgeInsets.only(top: 20.h, bottom: 10.h),
+    child: Text(
+      text,
+      style: TextStyle( 
+        fontSize: 14.sp,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ),
+  );
+
+  Widget _buildBody(String text) => Text(
+    text,
+    style: TextStyle(fontSize: 14.sp, color: Colors.black, height: 1.6),
+  );
+
 }

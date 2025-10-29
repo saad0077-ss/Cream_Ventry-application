@@ -1,7 +1,7 @@
-import 'package:cream_ventory/screen/adding/category/category_add_controller.dart';
+import 'package:cream_ventory/screen/adding/controller/category_add_controller.dart';
 import 'package:cream_ventory/screen/adding/category/category_add_widgets.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
-import 'package:cream_ventory/utils/category/category_add_utils.dart';
+import 'package:cream_ventory/utils/adding/category/category_add_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:cream_ventory/db/models/items/category/category_model.dart';

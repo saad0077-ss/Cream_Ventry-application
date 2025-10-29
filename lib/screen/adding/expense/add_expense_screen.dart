@@ -8,7 +8,7 @@ import 'package:cream_ventory/screen/adding/expense/add_expense_sub_category_ite
 import 'package:cream_ventory/screen/adding/expense/add_category_total_amount.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
-import 'package:cream_ventory/utils/expence/add_expence_logics.dart';
+import 'package:cream_ventory/utils/adding/expence/add_expence_logics.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:flutter/material.dart';
 

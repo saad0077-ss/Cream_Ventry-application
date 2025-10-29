@@ -3,7 +3,7 @@ import 'package:cream_ventory/db/models/expence/expence_model.dart';
 import 'package:cream_ventory/screen/adding/expense/add_expense_screen.dart';
 import 'package:cream_ventory/widgets/listing_screen_list.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
-import 'package:cream_ventory/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/utils/adding/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseList extends StatelessWidget {

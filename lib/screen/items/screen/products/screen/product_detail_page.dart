@@ -212,11 +212,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Stock Transaction',
                       style: AppTextStyles.transactionTitle,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 16), 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Row(

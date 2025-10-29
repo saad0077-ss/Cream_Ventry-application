@@ -1,5 +1,5 @@
 import 'package:cream_ventory/db/functions/party_db.dart';
-import 'package:cream_ventory/screen/adding/party/add_party.dart';
+import 'package:cream_ventory/screen/adding/party/add_party_screen.dart';
 import 'package:cream_ventory/screen/distribution_hub/screen/party_list.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_search_bar.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +43,7 @@ class _PartiesTapState extends State<PartiesTap> {
               Navigator.of(context) 
                   .push(
                     MaterialPageRoute(
-                      builder: (context) => const AddParty(),
+                      builder: (context) => const AddPartyPage(),
                     ),
                   )
                   .then((result) {

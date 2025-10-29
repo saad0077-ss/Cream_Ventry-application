@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
+import 'package:cream_ventory/screen/adding/product/show_product_add_bottom_sheet.dart';
 import 'package:cream_ventory/screen/items/screen/products/screen/product_detail_page.dart';
-import 'package:cream_ventory/screen/adding/product/add_product.dart';
 import 'package:flutter/material.dart';
 
 class ItemCard extends StatelessWidget {
@@ -208,8 +208,8 @@ class ItemCard extends StatelessWidget {
                         builder: (context) => AlertDialog(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
-                          ),
-                          title: const Text(
+                          ),  
+                          title: const Text(    
                             'Delete Product',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
@@ -219,7 +219,7 @@ class ItemCard extends StatelessWidget {
                           content: const Text(
                             'Are you sure you want to delete this product?',
                             style: TextStyle(color: Colors.black54),
-                          ),
+                          ), 
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),

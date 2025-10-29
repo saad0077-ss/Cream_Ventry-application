@@ -1,8 +1,8 @@
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:cream_ventory/screen/adding/expense/add_expense_screen.dart';
-import 'package:cream_ventory/screen/adding/sale/add_sale.dart';
-import 'package:cream_ventory/screen/adding/payment-in/payment_in.dart';
-import 'package:cream_ventory/screen/adding/payment-out/payment_out.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-in/payment_in_add_screen.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-out/payment_out_add_screen.dart';
+import 'package:cream_ventory/screen/adding/sale/sale_add_screen.dart';
 import 'package:flutter/material.dart';
 
 class TransactionBottomSheet extends StatelessWidget {
@@ -20,7 +20,7 @@ class TransactionBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              const Expanded(  
                 child: Center(
                   child: Text(
                     'Transactions',
@@ -70,7 +70,7 @@ class TransactionBottomSheet extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => PaymentOutScreen()),
                   );
                 },
-              ),
+              ), 
               _buildOptionCard(
                 context,
                 icon: Icons.arrow_downward,

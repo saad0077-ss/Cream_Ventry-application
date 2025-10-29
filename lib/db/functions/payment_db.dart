@@ -3,11 +3,12 @@ import 'package:cream_ventory/db/models/payment/payment_in_model.dart';
 import 'package:cream_ventory/db/models/payment/payment_out_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class PaymentInDb {
   static const String boxName = 'payment_in_box';
-  static Box<PaymentInModel>? _box;
+  static Box<PaymentInModel>? _box;   
   static const _uuid = Uuid();
   static final ValueNotifier<List<PaymentInModel>> paymentInNotifier =
       ValueNotifier<List<PaymentInModel>>([]);
@@ -56,7 +57,9 @@ class PaymentInDb {
         paymentInNotifier.value = [];
         return;
       }
-      var payments = _box!.values.where((payments)=>payments.userId == userId).toList();
+      var payments = _box!.values
+          .where((payments) => payments.userId == userId)
+          .toList();
       paymentInNotifier.value = payments;
       debugPrint(
         'Notifier updated with ${paymentInNotifier.value.length} payments',
@@ -88,7 +91,7 @@ class PaymentInDb {
       }
       await _box!.put(payment.id, payment);
       _updateNotifier();
-      debugPrint('Payment updated: ${payment.receiptNo}'); 
+      debugPrint('Payment updated: ${payment.receiptNo}');
       return true;
     } catch (e) {
       debugPrint('Error updating payment: $e');
@@ -98,11 +101,15 @@ class PaymentInDb {
 
   // Retrieve all PaymentInModels
   static Future<List<PaymentInModel>> getAllPayments() async {
-    if(_box == null)init();
+    if (_box == null) init();
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
-      var payments = _box?.values.where((payments)=>payments.userId == userId).toList() ?? [];
+      var payments =
+          _box?.values
+              .where((payments) => payments.userId == userId)
+              .toList() ??
+          [];
       debugPrint('Retrieved ${payments.length} payment-in records');
       return payments;
     } catch (e) {
@@ -146,7 +153,6 @@ class PaymentInDb {
     }
   }
 
-
   // Close the Hive box
   static Future<void> close() async {
     try {
@@ -163,7 +169,9 @@ class PaymentInDb {
     final userId = user.id;
     try {
       final box = await Hive.openBox<PaymentInModel>(boxName);
-      var payments = box.values.where((payments)=>payments.userId == userId).toList();
+      var payments = box.values
+          .where((payments) => payments.userId == userId)
+          .toList();
       paymentInNotifier.value = payments;
       debugPrint(
         'PaymentIn notifier refreshed with ${paymentInNotifier.value.length} payments',
@@ -171,8 +179,31 @@ class PaymentInDb {
     } catch (e) {
       debugPrint('Error refreshing payments: $e');
       paymentInNotifier.value = [];
+    }   
+  }
+
+  static Future<double> getTotalAmountByDate(DateTime date) async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+    try {
+      final payments = await getAllPayments();
+      final total = payments
+          .where((payment) {
+            final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+
+            return paymentDate.year == date.year &&
+                paymentDate.month == date.month &&
+                paymentDate.day == date.day &&
+                payment.userId == userId;
+          })
+          .fold(0.0, (sum, payment) => sum + (payment.receivedAmount));
+      debugPrint('Total payment-in amount for $date: $total');
+      return total;
+    } catch (e) {
+      debugPrint('Error getting total payment-in amount for $date: $e');
+      return 0.0;
     }
-  }   
+  }
 }
 
 class PaymentOutDb {
@@ -205,12 +236,15 @@ class PaymentOutDb {
 
   // Load all payments from Hive and update notifier
   static Future<void> loadPayments() async {
-
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
 
     try {
-      final payments = _box?.values.where((payments)=>payments.userId == userId).toList() ?? [];
+      final payments =
+          _box?.values
+              .where((payments) => payments.userId == userId)
+              .toList() ??
+          [];
       _updateNotifier();
       debugPrint('Loaded ${payments.length} payment out records');
     } catch (e) {
@@ -275,11 +309,13 @@ class PaymentOutDb {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_box == null) { 
+      if (_box == null) {
         paymentOutNotifier.value = [];
         return;
       }
-      var payments = _box!.values.where((payments)=>payments.userId == userId).toList();
+      var payments = _box!.values
+          .where((payments) => payments.userId == userId)
+          .toList();
       paymentOutNotifier.value = payments;
       debugPrint(
         'Notifier updated with ${paymentOutNotifier.value.length} payments',
@@ -302,11 +338,14 @@ class PaymentOutDb {
 
   // Retrieve all payments
   static Future<List<PaymentOutModel>> getAllPayments() async {
-
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
-      var payments = _box?.values.where((payments)=>payments.userId == userId).toList() ?? [];
+      var payments =
+          _box?.values
+              .where((payments) => payments.userId == userId)
+              .toList() ??
+          [];
       debugPrint('Retrieved ${payments.length} payment-out records');
       return payments;
     } catch (e) {
@@ -332,14 +371,15 @@ class PaymentOutDb {
   }
 
   static Future<void> refreshPayments() async {
-
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
       final box = await Hive.openBox<PaymentOutModel>(boxName);
-      var payments = box.values.where((payments)=>payments.userId == userId).toList();
+      var payments = box.values
+          .where((payments) => payments.userId == userId)
+          .toList();
       paymentOutNotifier.value = payments;
-      debugPrint( 
+      debugPrint(
         'PaymentOut notifier refreshed with ${paymentOutNotifier.value.length} payments',
       );
     } catch (e) {
@@ -354,8 +394,10 @@ class PaymentOutDb {
       await _box?.close();
       _box = null;
       debugPrint('PaymentOutDb box closed');
-    } catch (e) {     
+    } catch (e) {
       debugPrint('Error closing Hive box: $e');
     }
   }
+
+  
 }

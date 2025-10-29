@@ -2,7 +2,6 @@ import 'package:cream_ventory/db/functions/party_db.dart';
 import 'package:cream_ventory/screen/distribution_hub/screen/distribution_hub_container.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_appbar.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_dawer.dart';
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 
 class DistributionHub extends StatefulWidget {
@@ -73,27 +72,25 @@ class _DistributionHubState extends State<DistributionHub> {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context);
-    final isSmallScreen = SizeConfig.screenWidth < 600;
+    // Determine if the screen is small based on a fixed width threshold
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: DistributionAppBar(),
       drawer: DashboardPage(),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return DistributionHubContainer(
-            constraints: constraints,
-            isSmallScreen: isSmallScreen,
-            totalYoullGet: totalYoullGet,
-            totalYoullGive: totalYoullGive,
-            currentFilter: currentFilter,
-            onFilterYoullGet: _filterYoullGet,
-            onFilterYoullGive: _filterYoullGive,
-            onLoadTotalBalance: _loadTotalBalance,
-          );
-        },
+      body: DistributionHubContainer(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: MediaQuery.of(context).size.height,
+        ),
+        isSmallScreen: isSmallScreen,
+        totalYoullGet: totalYoullGet,
+        totalYoullGive: totalYoullGive,
+        currentFilter: currentFilter,
+        onFilterYoullGet: _filterYoullGet,
+        onFilterYoullGive: _filterYoullGive,
+        onLoadTotalBalance: _loadTotalBalance,
       ),
     );
   }
 }
-

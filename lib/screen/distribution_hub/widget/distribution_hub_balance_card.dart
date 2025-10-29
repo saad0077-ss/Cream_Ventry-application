@@ -50,12 +50,12 @@ Widget buildSummaryCard({
       ),
       child: Container(
         width: isSmallScreen ? 170 : 250,
-        height: isSmallScreen ? 100 : 100,
-        padding: const EdgeInsets.all(14), // Slightly increased padding
+        height: isSmallScreen ? 100 : 150, 
+        padding: const EdgeInsets.all(13), // Slightly increased padding
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: [ 
             Row(
               children: [
                 // Animated icon container
@@ -70,12 +70,12 @@ Widget buildSummaryCard({
                   child: Icon(
                     icon,
                     color: iconColor,
-                    size: isSmallScreen ? 16 : 25, // Slightly larger icon
+                    size: isSmallScreen ? 16 : 23, // Slightly larger icon
                   ),
                 ),
                 const SizedBox(width: 8), // Increased space
                 Expanded(
-                  child: Text(
+                  child: Text( 
                     title,
                     style: TextStyle(
                       fontSize: isSmallScreen ? 15 : 17,
@@ -93,7 +93,7 @@ Widget buildSummaryCard({
             Text(
               value,
               style: TextStyle(
-                fontSize: isSmallScreen ? 18 : 22, // Larger value text
+                fontSize: isSmallScreen ? 18 : 20, // Larger value text
                 fontFamily: 'ABeeZee',
                 fontWeight: FontWeight.w900, // Extra bold for the value
                 color: valueColor,
@@ -102,7 +102,7 @@ Widget buildSummaryCard({
             // Percentage text
             if (percentage != null && percentageColor != null) ...[
               const SizedBox(height: 2),
-              Text(
+              Text(   
                 percentage,
                 style: TextStyle(
                   fontSize: isSmallScreen ? 13 : 15, // Slightly larger percentage text

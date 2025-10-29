@@ -1,5 +1,5 @@
 import 'package:cream_ventory/db/models/expence/expence_model.dart';
-import 'package:cream_ventory/utils/expence/add_expence_logics.dart';
+import 'package:cream_ventory/utils/adding/expence/add_expence_logics.dart';
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 

@@ -1,5 +1,5 @@
-import 'package:cream_ventory/screen/auth/widgets/common/texts/sign_in_screen_account_create.dart';
-import 'package:cream_ventory/screen/auth/widgets/common/button/auth_screens_button.dart';
+import 'package:cream_ventory/screen/auth/widgets/common/sign_in_screen_account_create.dart';
+import 'package:cream_ventory/screen/auth/widgets/common/auth_screens_button.dart';
 import 'package:cream_ventory/screen/auth/widgets/common/auth_screen_text_form_feild.dart';
 import 'package:cream_ventory/utils/authentication/authentication_sign_in.dart';
 import 'package:flutter/material.dart';
@@ -27,21 +27,25 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
 
   bool rememberMe = false;
   bool isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-
       child: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 20),
+            SizedBox(
+              height: 20,
+            ), // Responsive height (~2.5% of 812px design height)
             CustomTextFormField(
               controller: _usernameController,
               hintText: 'Username or Email',
               validator: LoginFunctions.validateUsernameOrEmail,
             ),
-            SizedBox(height: 25),
+            SizedBox(
+              height: 25,
+            ), // Responsive height (~3.1% of 812px design height)
             CustomTextFormField(
               controller: _passwordController,
               hintText: 'Password',
@@ -52,17 +56,22 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
                 setState(() {
                   isPasswordVisible = !isPasswordVisible;
                 });
-              },
+              }, 
             ),
-            const SizedBox(height: 19),
-            
-            const SizedBox(height: 19),
+            SizedBox(
+              height: 19,
+            ), // Responsive height (~2.3% of 812px design height)
+            SizedBox(
+              height: 19,
+            ), // Responsive height (~2.3% of 812px design height)
             AuthButton(
               onPressed: _handleLogin,
               primaryText: 'SIGN',
               secondaryText: 'IN',
             ),
-            const SizedBox(height: 20),
+            SizedBox(
+              height: 20,
+            ), // Responsive height (~2.5% of 812px design height)
             CreateAccount(),
           ],
         ),

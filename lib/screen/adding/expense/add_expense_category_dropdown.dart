@@ -1,6 +1,6 @@
 import 'package:cream_ventory/db/functions/expense_category_db.dart';
 import 'package:cream_ventory/db/models/expence/expense_category_model.dart';
-import 'package:cream_ventory/utils/expence/add_expence_logics.dart';
+import 'package:cream_ventory/utils/adding/expence/add_expence_logics.dart';
 import 'package:flutter/material.dart';
 
 class CategoryDropdownWidget extends StatelessWidget {

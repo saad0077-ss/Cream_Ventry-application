@@ -1,8 +1,8 @@
-
-import 'package:cream_ventory/screen/auth/widgets/common/button/auth_screens_button.dart';
+import 'package:cream_ventory/screen/auth/widgets/common/auth_screens_button.dart';
 import 'package:cream_ventory/screen/auth/widgets/common/auth_screen_text_form_feild.dart';
 import 'package:cream_ventory/utils/authentication/authentication_sign_up.dart';
 import 'package:flutter/material.dart';
+
 
 class FormFeild extends StatefulWidget {
   const FormFeild({super.key});
@@ -17,7 +17,7 @@ class _FormFeildState extends State<FormFeild> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
-
+  
   @override
   void dispose() {
     _usernameController.dispose();
@@ -32,20 +32,20 @@ class _FormFeildState extends State<FormFeild> {
       key: _formKey,
       child: Column(
         children: [
-          SizedBox(height: 30),
+          SizedBox(height: 30), // Responsive height (~3.7% of 812px design height)
           CustomTextFormField(
             controller: _usernameController,
-            hintText: 'Enter your Username',
+            hintText: 'Enter your Username', 
             validator: SignInFunctions.validateUsername,
           ),
-          SizedBox(height: 25),
+          SizedBox(height: 25), // Responsive height (~3.1% of 812px design height)
           CustomTextFormField(
             controller: _emailController,
             hintText: 'Enter your Email',
             validator: SignInFunctions.validateEmail,
             type: TextInputType.emailAddress,        
           ),
-          SizedBox(height: 25),
+          SizedBox(height: 25), // Responsive height (~3.1% of 812px design height)
           CustomTextFormField(
             controller: _passwordController,
             hintText: 'Enter your Password',
@@ -58,7 +58,7 @@ class _FormFeildState extends State<FormFeild> {
               });
             },
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 40), // Responsive height (~4.9% of 812px design height)
           AuthButton(
             onPressed: () {
               SignInFunctions.navigateToHome(

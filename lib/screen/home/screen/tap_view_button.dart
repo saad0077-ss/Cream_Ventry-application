@@ -1,4 +1,3 @@
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 
 class TabButtons extends StatelessWidget {
@@ -19,63 +18,60 @@ class TabButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context);
-
-    double buttonWidth = SizeConfig.blockWidth * 47; // ~43% of screen width
-    double verticalPadding = SizeConfig.blockHeight * 1.2;
-    double fontSize = SizeConfig.textMultiplier * 1.7;
-    double spacing = SizeConfig.blockWidth * 1.4; 
+    const double buttonWidth =
+        190; // Fixed pixel value (~43% of typical 400px screen width)
+    const double verticalPadding = 10; // Fixed pixel value
+    const double fontSize = 15; // Fixed pixel value
+    const double spacing = 6; // Fixed pixel value
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: SizeConfig.blockHeight * 1),
+      padding: const EdgeInsets.symmetric(vertical: 8), // Fixed pixel value
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector( 
+          GestureDetector(
             onTap: onTapOne,
             child: Container(
               width: buttonWidth,
-              padding: EdgeInsets.symmetric(vertical: verticalPadding),
+              padding: const EdgeInsets.symmetric(vertical: verticalPadding),
               decoration: BoxDecoration(
-                color: isTabOneSelected
-                    ? Colors.red.shade100
-                    : Colors.white,
+                color: isTabOneSelected ? Colors.blueGrey : Colors.white,
                 border: Border.all(
-                  color: isTabOneSelected ? Colors.red : Colors.grey,
+                  color: isTabOneSelected ? Colors.grey : Colors.blueGrey,
+                  width: 2,
                 ),
-                borderRadius: BorderRadius.circular(SizeConfig.blockWidth * 9),
+                borderRadius: BorderRadius.circular(36), // Fixed pixel value
               ),
               alignment: Alignment.center,
               child: Text(
                 title1,
                 style: TextStyle(
-                  color: isTabOneSelected ? Colors.red : Colors.black,
+                  color: isTabOneSelected ? Colors.white : Colors.black,
                   fontFamily: 'ADLaM',
                   fontSize: fontSize,
                 ),
               ),
             ),
           ),
-          SizedBox(width: spacing),
+          const SizedBox(width: spacing),
           GestureDetector(
             onTap: onTapTwo,
             child: Container(
               width: buttonWidth,
-              padding: EdgeInsets.symmetric(vertical: verticalPadding),
+              padding: const EdgeInsets.symmetric(vertical: verticalPadding),
               decoration: BoxDecoration(
-                color: isTabOneSelected
-                    ? Colors.white
-                    : Colors.red.shade100,
+                color: isTabOneSelected ? Colors.white  : Colors.blueGrey,
                 border: Border.all(
-                  color: isTabOneSelected ? Colors.grey : Colors.red,
+                  color: isTabOneSelected ? Colors.blueGrey : Colors.grey,
+                  width: 2,
                 ),
-                borderRadius: BorderRadius.circular(SizeConfig.blockWidth * 8),
+                borderRadius: BorderRadius.circular(32), // Fixed pixel value
               ),
               alignment: Alignment.center,
               child: Text(
                 title2,
                 style: TextStyle(
-                  color: isTabOneSelected ? Colors.black : Colors.red,
+                  color: isTabOneSelected ? Colors.black : Colors.white,
                   fontFamily: 'ADLaM',
                   fontSize: fontSize,
                 ),

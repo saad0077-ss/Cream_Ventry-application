@@ -1,5 +1,4 @@
 import 'package:cream_ventory/screen/auth/sign_in_screen.dart';
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 
 class IntroSkipButton extends StatelessWidget {
@@ -7,11 +6,9 @@ class IntroSkipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context); // Initialize SizeConfig
-
     return Positioned(
-      top: SizeConfig.blockHeight * 5,  // ~5% of screen height
-      right: SizeConfig.blockWidth * 5, // ~5% of screen width
+      top: 40, // Fixed pixel value (~5% of typical screen height)
+      right: 20, // Fixed pixel value (~5% of typical screen width)
       child: ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -20,21 +17,21 @@ class IntroSkipButton extends StatelessWidget {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(113, 0, 0, 0),
-          padding: EdgeInsets.symmetric(
-            horizontal: SizeConfig.blockWidth * 5.5, // ~22px if screen width is 400
-            vertical: SizeConfig.blockHeight * 0.8,  // ~2px if screen height is 250
+          padding: const EdgeInsets.symmetric(
+            horizontal: 22, // Fixed pixel value
+            vertical: 6, // Fixed pixel value
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SizeConfig.blockWidth * 5),
+            borderRadius: BorderRadius.circular(20), // Fixed pixel radius
           ),
           elevation: 0,
         ),
-        child: Text(
-          "Skip",
+        child: const Text(
+          "Skip", 
           style: TextStyle(
             color: Colors.white,
             fontFamily: 'ADLaM',
-            fontSize: SizeConfig.textMultiplier * 1.4, // ~14px on 100% scale
+            fontSize: 14, // Fixed pixel font size
           ),
         ),
       ),

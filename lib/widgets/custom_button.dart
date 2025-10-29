@@ -1,12 +1,10 @@
-
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 
 class CustomActionButton extends StatelessWidget {
   final String label;
   final Color backgroundColor;
-  final VoidCallback onPressed;
+  final VoidCallback?  onPressed;
   final double? width;
   final EdgeInsetsGeometry? padding;
   final Color? borderColor;
@@ -25,22 +23,19 @@ class CustomActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure SizeConfig is initialized
-    SizeConfig.init(context);
-
     return SizedBox(
-      width: width ?? SizeConfig.blockWidth * 40, // Default to 40% of screen width
+      width: width ?? 160, // Default to 160 pixels (~40% of typical mobile screen)
       child: ElevatedButton(
         onPressed: onPressed, 
         style: ElevatedButton.styleFrom(
           padding: padding ??
-              EdgeInsets.symmetric(
-                vertical: SizeConfig.blockHeight *1.5, 
-                horizontal: SizeConfig.blockWidth * 2,
+              const EdgeInsets.symmetric(
+                vertical: 12, // Fixed pixel size
+                horizontal: 16, // Fixed pixel size
               ),
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SizeConfig.blockWidth * 6), // Responsive radius
+            borderRadius: BorderRadius.circular(24), // Fixed pixel radius
             side: BorderSide(
               color: borderColor ?? Colors.transparent,
             ),
@@ -49,7 +44,7 @@ class CustomActionButton extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.regular(
-            fontSize: fontSize ?? SizeConfig.textMultiplier * 2 , // Responsive text size
+            fontSize: fontSize ?? 16, // Fixed pixel text size             
           ),
         ),
       ),

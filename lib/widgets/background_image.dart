@@ -24,22 +24,13 @@ class IntroBackground extends StatelessWidget {
     this.alignment = Alignment.center, 
     this.loopAnimation = true,
     this.reverseAnimation = false,
-    this.animationSpeed = 1.0,
+    this.animationSpeed = 0.1,
     this.animateChild = true,
-    this.animationScale = 0.7, // Default to 50% of screen size
+    this.animationScale = 0.7, // Default to 50% of screen size 
   });
-
+     
   // Default radial gradient for aesthetic overlay around centered animation
-  static const Gradient _defaultGradient = RadialGradient(
-    center: Alignment.center,
-    radius: 0.8,
-    colors: [
-      Color(0x4D448AFF), // Pastel blue center (blueAccent with 0.3 opacity)
-      Color(0x4DE040FB), // Pastel pink edge (pinkAccent with 0.3 opacity)
-      Colors.transparent, // Fade to transparent
-    ],
-    stops: [0.0, 0.5, 1.0],
-  );
+ 
 
   // Check if the path is a Lottie animation file
   bool _isLottieFile(String path) {
@@ -73,15 +64,15 @@ class IntroBackground extends StatelessWidget {
                       onLoaded: (composition) {
                         print('Lottie animation loaded: $imagePath');
                       },
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading Lottie animation ($imagePath): $error\n$stackTrace');
+                      errorBuilder: (context, error, stackTrace) { 
+                        debugPrint('Error loading Lottie animation ($imagePath): $error\n$stackTrace');
                         return Image.asset(
                           'assets/image/ice2.jpg', // Fallback image
                           fit: fit,
-                          errorBuilder: (context, error, stackTrace) {
+                          errorBuilder: (context, error, stackTrace) { 
                             print('Error loading fallback image: $error');
-                            return Container(
-                              color: Colors.grey[300],
+                            return Container(     
+                              color:  Colors.white,
                               child: const Center(
                                 child: Text(
                                   'Failed to load background',
@@ -117,13 +108,7 @@ class IntroBackground extends StatelessWidget {
           Container(
             color: colorOverlay!,
           ),
-        // Gradient overlay (use provided or default radial gradient)
-        Container(
-          decoration: BoxDecoration( 
-            gradient: gradientOverlay ?? _defaultGradient,
-          ),
-        ),
-        // Child widget with optional fade-in animation
+       
         if (child != null)
           Align(
             alignment: alignment,

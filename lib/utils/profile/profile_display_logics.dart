@@ -47,9 +47,9 @@ class ProfileDisplayLogic {
         context,
         MaterialPageRoute(
           builder: (context) => const ScreenSignIn(),
-        ),
+        ),     
         (Route<dynamic> route) => false,
-      );
+      );                                       
     } catch (e) {
       CustomSnackbar.show(
         context: context,

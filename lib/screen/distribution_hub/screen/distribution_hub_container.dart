@@ -1,12 +1,11 @@
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
-import 'package:cream_ventory/screen/adding/payment-in/payment_in.dart';
-import 'package:cream_ventory/screen/adding/sale/add_sale.dart';
+import 'package:cream_ventory/screen/adding/payments/payment-in/payment_in_add_screen.dart';
+import 'package:cream_ventory/screen/adding/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screen/distribution_hub/screen/distribution_hub_parties_tap.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_balance_card.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_bottom_sheet.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_flotting_buttons.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
-import 'package:cream_ventory/utils/responsive_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -90,12 +89,8 @@ class DistributionHubContainer extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: EdgeInsets.only(
-                right: isSmallScreen
-                    ? SizeConfig.blockWidth * 0.05
-                    : SizeConfig.blockWidth * 0.3,
-                bottom: isSmallScreen
-                    ? SizeConfig.blockHeight * 3
-                    : SizeConfig.blockHeight * 3,
+                right: isSmallScreen ? 2 : 12, // Fixed pixel values (0.05 * 400 ≈ 2, 0.3 * 400 ≈ 12)
+                bottom: 24, // Fixed pixel value (3% of typical 800px height ≈ 24)
               ),
               child: ActionButtons(
                 onTakePayment: () {
@@ -121,7 +116,7 @@ class DistributionHubContainer extends StatelessWidget {
                         transactionType: TransactionType.sale,
                       ),
                     ),
-                  );
+                  );    
                   if (result == true) {
                     onLoadTotalBalance();
                   }

@@ -15,7 +15,7 @@ class DottedTextField extends StatelessWidget {
     this.controller,
     this.keyboardType,
     this.inputFormatters,
-    super.key,
+    super.key, required InputDecoration decoration,
   });
  
   @override

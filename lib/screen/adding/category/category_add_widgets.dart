@@ -1,4 +1,4 @@
-import 'package:cream_ventory/screen/adding/category/category_add_controller.dart';
+import 'package:cream_ventory/screen/adding/controller/category_add_controller.dart';
 import 'package:cream_ventory/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 

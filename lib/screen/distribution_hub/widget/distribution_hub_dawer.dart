@@ -1,5 +1,5 @@
 import 'package:cream_ventory/db/functions/user_db.dart';
-import 'package:cream_ventory/screen/items/item_page.dart';
+import 'package:cream_ventory/screen/items/item_screen.dart';
 import 'package:cream_ventory/screen/privacy_policy/privacy_policy.dart';
 import 'package:cream_ventory/screen/listing/expense/expence_listing_screen.dart';
 import 'package:cream_ventory/screen/listing/payment_in/payment_in_listing_screen.dart';

@@ -1,6 +1,6 @@
 import 'package:cream_ventory/screen/distribution_hub/distribution_hub_screen.dart';
 import 'package:cream_ventory/screen/home/widgets/navigation.dart';
-import 'package:cream_ventory/screen/items/item_page.dart';
+import 'package:cream_ventory/screen/items/item_screen.dart';
 import 'package:cream_ventory/screen/reports/screen_report.dart';
 import 'package:cream_ventory/screen/sale_order/sale_order.dart';
 import 'package:cream_ventory/user_profile/user_profile_screen.dart';

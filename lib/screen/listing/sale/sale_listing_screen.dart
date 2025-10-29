@@ -1,6 +1,6 @@
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart' show SaleModel, TransactionType;
-import 'package:cream_ventory/screen/adding/sale/add_sale.dart';
+import 'package:cream_ventory/screen/adding/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screen/listing/sale/screens/sale_listing_screen_body.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';

@@ -3,6 +3,7 @@ import 'package:cream_ventory/utils/profile/edit_profile_logics.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:cream_ventory/widgets/text_field.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   void dispose() {
-    _logic.dispose(); // Dispose controllers to prevent memory leaks
+    _logic.dispose();
     super.dispose();
   }
 
@@ -47,16 +48,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center, 
                     children: [
                       const SizedBox(height: 40),
                       Stack(
                         children: [
-                          CircleAvatar(
+                          CircleAvatar(  
                             radius: 60,
-                            backgroundImage: _logic.profileImage != null
-                                ? FileImage(_logic.profileImage!)
-                                : const AssetImage('assets/image/account.png') as ImageProvider,
+                            backgroundImage:kIsWeb
+                                ? (_logic.imageBytes != null
+                                    ? MemoryImage(_logic.imageBytes!)
+                                    : const AssetImage('assets/image/account.png'))
+                                : (_logic.profileImage != null
+                                    ? FileImage(_logic.profileImage!)
+                                    : const AssetImage('assets/image/account.png')) as ImageProvider,
                           ),
                           Positioned(
                             bottom: 0,

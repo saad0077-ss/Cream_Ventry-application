@@ -1,5 +1,6 @@
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title; // Title for the app bar
@@ -11,13 +12,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBackPressed; // Custom callback for back button
   final double fontSize;
   final bool center;
-
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    this.automaticallyImplyLeading = true,
-    this.actions,
-    this.onNotificationPressed,
+ 
+  const CustomAppBar({ 
+    super.key, 
+    required this.title, 
+    this.automaticallyImplyLeading = true,       
+    this.actions,  
+    this.onNotificationPressed,                        
     this.notificationIcon,
     this.route,
     this.onBackPressed,
@@ -41,13 +42,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   () {
                     Navigator.of(context).pop();
                   },
-              icon: const Icon(
+              icon:  Icon(
                 Icons.arrow_back_ios_new_outlined,
-                size: 30,
+                size: 30.r,
                 color: Colors.black87, // Ensure icon contrasts with gradient
               ),
             )
-          : null,
+          : null, 
       actions: [
         if (notificationIcon != null)
           IconButton(
@@ -76,7 +77,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
     );
-  }
+  }  
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
