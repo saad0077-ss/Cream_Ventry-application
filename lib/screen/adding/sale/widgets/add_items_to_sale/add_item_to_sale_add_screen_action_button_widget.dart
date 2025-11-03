@@ -1,8 +1,8 @@
-// add_item_action_buttons_widget.dart
+import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class AddItemActionButtonsWidget {
-  /// Builds the action buttons (Save & New, Save/Update)
+  /// Builds the action buttons using CustomActionButton
   static Widget buildActionButtons({
     required bool isEditMode,
     required VoidCallback onSaveAndNew,
@@ -12,37 +12,23 @@ class AddItemActionButtonsWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
+          // Save & New Button
           Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
+            child: CustomActionButton(
+              label: 'Save & New',
+              backgroundColor: const Color.fromARGB(255, 80, 82, 84),
               onPressed: onSaveAndNew,
-              child: const Text(
-                'Save & New',
-                style: TextStyle(color: Colors.white),
-              ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
+
+          // Save / Update Button
           Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
+            child: CustomActionButton(
+              label: isEditMode ? 'Update' : 'Save',
+              backgroundColor: const Color.fromARGB(255, 85, 172, 213), 
+
               onPressed: onSave,
-              child: Text(
-                isEditMode ? 'Update' : 'Save',
-                style: const TextStyle(color: Colors.white),
-              ),
             ),
           ),
         ],
@@ -50,3 +36,4 @@ class AddItemActionButtonsWidget {
     );
   }
 }
+ 

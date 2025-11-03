@@ -21,7 +21,7 @@ class _DistributionHubState extends State<DistributionHub> {
   void initState() {
     super.initState();
     initializeData();
-  } 
+  }
 
   @override
   void dispose() {
@@ -59,6 +59,8 @@ class _DistributionHubState extends State<DistributionHub> {
     });
   }
 
+  
+
   void _loadTotalBalance() async {
     final totalGet = await PartyDb.calculateTotalYoullGet();
     final totalGive = await PartyDb.calculateTotalYoullGive();
@@ -73,12 +75,17 @@ class _DistributionHubState extends State<DistributionHub> {
   @override
   Widget build(BuildContext context) {
     // Determine if the screen is small based on a fixed width threshold
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 800;
 
     return Scaffold(
-      appBar: DistributionAppBar(),
-      drawer: DashboardPage(),
-      body: DistributionHubContainer(
+      appBar: DistributionAppBar(
+        actions: [IconButton(icon:  Icon(Icons.home_filled), onPressed: () {
+          Navigator.pop(context); 
+        })], 
+        isSmallScreen: isSmallScreen,
+      ),
+      drawer: isSmallScreen ? DashboardPage() : null,
+      body: isSmallScreen ? DistributionHubContainer(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width,
           maxHeight: MediaQuery.of(context).size.height,
@@ -86,11 +93,29 @@ class _DistributionHubState extends State<DistributionHub> {
         isSmallScreen: isSmallScreen,
         totalYoullGet: totalYoullGet,
         totalYoullGive: totalYoullGive,
-        currentFilter: currentFilter,
+        currentFilter: currentFilter, 
         onFilterYoullGet: _filterYoullGet,
         onFilterYoullGive: _filterYoullGive,
         onLoadTotalBalance: _loadTotalBalance,
-      ),
+      ) :
+      Row(
+        children: [
+          SizedBox(width: 280, child: const DashboardPage()), 
+          Expanded(child: DistributionHubContainer( 
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: MediaQuery.of(context).size.height,
+        ),      
+        isSmallScreen: isSmallScreen,
+        totalYoullGet: totalYoullGet,
+        totalYoullGive: totalYoullGive,
+        currentFilter: currentFilter, 
+        onFilterYoullGet: _filterYoullGet,
+        onFilterYoullGive: _filterYoullGive, 
+        onLoadTotalBalance: _loadTotalBalance,
+      ) ),
+        ],
+      )
     );
   }
 }

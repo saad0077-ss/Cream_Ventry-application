@@ -5,7 +5,6 @@ import 'package:cream_ventory/db/models/items/products/product_model.dart';
 import 'package:cream_ventory/db/models/items/products/stock_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:cream_ventory/db/models/user/user_model.dart';
-import 'package:cream_ventory/screen/home/simple_e.dart';
 import 'package:cream_ventory/screen/home/widgets/home_menu_provider.dart';
 import 'package:cream_ventory/screen/home/widgets/home_menu_tile.dart';
 import 'package:cream_ventory/screen/home/widgets/home_screen_stat_card.dart';
@@ -60,17 +59,6 @@ class ScreenHome extends StatelessWidget {
         title: ' HOME',
         automaticallyImplyLeading: false,
         center: false,
-        notificationIcon: const Icon(Icons.notifications),
-        onNotificationPressed: () async {
-          Navigator.push(  
-            context,
-            MaterialPageRoute(builder: (context) => const DropdownDemoScreen()),  
-          );
-          // final prefs = await SharedPreferences.getInstance();
-          // final currentUserId = prefs.getString('currentUserId');
-          // debugPrint("-----------------------------------------------------$currentUserId");
-        },
-        fontSize: 30,
       ), 
       body: Container(
         decoration: BoxDecoration(gradient: AppTheme.appGradient),
@@ -99,10 +87,10 @@ class ScreenHome extends StatelessWidget {
                           children: [
                             Text(
                               isNewUser
-                                  ? "Welcome to Creamventory"
+                                  ? "Welcome to Creamventory" 
                                   : "Welcome back",   
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 55, 56, 57),
+                              style: const TextStyle( 
+                                color: Color.fromARGB(255, 55, 56, 57),  
                                 fontFamily: 'Nosifer',
                                 fontSize: 16,
                               ),
@@ -113,8 +101,8 @@ class ScreenHome extends StatelessWidget {
                                   ? "Manage your inventory with ease and efficiency."
                                   : "Good to see you again! Let's manage your inventory.",
                               style:  TextStyle(
-                                color: Colors.black,
-                                fontSize: 12.sp,
+                                color: Colors.black,        
+                                fontSize: 12.r,
                                 fontFamily: 'ABeeZee', 
                               ),
                             ),

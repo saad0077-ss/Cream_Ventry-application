@@ -1,7 +1,7 @@
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/screen/auth/sign_in_screen.dart';
-import 'package:cream_ventory/user_profile/screen/user_password_change.dart';
-import 'package:cream_ventory/user_profile/screen/user_profile_edit_page.dart';
+import 'package:cream_ventory/profile/screen/user_password_change.dart';
+import 'package:cream_ventory/profile/screen/user_profile_editing_screen.dart';
 import 'package:cream_ventory/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 

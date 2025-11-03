@@ -12,7 +12,7 @@ import 'package:cream_ventory/db/models/items/category/category_model.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
 import 'package:cream_ventory/db/models/items/products/stock_model.dart';
 import 'package:cream_ventory/db/models/parties/party_model.dart';
-import 'package:cream_ventory/db/models/payment/payment_in_model.dart';
+import 'package:cream_ventory/db/models/payment/payment_in_model.dart'; 
 import 'package:cream_ventory/db/models/payment/payment_out_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_item_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
@@ -28,12 +28,12 @@ Future<void> main() async {
   await registerHiveAdapters();
   await openHiveBoxes();
   initializeDatabases();
-  runApp(const MyApp());
+  runApp(const MyApp()); 
 }
 
 Future<void> registerHiveAdapters() async {
   if (!Hive.isAdapterRegistered(UserModelAdapter().typeId)) {
-    Hive.registerAdapter(UserModelAdapter());
+    Hive.registerAdapter(UserModelAdapter()); 
   }
   if (!Hive.isAdapterRegistered(CategoryModelAdapter().typeId)) {
     Hive.registerAdapter(CategoryModelAdapter());
@@ -57,7 +57,7 @@ Future<void> registerHiveAdapters() async {
     Hive.registerAdapter(StockModelAdapter());
   }
   if (!Hive.isAdapterRegistered(SaleItemModelAdapter().typeId)) {
-    Hive.registerAdapter(SaleItemModelAdapter());
+    Hive.registerAdapter(SaleItemModelAdapter());   
   }
   if (!Hive.isAdapterRegistered(SaleModelAdapter().typeId)) {
     Hive.registerAdapter(SaleModelAdapter());
@@ -71,7 +71,7 @@ Future<void> registerHiveAdapters() async {
   if (!Hive.isAdapterRegistered(TransactionTypeAdapter().typeId)) {
     Hive.registerAdapter(TransactionTypeAdapter());
   }   
-  if (!Hive.isAdapterRegistered(SaleStatusAdapter().typeId)) {
+  if (!Hive.isAdapterRegistered(SaleStatusAdapter().typeId)) {               
     Hive.registerAdapter(SaleStatusAdapter());
   }
 }
@@ -80,53 +80,44 @@ Future<void> openHiveBoxes() async {
   await Hive.openBox<UserModel>('userBox');
   await Hive.openBox<ProductModel>('productBox');
   await Hive.openBox<CategoryModel>('categoryBox');                
-  await Hive.openBox<PartyModel>('partyBox');
+  await Hive.openBox<PartyModel>('partyBox');    
   await Hive.openBox<ExpenseModel>('expenseBox');
   await Hive.openBox<ExpenseCategoryModel>('expenseCategoryBox');
   await Hive.openBox<StockModel>('stockBox');
   await Hive.openBox<SaleItemModel>('saleItems');
-  await Hive.openBox<SaleModel>('sales');
+  await Hive.openBox<SaleModel>('sales'); 
   await Hive.openBox<PaymentInModel>('payments');
-  await Hive.openBox<PaymentOutModel>('paymentOutBox'); 
-}
-
+  await Hive.openBox<PaymentOutModel>('paymentOutBox');  
+}  
+ 
 void initializeDatabases() {          
   CategoryDB.initialize();    
   ProductDB.initialize();
-  PartyDb.init();
+  PartyDb.init(); 
   UserDB.initializeHive();
-  StockDB.initialize();
+  StockDB.initialize();    
   SaleItemDB.init();
-  SaleDB.init();
+  SaleDB.init(); 
   PaymentInDb.init();
   PaymentOutDb.init();   
-}
-
-class MyApp extends StatelessWidget {
+}    
+  
+class MyApp extends StatelessWidget {  
   const MyApp({super.key});
  
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: const Size(375, 812),                                                                     
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp(
-        // showPerformanceOverlay: true,
-        debugShowCheckedModeBanner: false,   
-        builder: (context, child) {   
-          final textScaler = MediaQuery.of(context).textScaler;
-          final clampedScaler = TextScaler.linear(
-            textScaler.scale(1.0).clamp(1.0, 1.2),  
-          );
-     
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: clampedScaler),
-            child: child!,
-          );
-        },
-        home: const ScreenSplash(),   
-      ),
+        // showPerformanceOverlay: true, 
+        debugShowCheckedModeBanner: false,     
+         
+        home: const ScreenSplash(),       
+      ), 
     );
   }
 }
+   

@@ -116,7 +116,7 @@ class _ScreenSplashState extends State<ScreenSplash>
     }
   }
 
-  @override
+  @override 
   void dispose() {
     _controller.dispose();
     _gradientController.dispose();
@@ -152,10 +152,10 @@ class _ScreenSplashState extends State<ScreenSplash>
             children: [
               // Lottie Animation
               SizedBox(
-                width: 250.w,
-                height: 250.w,
+                width: 250.r,
+                height: 250.r,
                 child: FadeTransition( 
-                  opacity: _logoFadeAnimation,
+                  opacity: _logoFadeAnimation, 
                   child: Lottie.asset(
                     'assets/animation/Main Scene.json',
                     controller: _controller,
@@ -170,7 +170,7 @@ class _ScreenSplashState extends State<ScreenSplash>
                   ),
                 ),
               ),
-
+  
               SizedBox(height: 24.h),
 
               // App Name
@@ -180,10 +180,10 @@ class _ScreenSplashState extends State<ScreenSplash>
                   'CreamVentry',
                   style: TextStyle(
                     fontFamily: 'ABeeZee',
-                    fontSize: 28.sp,    
+                    fontSize: 28,    
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.bold,
-                    shadows: const [
+                    shadows: const [ 
                       Shadow(
                         offset: Offset(0, 1),
                         blurRadius: 1, 
@@ -194,19 +194,19 @@ class _ScreenSplashState extends State<ScreenSplash>
                 ),
               ),
 
-              SizedBox(height: 40.h),
+              SizedBox(height: 40),
 
               // SMALL Circular Progress Indicator
               SizedBox(
-                width: 25.w,
-                height: 25.w, 
+                width: 25,
+                height: 25,   
                 child: ScaleTransition(
                   scale: _loadingScaleAnimation,
                   child: CircularProgressIndicator(
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       Color(0xFF0288D1), // Deep sky blue
                     ),
-                    strokeWidth: 2.w, // Thin & elegant
+                    strokeWidth: 2, // Thin & elegant
                     backgroundColor: Colors.white.withOpacity(0.2),
                   ),
                 ),

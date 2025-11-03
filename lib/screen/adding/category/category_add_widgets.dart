@@ -15,12 +15,11 @@ class CategoryImagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     
     return GestureDetector(
       onTap: controller.isPickingImage ? null : () => onImagePicked(),
-      child: CircleAvatar(
-        radius: screenWidth * 0.12,
+      child: CircleAvatar( 
+        radius:48,
         backgroundImage: controller.selectedImage != null
             ? FileImage(controller.selectedImage!)
             : null,
@@ -30,7 +29,7 @@ class CategoryImagePicker extends StatelessWidget {
         child: controller.selectedImage == null
             ? Icon(
                 Icons.add_a_photo,
-                size: screenWidth * 0.08,
+                size: 32,
                 color: Colors.grey[600],
               )
             : null,
@@ -54,7 +53,7 @@ class CategoryErrorText extends StatelessWidget {
     if (errorText == null) return const SizedBox.shrink();
     
     return Padding(
-      padding: EdgeInsets.only(top: screenHeight * 0.01),
+      padding: EdgeInsets.only(top: 8),
       child: Text(
         errorText!,
         style: const TextStyle(
@@ -85,7 +84,7 @@ class CategoryFormFields extends StatelessWidget {
           errorText: controller.nameError,
           controller: controller.nameController,
         ),
-        SizedBox(height: screenHeight * 0.025),
+        SizedBox(height: 20), 
         CustomTextField(
           labelText: 'Category Description',
           errorText: controller.descriptionError,

@@ -1,11 +1,11 @@
 import 'package:cream_ventory/db/functions/expense_category_db.dart';
 import 'package:cream_ventory/db/models/expence/expence_model.dart';
 import 'package:cream_ventory/db/models/expence/expense_category_model.dart';
-import 'package:cream_ventory/screen/adding/expense/add_expense_acition_button.dart';
-import 'package:cream_ventory/screen/adding/expense/add_expense_category_dropdown.dart';
-import 'package:cream_ventory/screen/adding/expense/add_category_date_row.dart';
-import 'package:cream_ventory/screen/adding/expense/add_expense_sub_category_items_list.dart' show AddItemButtonWidget, ItemsListWidget;
-import 'package:cream_ventory/screen/adding/expense/add_category_total_amount.dart';
+import 'package:cream_ventory/screen/adding/expense/widgets/add_expense_acition_button.dart';
+import 'package:cream_ventory/screen/adding/expense/widgets/add_expense_category_dropdown.dart';
+import 'package:cream_ventory/screen/adding/expense/widgets/add_category_date_row.dart';
+import 'package:cream_ventory/screen/adding/expense/widgets/add_expense_sub_category_items_list.dart' show AddItemButtonWidget, ItemsListWidget;
+import 'package:cream_ventory/screen/adding/expense/widgets/add_category_total_amount.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:cream_ventory/utils/adding/expence/add_expence_logics.dart';

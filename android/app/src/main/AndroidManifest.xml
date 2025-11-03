@@ -5,12 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     
     <application
-        android:label="cream_ventory" 
+        android:label="CreamVentory"  
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">                                      
+        android:icon="@mipmap/launcher_icon">                                      
         <activity
             android:name=".MainActivity"
-            android:exported="true"
+            android:exported="true"   
             android:launchMode="singleTop"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"

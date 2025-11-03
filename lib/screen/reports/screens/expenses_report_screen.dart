@@ -43,7 +43,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
     _startDate = _endDate?.subtract(const Duration(days: 30));
     _loadAll();
   }
-
+ 
   // ──────────────────────────────────────────────────────────────
   Future<void> _loadAll() async {
     await Future.wait([_loadChart(), _loadList()]);
@@ -90,7 +90,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
     }
   }
 
-  void _setPlaceholderChart() {
+  void _setPlaceholderChart() { 
     setState(() {
       _errorMessage = 'Failed to load data. Showing placeholder.';
       if (_selectedPeriod == 'Weekly') {
@@ -149,43 +149,60 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   // ──────────────────────────────────────────────────────────────
   // Export modal
   // ──────────────────────────────────────────────────────────────
-  void _showExportOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Export Report',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: const Text('Export as PDF'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _utils.exportToPdf(
+ void _showExportOptions() {
+  showModalBottomSheet(
+    context: context,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+    ),
+    builder: (_) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Export Report',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+              title: const Text('Export as PDF'),
+              onTap: () async {
+                Navigator.pop(context); // Close modal immediately
+ 
+                // Show tiny spinner while generating
+                final overlay = OverlayEntry(
+                  builder: (_) => const Center(         
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                );
+                Overlay.of(context).insert(overlay);
+
+                try {
+                  await _utils.exportToPdf(
                     context: context,
                     period: _selectedPeriod,
                     start: _startDate,
                     end: _endDate,
                     items: _expenses,
                   );
-                },
-              ),
-            ],
-          ),
+                } finally {
+                  overlay.remove(); // Always remove spinner
+                }
+              },
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ──────────────────────────────────────────────────────────────
   // UI

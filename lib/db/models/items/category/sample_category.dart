@@ -13,9 +13,9 @@ class SampleCategories {
           'Real ice cream is a creamy and indulgent dessert made with fresh dairy ingredients, offering a rich and authentic flavor. Unlike frozen desserts, it emphasizes natural textures and tastes, making every scoop a genuine treat.',
     ),
     CategoryModel(
-      id: const Uuid().v4(),
+      id: const Uuid().v4(),         
       name: 'FROZEN',
-      imagePath: 'assets/image/frozen.avif',
+      imagePath: 'assets/image/ice_cream.jpg',
       isAsset: true, 
       discription:
           "Frozen dessert is a chilled treat made with a blend of ingredients like dairy, vegetable oils, and flavorings, offering a smooth and refreshing taste. It's a versatile option enjoyed in various forms, from scoops to bars, perfect for cooling down on a warm day.",
@@ -40,4 +40,4 @@ class SampleCategories {
 
   // Backward compatibility: Keep getSamples() for existing code
   static List<CategoryModel> getSamples() => samples;
-}
+}             

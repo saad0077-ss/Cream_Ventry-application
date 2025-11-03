@@ -18,6 +18,7 @@ class DistributionHubContainer extends StatelessWidget {
   final VoidCallback onFilterYoullGet;
   final VoidCallback onFilterYoullGive;
   final VoidCallback onLoadTotalBalance;
+  
 
   const DistributionHubContainer({
     super.key,
@@ -37,7 +38,7 @@ class DistributionHubContainer extends StatelessWidget {
       decoration: BoxDecoration(gradient: AppTheme.appGradient),
       height: constraints.maxHeight,
       child: Stack(
-        children: [
+        children: [ 
           SizedBox(
             height: double.infinity,
             width: double.infinity,
@@ -47,41 +48,45 @@ class DistributionHubContainer extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(width: 16),
-                    buildSummaryCard(
-                      onTap: onFilterYoullGet,
-                      icon: Icons.arrow_downward_rounded,
-                      iconColor: Colors.green,
-                      title: "You'll Get",
-                      value: NumberFormat.currency(
-                        locale: 'en_IN',
-                        symbol: '₹',
-                        decimalDigits: 2,
-                      ).format(totalYoullGet),
-                      valueColor: Colors.green.shade400,
-                      isSmallScreen: isSmallScreen,
-                      currentFilter: currentFilter,
+                     SizedBox(width: isSmallScreen ? 30 : 50 ),
+                    Expanded(
+                      child: buildSummaryCard(
+                        onTap: onFilterYoullGet,
+                        icon: Icons.arrow_downward_rounded, 
+                        iconColor: Colors.green,
+                        title: "You'll Get",
+                        value: NumberFormat.currency(
+                          locale: 'en_IN',
+                          symbol: '₹',
+                          decimalDigits: 2,
+                        ).format(totalYoullGet),
+                        valueColor: Colors.green.shade400,
+                        isSmallScreen: isSmallScreen,
+                        currentFilter: currentFilter,
+                      ),
                     ),
-                    const SizedBox(width: 16),
-                    buildSummaryCard(
-                      onTap: onFilterYoullGive,
-                      icon: Icons.arrow_upward_rounded,
-                      iconColor: Colors.red,
-                      title: "You'll Give",
-                      value: NumberFormat.currency(
-                        locale: 'en_IN',
-                        symbol: '₹',
-                        decimalDigits: 2,
-                      ).format(totalYoullGive),
-                      valueColor: Colors.red.shade400,
-                      isSmallScreen: isSmallScreen,
-                      currentFilter: currentFilter,
+                     SizedBox(width:  isSmallScreen ? 35 : 60  ),
+                    Expanded(
+                      child: buildSummaryCard(
+                        onTap: onFilterYoullGive,
+                        icon: Icons.arrow_upward_rounded,
+                        iconColor: Colors.red,
+                        title: "You'll Give",
+                        value: NumberFormat.currency(
+                          locale: 'en_IN',
+                          symbol: '₹',
+                          decimalDigits: 2,
+                        ).format(totalYoullGive),
+                        valueColor: Colors.red.shade400,
+                        isSmallScreen: isSmallScreen,
+                        currentFilter: currentFilter,
+                      ),
                     ),
-                    const SizedBox(width: 16),
+                     SizedBox(width:  isSmallScreen ? 30 : 50 ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Expanded(child: const PartiesTap()),
+                Expanded(child: const PartiesTap()), 
               ],
             ),
           ),

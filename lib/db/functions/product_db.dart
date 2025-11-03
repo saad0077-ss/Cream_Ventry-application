@@ -15,7 +15,7 @@ class ProductDB {
 
   static Future<void> initialize() async {
     try {
-      await _openProductBox();
+      await _openProductBox(); 
       debugPrint(
         'ProductDB initialized with ${_productBox?.values.length} products',
       );

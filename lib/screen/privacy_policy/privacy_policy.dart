@@ -1,187 +1,155 @@
-import 'dart:ui';
+import 'package:cream_ventory/themes/app_theme/theme.dart';
+import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
-class PrivacyPolicyPage extends StatefulWidget {
+class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
 
   @override
-  State<PrivacyPolicyPage> createState() => _PrivacyPolicyPageState();
-}
-
-class _PrivacyPolicyPageState extends State<PrivacyPolicyPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 10),
-      vsync: this,
-    )..repeat();
-
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
-
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: SafeArea(
-          child: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_outlined,
-              size: 28.sp,
-              color: Colors.black,
+      appBar: CustomAppBar(title: 'Privacy Policy'),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(gradient: AppTheme.appGradient),
+          child: Markdown(
+            data: '''     
+# Privacy Policy for Creamventory App
+
+**Last Updated: October 31, 2025**
+
+Welcome to **Creamventory**, a mobile application designed to help you manage your ice cream business. With Creamventory, you can track ice cream stock, manage party orders, generate invoices, and capture photos of products or events — all in one place.
+
+This Privacy Policy explains how we handle your data. **We do not collect, store, or transmit any personal or business data to our servers.** Everything stays on **your device**.
+
+
+
+## 1. Information We Do NOT Collect
+Creamventory is a **100% offline, local-first app**. We **do not**:
+- Collect any personal information (name, email, phone, etc.)
+- Access or store your location
+- Track usage or analytics
+- Use cookies, ads, or third-party tracking
+- Transmit any data over the internet
+
+
+
+## 2. Data Storage (Local Only)
+- **All data is stored locally** on your device using **Hive** (a lightweight, secure local database).
+- This includes:
+  - Ice cream stock records
+  - Party order details
+  - Customer names (for orders)
+  - Payment records
+  - Photos of ice creams, events, or receipts
+- **We have no access** to this data. It never leaves your phone.
+
+
+
+## 3. Camera & Gallery Access
+- The app may request permission to:
+  - **Take photos** (e.g., of ice cream flavors, party setups)
+  - **Select images from gallery**
+- These images are **saved locally** and used only within the app.
+- You can revoke permissions anytime in your device settings.
+
+
+
+## 4. No Cloud Sync or Backups
+- Creamventory does **not** sync data to any cloud.
+- **You are responsible** for backing up your data (e.g., via device backup or manual export).
+- If you uninstall the app or clear app data, **all information will be lost**.
+
+
+
+## 5. Third-Party Libraries
+The app uses open-source Flutter packages such as:
+- `flutter`
+- `hive`
+- `image_picker`
+- `path_provider`
+- `provider`
+
+These are used **only for local functionality**. We are not responsible for their updates or security. See their respective licenses for details.
+
+
+
+## 6. Your Responsibilities
+You are solely responsible for:
+- The accuracy of stock, orders, and customer data
+- Securing your device
+- Backing up important business data
+- Using customer photos or information lawfully
+
+
+
+## 7. Children's Privacy
+Creamventory is a business tool and **not intended for children under 13**. We do not knowingly collect data from children.
+
+
+
+## 8. No Data Sharing or Selling
+Since **no data leaves your device**, we do **not**:
+- Share data with third parties
+- Sell data
+- Use data for advertising
+
+
+
+## 9. Security
+- Data is stored securely using **encrypted Hive boxes** (where supported).
+- However, **no app is 100% secure**. Protect your device with a passcode or biometric lock.
+
+
+
+## 10. Changes to This Policy
+We may update this Privacy Policy. Changes will be reflected in the app with a new "Last Updated" date. Continued use means you accept the changes.
+
+
+
+## 11. Contact Us
+For support or privacy concerns:
+
+**Muhammed Saad C**  
+Email: muhammedsaad@gmail.com  
+Phone: +91 8921873547
+
+
+**By using Creamventory, you acknowledge that you have read and agree to this Privacy Policy.**
+
+
+
+
+          ''',
+            selectable: false,
+            styleSheet: MarkdownStyleSheet(
+              p: TextStyle(                                   
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onBackground,
+                height: 1.9,
+              ),
+              h1: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              h2: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              strong: const TextStyle(fontWeight: FontWeight.bold),
+              listBullet: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
           ),
         ),
-        title: Text(
-          'Privacy Policy',
-          style: TextStyle(
-            color: Colors.white70,
-            fontWeight: FontWeight.bold,
-            fontSize: 24.sp,
-            fontFamily: 'holtwood',
-            shadows: const [
-              Shadow(
-                offset: Offset(0, 1),
-                blurRadius: 4,
-                color: Colors.blueGrey,
-              ),
-            ],
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Stack(
-        children: [
-          // ───── Animated Gradient Background ─────
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return Container(
-                  decoration: BoxDecoration( 
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft, 
-                      end: Alignment.bottomRight,
-                      colors: const [
-                       Color(0xFF87CEEB), // Sky Blue
-                        Color(0xFFB3E5FC), // Lighter Sky
-                        Color(0xFFE3F2FD), // Very Light Blue
-                        Color(0xFFFFFFFF), // Pure White
-                      ],
-                      stops: const [0.0, 0.4, 0.7, 1.0],
-                      transform: GradientRotation(
-                        _animation.value * 2 * 3.14159,
-                      ), // Full rotation
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // ───── Subtle Frosted Glass Blur Effect ─────
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-
-          // ───── Dark Overlay for Text Contrast ─────
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.35)),
-          ),
-
-          // ───── Scrollable Content ─────
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  _buildTitle('INFORMATION WE COLLECT:'),
-                  _buildBody(
-                    'We collect personal information (name, email, address) to enhance user experience, process transactions, and send relevant updates.',
-                  ),
-
-                  _buildTitle('HOW WE USE YOUR INFORMATION:'),
-                  _buildBody(
-                    'We use collected information to improve our app, personalize user experience, and communicate essential updates or services.',
-                  ),
-
-                  _buildTitle('DATA SECURITY:'),
-                  _buildBody(
-                    'We employ security measures to protect against unauthorized access, disclosure, or destruction of user data.',
-                  ),
-
-                  _buildTitle('NO SHARING OF PERSONAL INFORMATION:'),
-                  _buildBody(
-                    'We do not sell, trade, or rent user information to third parties.',
-                  ),
-
-                  _buildTitle('CHANGES TO POLICY:'),
-                  _buildBody(
-                    'We may update this policy; users are encouraged to review it periodically.',
-                  ),
-
-                  _buildTitle('ACCEPTANCE OF TERMS:'),
-                  _buildBody(
-                    'By using our app, you agree to the terms outlined in this policy.',
-                  ),
-
-                  _buildTitle('CONTACT US:'),
-                  _buildBody(
-                    'For questions or concerns, contact Muhammed Saad C at muhammedsaad@gmail.com.',
-                  ),
-
-                  SizedBox(height: 40.h),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
-
-  // ───── Helper Widgets ─────
-  Widget _buildTitle(String text) => Padding(
-    padding: EdgeInsets.only(top: 20.h, bottom: 10.h),
-    child: Text(
-      text,
-      style: TextStyle( 
-        fontSize: 14.sp,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    ),
-  );
-
-  Widget _buildBody(String text) => Text(
-    text,
-    style: TextStyle(fontSize: 14.sp, color: Colors.black, height: 1.6),
-  );
-
 }

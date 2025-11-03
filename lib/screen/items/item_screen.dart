@@ -1,8 +1,8 @@
 import 'package:cream_ventory/screen/adding/category/add_category_bottom_sheet.dart';
 import 'package:cream_ventory/screen/adding/product/show_product_add_bottom_sheet.dart';
 import 'package:cream_ventory/screen/home/screen/tap_view_button.dart';
-import 'package:cream_ventory/screen/items/screen/category/categories.dart';
-import 'package:cream_ventory/screen/items/screen/products/products.dart';
+import 'package:cream_ventory/screen/listing/items/categories_listing_screen.dart'; 
+import 'package:cream_ventory/screen/listing/items/products_listing_screen.dart';
 import 'package:cream_ventory/screen/items/widgets/item_screen_custom_flotting_button.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
@@ -24,7 +24,7 @@ class _ScreenItemsState extends State<ScreenItems>
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 2, vsync: this); 
     tabController.addListener(() {
       setState(() {
         isCategorySelected = tabController.index == 0;

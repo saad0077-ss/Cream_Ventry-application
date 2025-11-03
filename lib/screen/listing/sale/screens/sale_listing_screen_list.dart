@@ -8,61 +8,104 @@ import 'package:flutter/material.dart';
 class SaleList extends StatelessWidget {
   final List<SaleModel> sales;
 
-
   const SaleList({super.key, required this.sales});
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
-   
-    return Expanded(
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width >= 900;
+ 
+    // Responsive values (same as PaymentInList)
+    final horizontalPadding = isDesktop ? 32.0 : 16.0;
+    final verticalPadding = isDesktop ? 16.0 : 8.0;
+    final bottomPadding = isDesktop ? 100.0 : 60.0;
+    final emptyTextSize = isDesktop ? 20.0 : 16.0;
+
+    final gridCrossAxisCount = size.width > 1600 ? 4 : 3;
+    final childAspectRatio =  5 / 1.9;  
+
+    return Expanded(  
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: isTablet ? 16 : 8, vertical: 8),
+        margin: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
         child: Stack(
           children: [
-            if (sales.isEmpty)
+            // ----- Empty State -----
+            if (sales.isEmpty) 
               Center(
                 child: Padding(
-                  padding: EdgeInsets.all(isTablet ? 24 : 16),
+                  padding: EdgeInsets.all(isDesktop ? 32 : 16),
                   child: Text(
                     'No sales to display.',
                     style: AppTextStyles.emptyListText.copyWith(
-                      fontSize: isTablet ? 18 : 16,
+                      fontSize: emptyTextSize,
                       color: const Color.fromARGB(255, 0, 0, 0),
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ), 
+                ),
               )
-            else
-              ListView.builder(
-                padding: EdgeInsets.only(bottom: isTablet ? 80 : 60),
+            else if (isDesktop)
+              GridView.builder(
+                padding: EdgeInsets.only(
+                  left: horizontalPadding,
+                  right: horizontalPadding,
+                  top: verticalPadding,
+                  bottom: bottomPadding,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridCrossAxisCount,
+                  childAspectRatio: childAspectRatio,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 16,
+                ),
                 itemCount: sales.length,
                 itemBuilder: (context, index) {
                   final sale = sales[index];
                   return ReportLists(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SaleScreen( 
-                            sale: sale,
-                            transactionType: TransactionType.sale,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => _navigateToDetail(context, sale),
                     name: sale.customerName ?? 'No Customer',
                     amount: '₹${FormatUtils.formatAmount(sale.total)}',
-                    date: sale.date,
+                    date: FormatUtils.formatDate(sale.date),
                     saleId: sale.invoiceNumber,
                   );
                 },
-              ),
+              )
+            else
+              ListView.builder(
+                padding: EdgeInsets.only(
+                  left: horizontalPadding, 
+                  right: horizontalPadding,
+                  top: verticalPadding,
+                  bottom: bottomPadding,
+                ),
+                itemCount: sales.length,
+                itemBuilder: (context, index) {
+                  final sale = sales[index];
+                  return ReportLists(
+                    onTap: () => _navigateToDetail(context, sale),
+                    name: sale.customerName ?? 'No Customer',
+                    amount: '₹${FormatUtils.formatAmount(sale.total)}',
+                    date: FormatUtils.formatDate(sale.date),
+                    saleId: sale.invoiceNumber,
+                  );
+                },
+              ), 
           ],
         ),
       ),
     );
   }
-}
+
+  void _navigateToDetail(BuildContext context, SaleModel sale) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SaleScreen(
+          sale: sale,
+          transactionType: TransactionType.sale,
+        ),
+      ),
+    );
+  }
+} 

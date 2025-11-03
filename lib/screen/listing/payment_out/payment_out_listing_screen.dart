@@ -7,7 +7,6 @@ import 'package:cream_ventory/widgets/listing_screen_summary_card.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/utils/adding/expence/date_amount_format.dart';
 import 'package:cream_ventory/widgets/app_bar.dart' show CustomAppBar;
-import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:cream_ventory/widgets/data_Range_Selector.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -50,7 +49,7 @@ class BodyOfPaymentOut extends StatelessWidget {
             ],
           ),  
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 10), 
         PaymentOutList(payments: payments),
       ],
     );
@@ -73,12 +72,12 @@ class _PaymentOutTransactionState extends State<PaymentOutTransaction> {
   @override
   void initState() {
     super.initState();
-    // Ensure PaymentOutDb is initialized
     PaymentOutDb.init().then((_) {
       debugPrint('PaymentOutDb initialized');
     });
     _initializeUser();
   }
+
   Future<void> _initializeUser() async {
     final currentUser = await UserDB.getCurrentUser();
     setState(() {
@@ -87,15 +86,14 @@ class _PaymentOutTransactionState extends State<PaymentOutTransaction> {
   }
 
   List<PaymentOutModel> _filterPayments(List<PaymentOutModel> payments) {
-    if (startDate == null || endDate == null) {
-      return payments;
-    }
+    if (startDate == null || endDate == null) return payments;
+
     final dateFormat = DateFormat('dd/MM/yyyy');
     return payments.where((payment) {
       try {
         final paymentDate = dateFormat.parse(payment.date);
         return paymentDate.isAfter(startDate!.subtract(const Duration(days: 1))) &&
-            paymentDate.isBefore(endDate!.add(const Duration(days: 1)));
+               paymentDate.isBefore(endDate!.add(const Duration(days: 1)));
       } catch (e) {
         debugPrint('Error parsing date for payment ${payment.receiptNo}: $e');
         return false;
@@ -117,46 +115,39 @@ class _PaymentOutTransactionState extends State<PaymentOutTransaction> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Payment-Out Transaction', fontSize: 17),
       body: Container(
-        decoration: BoxDecoration(gradient: AppTheme.appGradient),
-        child: Stack(
-          children: [
-            ValueListenableBuilder<List<PaymentOutModel>>(
-              valueListenable: PaymentOutDb.paymentOutNotifier,
-              builder: (context, allPayments, _,) {
-                final filteredPayments = _filterPayments(allPayments);   
-                final totalPayment = filteredPayments.fold<double>(
-                    0.0, (sum, payment) => sum + payment.paidAmount);
-                debugPrint('Filtered payments: ${filteredPayments.length}, Total: $totalPayment');
-                return BodyOfPaymentOut(
-                  payments: filteredPayments,
-                  totalPayment: totalPayment,
-                  onDateRangeChanged: _onDateRangeChanged,
-                );
-              },
-            ),
-            Positioned(
-              bottom: 60,
-              right: 140,
-              child: CustomActionButton(
-                label: 'Payment Out',
-                backgroundColor: Colors.black,
-                onPressed: () async {
-                  final result = await Navigator.push(   
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentOutScreen(),
-                    ),
-                  );
-                  if (result == true) {
-                    // Refresh handled by notifier, but keep as fallback
-                    debugPrint('Refresh triggered from PaymentOutScreen');
-                  }
-                },
-              ),
-            ),
-          ],
+        decoration: const BoxDecoration(gradient: AppTheme.appGradient),
+        child: ValueListenableBuilder<List<PaymentOutModel>>(
+          valueListenable: PaymentOutDb.paymentOutNotifier,
+          builder: (context, allPayments, _) {
+            final filteredPayments = _filterPayments(allPayments);
+            final totalPayment = filteredPayments.fold<double>(
+              0.0,
+              (sum, payment) => sum + payment.paidAmount,
+            );
+
+            return BodyOfPaymentOut(
+              payments: filteredPayments,
+              totalPayment: totalPayment,
+              onDateRangeChanged: _onDateRangeChanged,
+            );
+          },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueGrey ,
+        elevation: 6,
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PaymentOutScreen()),
+          );
+          if (result == true) {
+            debugPrint('Refresh triggered from PaymentOutScreen');
+          }
+        },
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

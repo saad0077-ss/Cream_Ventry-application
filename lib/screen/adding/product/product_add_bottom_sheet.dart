@@ -232,8 +232,8 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
             const SizedBox(height: 20),
             CustomActionButton(
               label: widget.existingProduct == null ? 'Create Product' : 'Update Product',
-              backgroundColor: Colors.black,
-              onPressed: () => ProductFormUtils.addButton(
+              backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+               onPressed: () => ProductFormUtils.addButton(
                 context: context,
                 existingProduct: widget.existingProduct,
                 nameController: nameController,

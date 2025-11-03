@@ -86,7 +86,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
             color: Colors.black87,
-            width: 1.5,
+            width: 1.5,       
           ),
         ),
         focusedBorder: focusedBorder ?? OutlineInputBorder(
@@ -113,4 +113,4 @@ class CustomTextField extends StatelessWidget {
       ),
     );
   }
-}
+}             

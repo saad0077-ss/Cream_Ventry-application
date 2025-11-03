@@ -35,12 +35,12 @@ class BodyOfExpense extends StatelessWidget {
             children: [   
               SummaryCard(
                 key: ValueKey('txn_count_${expenses.length}'),
-                title: "No Of Txns",
+                title: "No Of Expense",
                 value: expenses.length.toString(),
               ),
               SummaryCard(
                 key: ValueKey('total_expense_$totalExpense'),
-                title: "Total Expense",
+                title: "Total Expense", 
                 value: '₹${totalExpense.toStringAsFixed(2)}',
               ),
             ],

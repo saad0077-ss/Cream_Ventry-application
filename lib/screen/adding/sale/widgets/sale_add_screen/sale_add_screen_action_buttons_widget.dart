@@ -18,27 +18,42 @@ class SaleActionButtonsWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: isEditMode
             ? [
-                CustomActionButton(
-                  label: 'DELETE',
-                  backgroundColor: Colors.red,
-                  onPressed: onDelete,
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'DELETE',
+                    backgroundColor: Colors.red,
+                    onPressed: onDelete,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ),
                 ),
-                CustomActionButton(
-                  label: 'UPDATE',
-                  backgroundColor: Colors.black,
-                  onPressed:isEditable ? onUpdate : null,   
-                ),   
+                SizedBox(width: 8),
+
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'UPDATE',
+                    backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+                    onPressed: isEditable ? onUpdate : null,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ), 
+                ),
               ]
             : [
-                CustomActionButton(
-                  label: 'SAVE & NEW',
-                  backgroundColor: Colors.black,
-                  onPressed: onSaveAndNew,
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'SAVE & NEW',
+                    backgroundColor: const Color.fromARGB(255, 80, 82, 84),
+                    onPressed: onSaveAndNew,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ),
                 ),
-                CustomActionButton(
-                  label: 'SAVE',
-                  backgroundColor: Colors.red,  
-                  onPressed: onSave,
+                SizedBox(width: 8),
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'SAVE',
+                    backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+                    onPressed: onSave,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ),
                 ),
               ],
       ),

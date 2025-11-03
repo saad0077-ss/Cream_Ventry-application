@@ -221,7 +221,7 @@ class IncomeReportUtils {
     required DateTime? end,
     required List<IncomeItem> items,
   }) async {       
-    await exportListToPdf<IncomeItem>(
+    await exportReportToPdf<IncomeItem>(
       context: context,
       title: 'Income Report',
       periodInfo: ' From: ${_format(start)} – To: ${_format(end)}',

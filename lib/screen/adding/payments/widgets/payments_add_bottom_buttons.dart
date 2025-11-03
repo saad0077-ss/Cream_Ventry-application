@@ -18,23 +18,41 @@ class BottomButtons extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Row(
-        children: [
-          Expanded(
-            child: CustomActionButton(
-              label: isEditMode ? 'DELETE' : 'SAVE & NEW',
-              backgroundColor: Colors.red.shade400,
-              onPressed: onSaveAndNewOrDelete,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: CustomActionButton(
-              label: isEditMode ? 'UPDATE' : 'SAVE',
-              backgroundColor: Colors.black87,
-              onPressed: onSave,
-            ),
-          ),
-        ],
+        children: isEditMode
+            ? [
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'Delete',
+                    backgroundColor: Colors.red,
+                    onPressed: onSaveAndNewOrDelete,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'Update',
+                    backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                    onPressed: onSave,
+                  ),
+                ),
+              ]
+            : [
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'Save & New',
+                    backgroundColor: const Color.fromARGB(255, 80, 82, 84),
+                    onPressed: onSaveAndNewOrDelete,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: CustomActionButton(
+                    label: 'Save',
+                    backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                    onPressed: onSave,
+                  ),
+                ),
+              ],
       ),
     );
   }

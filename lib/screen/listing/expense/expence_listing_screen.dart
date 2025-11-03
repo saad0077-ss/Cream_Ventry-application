@@ -4,7 +4,6 @@ import 'package:cream_ventory/screen/adding/expense/add_expense_screen.dart';
 import 'package:cream_ventory/screen/listing/expense/screens/expence_listing_screen_body.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
-import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseReportScreen extends StatefulWidget {
@@ -25,7 +24,7 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     // Initialize and load expenses when screen starts
     _initializeExpenses();
   }
-                  
+
   // Initialize expenses and ensure data is loaded
   Future<void> _initializeExpenses() async {
     try {
@@ -48,7 +47,9 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
       try {
         // Ensure date comparison works correctly
         final expenseDate = expense.date;
-        return expenseDate.isAfter(startDate!.subtract(const Duration(days: 1))) &&
+        return expenseDate.isAfter(
+              startDate!.subtract(const Duration(days: 1)),
+            ) &&
             expenseDate.isBefore(endDate!.add(const Duration(days: 1)));
       } catch (e) {
         debugPrint('Error filtering expense date: $e');
@@ -72,67 +73,53 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Expense Report',
-        fontSize: 20,
-        actions: [
-          // Add refresh button in app bar
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _refreshExpenses,
-          ),
-        ],
-      ),
+      appBar: CustomAppBar(title: 'Expense Transactions', fontSize: 20),
       body: Container(
         width: screenWidth,
         height: screenHeight,
-        decoration: BoxDecoration(gradient: AppTheme.appGradient),
-        child: Stack(
-          children: [
-            ValueListenableBuilder<List<ExpenseModel>>(
-              valueListenable: _expenseDB.allExpensesNotifier, // Use allExpensesNotifier
-              builder: (context, allExpenses, _) {
-                debugPrint('All expenses count: ${allExpenses.length}');
-                
-                final filteredExpenses = _filterExpenses(allExpenses);
-                final totalExpense = filteredExpenses.fold<double>(
-                  0.0,
-                  (sum, expense) => sum + (expense.totalAmount ),
-                );
-                   
-                debugPrint('Filtered expenses: ${filteredExpenses.length}, Total: $totalExpense');
-                
-                return BodyOfExpense(
-                  expenses: filteredExpenses,
-                  totalExpense: totalExpense,
-                  onDateRangeChanged: _onDateRangeChanged,
-                );
-              },
-            ),
-            Positioned(
-              bottom: screenWidth * 0.1,
-              left: screenWidth * 0.3,
-              child: CustomActionButton(
-                label: 'Add Expense',
-                backgroundColor: Colors.red,
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddExpensePage(),
-                    ),
-                  );
-                  // Refresh expenses after returning from AddExpensePage
-                  if (result == true || result != null) {
-                    debugPrint('Refresh triggered from AddExpensePage');
-                    await _refreshExpenses();
-                  }
-                },
-              ),
-            ),
-          ],
+        decoration: const BoxDecoration(gradient: AppTheme.appGradient),
+        child: ValueListenableBuilder<List<ExpenseModel>>(
+          valueListenable: _expenseDB.allExpensesNotifier,
+          builder: (context, allExpenses, _) {
+            debugPrint('All expenses count: ${allExpenses.length}');
+
+            final filteredExpenses = _filterExpenses(allExpenses);
+            final totalExpense = filteredExpenses.fold<double>(
+              0.0,
+              (sum, expense) => sum + expense.totalAmount,
+            );
+
+            debugPrint(
+              'Filtered expenses: ${filteredExpenses.length}, Total: $totalExpense',
+            );
+
+            return BodyOfExpense(
+              expenses: filteredExpenses,
+              totalExpense: totalExpense,
+              onDateRangeChanged: _onDateRangeChanged,
+            );
+          },
         ),
       ),
+      // Floating Action Button
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueGrey,
+        elevation: 6,
+        onPressed: () async { 
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddExpensePage()),
+          );
+          // Refresh expenses after returning
+          if (result == true || result != null) {
+            debugPrint('Refresh triggered from AddExpensePage');
+            await _refreshExpenses();
+          }
+        },
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat, // Optional: customize position
     );
   }
 
@@ -141,3 +128,4 @@ class _ExpenseReportScreenState extends State<ExpenseReportScreen> {
     super.dispose();
   }
 }
+ 

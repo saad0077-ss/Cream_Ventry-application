@@ -175,24 +175,27 @@ class PartyUIComponents {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          CustomActionButton(
-            label: 'Save & New',
-            backgroundColor: Colors.black,
-            onPressed: onSaveAndNew,
-            width: screenWidth * 0.4,
-            padding: EdgeInsets.symmetric( 
-              horizontal: screenWidth * 0.05,
-              vertical: screenHeight * 0.015,
+          Expanded(
+            child: CustomActionButton(
+              label: 'Save & New',
+              backgroundColor:  Color.fromARGB(255, 80, 82, 84),
+              onPressed: onSaveAndNew,
+              padding: EdgeInsets.symmetric(  
+                horizontal: screenWidth * 0.05,
+                vertical: screenHeight * 0.013,
+              ),
             ),
           ),
-          CustomActionButton(
-            label: party != null ? 'Edit Party' : 'Save Party',
-            backgroundColor: Colors.red,
-            onPressed: onSave,
-            width: screenWidth * 0.4,
-            padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.06,
-              vertical: screenHeight * 0.016,
+          SizedBox(width: 10,),
+          Expanded(
+            child: CustomActionButton(
+              label: party != null ? 'Edit Party' : 'Save Party',
+              backgroundColor: Color.fromARGB(255, 85, 172, 213) ,
+              onPressed: onSave,
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: screenHeight * 0.013 ,
+              ),
             ),
           ),
         ],

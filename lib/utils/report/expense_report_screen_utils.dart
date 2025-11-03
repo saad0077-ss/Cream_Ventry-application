@@ -75,7 +75,7 @@ class ExpenseReportUtils {
     required DateTime? end,
     required List<ExpenseModel> items,
   }) async {
-    await exportListToPdf<ExpenseModel>(
+    await exportReportToPdf<ExpenseModel>( 
       context: context,
       title: 'Expenses Report',
       periodInfo: 

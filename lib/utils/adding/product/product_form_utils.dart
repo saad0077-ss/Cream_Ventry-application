@@ -257,7 +257,7 @@ class ProductFormUtils {
         ),
       );
       Navigator.pop(context);
-    } catch (e) {
+    } catch (e) { 
       _handleError(context, 'Error: $e');
     }
   }
@@ -272,4 +272,7 @@ class ProductFormUtils {
       ),
     );
   }
+
+  
 }
+

@@ -5,8 +5,9 @@ import 'package:cream_ventory/screen/listing/expense/expence_listing_screen.dart
 import 'package:cream_ventory/screen/listing/payment_in/payment_in_listing_screen.dart';
 import 'package:cream_ventory/screen/listing/payment_out/payment_out_listing_screen.dart';
 import 'package:cream_ventory/screen/listing/sale/sale_listing_screen.dart';
-import 'package:cream_ventory/screen/sale_order/sale_order.dart';
-import 'package:cream_ventory/user_profile/user_profile_screen.dart';
+import 'package:cream_ventory/screen/listing/sale/sale_oreder_listing_screen.dart';
+import 'package:cream_ventory/profile/user_profile_screen.dart';
+import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -24,83 +25,108 @@ class PlaceholderPage extends StatelessWidget {
   }
 }
 
+
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // -------------------------------------------------------------- 
+    // 1. Detect screen size – same thresholds you already use
+    // --------------------------------------------------------------
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isSmallScreen = screenWidth < 600;
+    final bool isDesktop = screenWidth >= 800;   // <-- your desktop rule
 
+    // --------------------------------------------------------------
+    // 2. The *content* of the drawer (header + list) is shared
+    // --------------------------------------------------------------
+    final Widget drawerContent = ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        _buildHeader(screenWidth, isSmallScreen),
+        const SizedBox(height: 50),
+        _buildUserInfo(screenWidth, isSmallScreen), 
+        const SizedBox(height: 20),
+
+        // ----- Menu items ------------------------------------------------
+        _buildMenuItem(
+          context: context,
+          icon: Icons.group,
+          title: 'Parties',
+          onTap: () {},                     // keep your original placeholder
+          isSmallScreen: isSmallScreen,
+        ),
+        _buildMenuItem(
+          context: context,
+          icon: Icons.list,
+          title: 'Items',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ScreenItems()),
+          ),
+          isSmallScreen: isSmallScreen,
+        ),
+        _buildMenuItem(
+          context: context,
+          icon: Icons.local_offer_outlined,
+          title: 'Sale Orders',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const SaleOrder()),
+          ),
+          isSmallScreen: isSmallScreen,
+        ),
+        _buildTransactionMenu(context, screenWidth, isSmallScreen),
+
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Divider(color: Colors.grey),
+        ),
+
+        _buildMenuItem(
+          context: context,
+          icon: Icons.person,
+          title: 'Profile',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProfileDisplayPage()),
+          ),
+          isSmallScreen: isSmallScreen,
+        ),
+        _buildMenuItem(
+          context: context,
+          icon: Icons.privacy_tip,
+          title: 'Privacy Policy',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
+          ),
+          isSmallScreen: isSmallScreen,
+        ),
+      ],
+    );
+
+    // --------------------------------------------------------------
+    // 3. Return either a Drawer (mobile) or a plain Container (desktop)
+    // --------------------------------------------------------------
+    if (isDesktop) {
+      // Permanent rail – no scrim, no drag-to-close
+      return Container(
+        width: 280,                         // you can tweak this
+        color: Colors.white,
+        child: drawerContent,
+      );
+    }
+
+    // Mobile – classic Drawer
     return Drawer(
       child: Container(
         color: Colors.white,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            _buildHeader(screenWidth, isSmallScreen),
-            const SizedBox(height: 50),
-            _buildUserInfo(screenWidth, isSmallScreen),
-            const SizedBox(height: 20),
-            _buildMenuItem(
-              context: context,
-              icon: Icons.group,
-              title: 'Parties',
-              onTap: () {},
-              isSmallScreen: isSmallScreen,
-            ),
-            _buildMenuItem(
-              context: context,
-              icon: Icons.list,
-              title: 'Items',
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => ScreenItems())),
-              isSmallScreen: isSmallScreen,
-            ),
-            _buildMenuItem(
-              context: context,
-              icon: Icons.local_offer_outlined,
-              title: 'Sale Orders',
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => SaleOrder())),
-              isSmallScreen: isSmallScreen,
-            ),
-            _buildTransactionMenu(context, screenWidth, isSmallScreen),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Divider(color: Colors.grey),
-            ),
-            _buildMenuItem(
-              context: context,
-              icon: Icons.person,
-              title: 'Profile',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ProfileDisplayPage(),
-                ),
-              ),
-              isSmallScreen: isSmallScreen,
-            ),
-            _buildMenuItem(
-              context: context,
-              icon: Icons.privacy_tip,
-              title: 'Privacy Policy',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const PrivacyPolicyPage(),
-                ),
-              ),
-              isSmallScreen: isSmallScreen,
-            ),
-          ],
-        ),
+        child: drawerContent,
       ),
     );
   }
 
-   Widget _buildHeader(double screenWidth, bool isSmallScreen) {
+ 
+  Widget _buildHeader(double screenWidth, bool isSmallScreen) {
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
@@ -108,19 +134,11 @@ class DashboardPage extends StatelessWidget {
         Container(
           height: 120,
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 137, 191, 233), // Soft blue-gray
-                Color.fromARGB(255, 89, 216, 228), // Subtle cyan
-              ],
-              stops: [0.0, 1.0],
-            ),
+            gradient:AppTheme.appGradient,
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
         ),
-        Positioned(
+        Positioned( 
           bottom: -40,
           child: CircleAvatar(
             radius: isSmallScreen ? 40 : 50,
@@ -128,13 +146,16 @@ class DashboardPage extends StatelessWidget {
             child: CircleAvatar(
               radius: isSmallScreen ? 38 : 48,
               child: FutureBuilder(
-                future: UserDB.getCurrentUser(), // Adjust method name as per your UserDB implementation
+                future: UserDB.getCurrentUser(),   
                 builder: (context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4A90E2)),
                     );
-                  } else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null || snapshot.data.profileImagePath == null) {
+                  } else if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data == null ||
+                      snapshot.data.profileImagePath == null) {
                     return const Icon(
                       Icons.person,
                       size: 50,
@@ -143,27 +164,25 @@ class DashboardPage extends StatelessWidget {
                   }
 
                   final user = snapshot.data;
-
-                  debugPrint(user.profileImagePath);
                   return CircleAvatar(
                     radius: isSmallScreen ? 38 : 48,
                     backgroundImage: user.profileImagePath != null
                         ? FileImage(File(user.profileImagePath))
-                        : const AssetImage('assets/default_avatar.png'),
+                        : const AssetImage('assets/default_avatar.png')
+                            as ImageProvider,
                   );
                 },
               ),
-              ),
             ),
           ),
+        ),
       ],
     );
   }
 
   Widget _buildUserInfo(double screenWidth, bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),     
-
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder(
         future: UserDB.getCurrentUser(),
         builder: (context, AsyncSnapshot snapshot) {
@@ -186,11 +205,11 @@ class DashboardPage extends StatelessWidget {
           return Column(
             children: [
               Text(
-                 user.username ?? 'Unknown User', 
+                user.username ?? 'Unknown User',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 18 : 24, 
+                  fontSize: isSmallScreen ? 18 : 24,
                   color: Colors.black87,
-                  fontFamily: 'holtwood'
+                  fontFamily: 'holtwood',
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -198,17 +217,17 @@ class DashboardPage extends StatelessWidget {
                 user.distributionName ?? 'No Company',
                 style: TextStyle(
                   fontSize: isSmallScreen ? 16 : 18,
-                  color: Colors.black54, 
-                  fontFamily: 'BalooBhaina' 
+                  color: Colors.black54,
+                  fontFamily: 'BalooBhaina',
                 ),
                 textAlign: TextAlign.center,
               ),
               Text(
-                user.phone ?? 'Eg: 8989765443',  
+                user.phone ?? 'Eg: 8989765443',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 14  : 16,
+                  fontSize: isSmallScreen ? 14 : 16,
                   color: Colors.black54,
-                  fontFamily: 'Audiowide' 
+                  fontFamily: 'Audiowide',
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -216,11 +235,11 @@ class DashboardPage extends StatelessWidget {
           );
         },
       ),
-    );   
+    );
   }
 
   Widget _buildMenuItem({
-    required BuildContext context, // Added context parameter
+    required BuildContext context,
     required IconData icon,
     required String title,
     required VoidCallback onTap,
@@ -273,9 +292,9 @@ class DashboardPage extends StatelessWidget {
             context: context,
             icon: Icons.local_offer,
             title: 'Sales',
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (context) => SaleReportScreen())),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SaleReportScreen()),
+            ),
             isSmallScreen: isSmallScreen,
           ),
           _buildSubMenuItem(
@@ -283,7 +302,7 @@ class DashboardPage extends StatelessWidget {
             icon: Icons.arrow_downward,
             title: 'Payment In',
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => PaymentInTransaction()),
+              MaterialPageRoute(builder: (_) => const PaymentInTransaction()),
             ),
             isSmallScreen: isSmallScreen,
           ),
@@ -292,7 +311,7 @@ class DashboardPage extends StatelessWidget {
             icon: Icons.arrow_upward,
             title: 'Payment Out',
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => PaymentOutTransaction()),
+              MaterialPageRoute(builder: (_) => const PaymentOutTransaction()),
             ),
             isSmallScreen: isSmallScreen,
           ),
@@ -301,7 +320,7 @@ class DashboardPage extends StatelessWidget {
             icon: Icons.account_balance_wallet,
             title: 'Expense',
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ExpenseReportScreen()),
+              MaterialPageRoute(builder: (_) => const ExpenseReportScreen()),
             ),
             isSmallScreen: isSmallScreen,
           ),
@@ -311,11 +330,11 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildSubMenuItem({
-    required BuildContext context, // Added context parameter
+    required BuildContext context,
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    required bool isSmallScreen,
+    required bool isSmallScreen, 
   }) {
     return Padding(
       padding: const EdgeInsets.only(left: 40.0),

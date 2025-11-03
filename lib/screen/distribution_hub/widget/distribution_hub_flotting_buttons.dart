@@ -17,8 +17,8 @@ class ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 8, // Fixed pixel value
-        vertical: 4, // Fixed pixel value
+        horizontal: 8, 
+        vertical: 4,
       ), 
       child: Row( 
         mainAxisAlignment: MainAxisAlignment.center,
@@ -30,19 +30,22 @@ class ActionButtons extends StatelessWidget {
               onPressed: onTakePayment,
             ),
           ),
-          const SizedBox(width: 4), // Fixed pixel value
+          const SizedBox(width: 4), 
           FloatingActionButton(
+            backgroundColor: Colors.blueGrey,
             onPressed: onAddAction,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24), // Fixed pixel value
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(color: Colors.blueGrey)
             ),
-            child: const Icon(Icons.add),
+             
+            child: const Icon(Icons.add,color: Colors.white,),
           ),
-          const SizedBox(width: 4), // Fixed pixel value
+          const SizedBox(width: 4), 
           Expanded(
             child: CustomActionButton(
               label: 'Add Sale',
-              backgroundColor: const Color.fromARGB(255, 180, 189, 5),
+              backgroundColor: const Color.fromARGB(255, 85, 172, 213),
               onPressed: onAddSale,
             ),
           ),

@@ -17,7 +17,6 @@ class UserModel extends HiveObject {
   @HiveField(3)
   final String password; 
 
-  // Profile fields
   @HiveField(4)
   String? name;
 

@@ -1,5 +1,7 @@
 // utils/report/payments_report_utils.dart
 import 'package:cream_ventory/db/functions/payment_db.dart';
+import 'package:cream_ventory/db/models/payment/payment_in_model.dart';
+import 'package:cream_ventory/db/models/payment/payment_out_model.dart';
 import 'package:cream_ventory/screen/reports/screens/widgets/screen_report_screen_pdf.dart';
 import 'package:cream_ventory/utils/report/graphs/payment_graph_processers.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -25,7 +27,7 @@ class PaymentsReportUtils {
     final List<dynamic> payments = paymentType == 'Payment In'
         ? await PaymentInDb.getAllPayments()
         : await PaymentOutDb.getAllPayments();
-
+      
     final filtered = _filterByDateRange(payments, start, end);
     final timePeriod =
         period == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
@@ -92,7 +94,7 @@ class PaymentsReportUtils {
   // ──────────────────────────────────────────────────────────────
   // 4. PDF export
   // ──────────────────────────────────────────────────────────────
-  Future<void> exportToPdf({
+Future<void> exportToPdf({
     required BuildContext context,
     required String period,
     required String paymentType,
@@ -100,29 +102,37 @@ class PaymentsReportUtils {
     required DateTime? end,
     required List<dynamic> items,
   }) async {
-    final title = '$paymentType Report';
-    final periodInfo =
-        ' From: ${_formatDate(start)} – To: ${_formatDate(end)}';
+    final dateFormat = DateFormat('dd/MM/yyyy');
 
-    await exportListToPdf<dynamic>(
+    await exportReportToPdf<dynamic>(
       context: context,
-      title: title,
-      periodInfo: periodInfo,
-      headers: ['ID', 'Party', 'Date', 'Amount'],
+      title: '$paymentType Report',
+      periodInfo: period == 'Weekly'
+          ? '${start != null ? DateFormat('dd/MM').format(start) : ''} – ${end != null ? DateFormat('dd/MM').format(end) : ''}'
+          : '${start != null ? DateFormat('MMM yyyy').format(start) : ''}',
+      headers: ['Date', 'Party', 'Amount'],
       items: items,
-      rowBuilder: (p) => [
-        p.id.split('-').last, 
-        p.party ?? '—',
-        p.date, // already formatted
-        '₹${p.amount.toStringAsFixed(2)}',
-      ],
+      rowBuilder: (item) {
+        if (item is PaymentInModel) {
+          return [
+            dateFormat.format(dateFormat.parse(item.date)),
+            item.partyName ?? '—',
+            '₹${item.receivedAmount.toStringAsFixed(2)}',
+          ];
+        } else if (item is PaymentOutModel) {
+          return [
+            dateFormat.format(dateFormat.parse(item.date)),
+            item.partyName,
+            '₹${item.paidAmount.toStringAsFixed(2) }',
+          ];
+        }
+        return ['', '', ''];
+      },
+      amountColumnIndex: 2, // Amount is in last column
     );
   }
 
-  String _formatDate(DateTime? d) =>
-      d == null ? '—' : _dateFormatter.format(d);
 }
-
 /// ---------------------------------------------------------------
 /// DTO for UI
 /// ---------------------------------------------------------------

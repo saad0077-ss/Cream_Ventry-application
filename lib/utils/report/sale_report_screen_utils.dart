@@ -74,13 +74,13 @@ class SalesReportUtils {
   // 4. PDF export (thin wrapper around the generic PDF helper)
   // ──────────────────────────────────────────────────────────────
   Future<void> exportToPdf({
-    required BuildContext context,
+    required BuildContext context, 
     required String period,
     required DateTime? start,
     required DateTime? end,
     required List<SaleModel> items,
   }) async {
-    await exportListToPdf<SaleModel>(
+    await exportReportToPdf<SaleModel>(
       context: context,
       title: 'Sales Report',
       periodInfo: 

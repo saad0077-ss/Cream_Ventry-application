@@ -17,7 +17,7 @@ class ExpenseList extends StatelessWidget {
       child: Stack(    
         children: [
           if (expenses.isEmpty)
-             Center(
+             Center(   
               child: Text(
                 'No expenses to display.',
                 style: AppTextStyles.emptyListText,

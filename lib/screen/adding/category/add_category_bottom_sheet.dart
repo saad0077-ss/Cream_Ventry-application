@@ -43,7 +43,7 @@ class _CategoryBottomSheetContent extends StatefulWidget {
 class _CategoryBottomSheetContentState
     extends State<_CategoryBottomSheetContent> {
   late CategoryAddController controller;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -61,52 +61,52 @@ class _CategoryBottomSheetContentState
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.appGradient,borderRadius: BorderRadius.vertical(top: Radius.circular(25)),), 
+      decoration: const BoxDecoration(
+        gradient: AppTheme.appGradient,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
       child: Padding(
         padding: EdgeInsets.only(
-          top: screenHeight * 0.02,
-          left: screenWidth * 0.05,
-          right: screenWidth * 0.05,
+          top: 16,    
+          left: 20,    
+          right: 20,   
           bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         ),
         child: SingleChildScrollView(
           child: StatefulBuilder(
             builder: (context, setModalState) {
               void updateState() => setModalState(() {});
-      
+
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.015),                         
-                  CategoryImagePicker( 
+                  _buildHeader(),
+                  const SizedBox(height: 12), 
+                  CategoryImagePicker(
                     controller: controller,
                     onImagePicked: () async {
-                      await pickCategoryImage(controller);
+                      await pickCategoryImage(controller,context);
                       updateState();
                     },
                   ),
                   CategoryErrorText(
                     errorText: controller.imageError,
-                    screenHeight: screenHeight,
+                    screenHeight: 800, 
                   ),
-                  SizedBox(height: screenHeight * 0.02),
+                  const SizedBox(height: 16), 
                   CategoryFormFields(
                     controller: controller,
-                    screenHeight: screenHeight,
+                    screenHeight: 800, 
                   ),
-                  SizedBox(height: screenHeight * 0.025),
+                  const SizedBox(height: 20), 
                   CustomActionButton(
                     label: widget.isEditing ? "Update" : "Create",
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                     onPressed: () async {
                       controller.validateFields();
                       updateState();
-                      
+
                       if (controller.isFormValid) {
                         await saveCategory(
                           controller: controller,
@@ -116,7 +116,7 @@ class _CategoryBottomSheetContentState
                         );
                       }
                     },
-                  ),
+                  ), 
                 ],
               );
             },
@@ -126,14 +126,14 @@ class _CategoryBottomSheetContentState
     );
   }
 
-  Widget _buildHeader(double screenWidth) {
-    return Text(
-      widget.isEditing ? "Edit Category" : "Add Category",
+  Widget _buildHeader() {
+    return const Text(
+      "Add Category", // Dynamic title handled below
       style: TextStyle(
-        fontSize: screenWidth * 0.055,
+        fontSize: 22, // screenWidth * 0.055
         fontWeight: FontWeight.bold,
-        fontFamily: 'BalooBhaina', 
+        fontFamily: 'BalooBhaina',
       ),
     );
   }
-}  
+}

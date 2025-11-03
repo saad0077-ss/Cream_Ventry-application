@@ -1,75 +1,59 @@
 import 'package:flutter/material.dart';
 
 class DistributionAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final bool automaticallyImplyLeading; // Automatically show leading widget
-  final List<Widget>? actions; // Action widgets like icons
-  final VoidCallback? onNotificationPressed; // Callback for notification icon
-  final Widget? notificationIcon; // Custom notification icon
-  final Widget? route; // Custom route widget to navigate to on press
+  final List<Widget>? actions;
+  final VoidCallback? onHomePressed; // Optional custom callback
   final double fontSize;
   final bool center;
+  final bool isSmallScreen;
 
   const DistributionAppBar({
     super.key,
-    this.automaticallyImplyLeading = true,
     this.actions,
-    this.onNotificationPressed,
-    this.notificationIcon,
-    this.route,
-    this.fontSize = 23 ,
+    this.onHomePressed,
+    this.fontSize = 23,
     this.center = true,
+    required this.isSmallScreen
   });
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      automaticallyImplyLeading: automaticallyImplyLeading,
+    return AppBar(   
+      automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
       elevation: 0,
-      title: Text(
+      title: Text( 
         'DISTRIBUTION HUB',
         style: TextStyle(
           fontSize: fontSize,
           color: Colors.black,
           fontFamily: 'Audiowide',
-        ), 
+        ),
       ),
-      centerTitle: center ? true : false,
-      leading:
-          automaticallyImplyLeading
-              ? IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();       
-                },
-                icon: const Icon(Icons.menu, size: 30),
-              )
-              : null,
+      centerTitle: center,
+      leading: isSmallScreen
+          ? IconButton(
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); 
+              },
+              icon: const Icon(Icons.menu, size: 30),
+            )
+          : null,
       actions: [
-        if (notificationIcon != null)
-          IconButton(
-            icon: notificationIcon!,
-            onPressed:
-                onNotificationPressed ??
-                () {
-                  if (route != null) {
-                    Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute(builder: (context) => route!));
-                  }
-                },
-          ),
+        // Home Button
+       
         ...?actions,
-      ],
+      ], 
       flexibleSpace: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight, 
             colors: [
-              Color(0xFFD6E6F2), // Soft blue-gray (matches ScreenHome)
-              Color(0xFF7BE7F0), // Subtle cyan (matches ScreenHome)
+              Color(0xFFD6E6F2),
+              Color(0xFF7BE7F0),
             ],
-            stops: [0.0, 1.0], // Smooth transition for app bar
+            stops: [0.0, 1.0],
           ),
         ),
       ),

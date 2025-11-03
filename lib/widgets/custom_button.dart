@@ -24,7 +24,7 @@ class CustomActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width ?? 160, // Default to 160 pixels (~40% of typical mobile screen)
+      width: width ?? 170, 
       child: ElevatedButton(
         onPressed: onPressed, 
         style: ElevatedButton.styleFrom(
@@ -37,14 +37,15 @@ class CustomActionButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24), // Fixed pixel radius
             side: BorderSide(
-              color: borderColor ?? Colors.transparent,
+              color: borderColor ?? Colors.blueGrey,
+              width: 2
             ),
           ),
         ),
         child: Text(
           label,
           style: AppTextStyles.regular(
-            fontSize: fontSize ?? 16, // Fixed pixel text size             
+            fontSize: fontSize ?? 19, // Fixed pixel text size             
           ),
         ),
       ),

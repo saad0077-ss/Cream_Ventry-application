@@ -1,4 +1,4 @@
-import 'package:cream_ventory/screen/adding/expense/adding_expense_screen_dotted_fields.dart';
+import 'package:cream_ventory/screen/adding/expense/widgets/adding_expense_screen_dotted_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

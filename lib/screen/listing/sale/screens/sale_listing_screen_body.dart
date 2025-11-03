@@ -42,7 +42,7 @@ class BodyOfSale extends StatelessWidget {
             children: [
               SummaryCard(
                 key: ValueKey('txn_count_${sales.length}'), 
-                title: "No. of Transactions",
+                title: "No. of Sales",
                 value: sales.length.toString(),
               ),
               SizedBox(width: isTablet ? 16 : 12),

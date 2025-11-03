@@ -1,30 +1,93 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/screen/adding/controller/category_add_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:cream_ventory/db/functions/category_db.dart';
 import 'package:cream_ventory/db/models/items/category/category_model.dart';
 import 'package:uuid/uuid.dart';
 
-Future<void> pickCategoryImage(CategoryAddController controller) async {
+Future<void> pickCategoryImage(
+  CategoryAddController controller,
+  BuildContext context,
+) async {
   if (controller.isPickingImage) return;
   
   controller.isPickingImage = true;
   try {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
-    if (picked != null) {
-      controller.selectedImage = File(picked.path);
-      controller.imageError = null;
+    String? imagePath;
+    Uint8List? imageBytes;
+
+    if (kIsWeb) {
+      // Web: Use file_picker for reliability
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        imageBytes = result.files.single.bytes!;
+        // Store as base64 string with data URI prefix for web
+        imagePath = 'data:image/png;base64,${base64Encode(imageBytes)}';
+        
+        // Update controller with the picked image
+        controller.selectedImagePath = imagePath;
+        controller.selectedImageBytes = imageBytes;
+        controller.imageError = null;
+      }
+    } else {
+      // Native: Use image_picker
+      final XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 80,
+      );
+      if (pickedFile != null) {
+        final permanentPath = await _saveImagePermanently(File(pickedFile.path));
+        imagePath = permanentPath;
+        
+        // Update controller with the picked image
+        controller.selectedImage = File(permanentPath);
+        controller.selectedImagePath = imagePath;
+        controller.imageError = null;
+      }
+    }
+
+    if (imagePath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No image selected'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   } catch (e) {
     debugPrint('Error picking image: $e');
-    // Handle error (show snackbar, etc.)
+    controller.imageError = 'Failed to pick image';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to pick image: $e'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.red,
+      ),
+    );
   } finally {
     controller.isPickingImage = false;
   }
+}
+
+Future<String> _saveImagePermanently(File image) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final fileName = '${const Uuid().v4()}.jpg';
+  final permanentPath = '${directory.path}/images/$fileName';
+  await Directory('${directory.path}/images').create(recursive: true);
+  final savedImage = await image.copy(permanentPath);
+  return savedImage.path;
 }
 
 Future<void> saveCategory({
@@ -83,7 +146,7 @@ void _showSuccessSnackBar(BuildContext context, String message) {
     ),
   );
 }
-
+ 
 void _showErrorSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
