@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:cream_ventory/db/models/items/category/category_model.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'category_details_screen_error_image_widget.dart'; // Fixed relative path
 
 class CategoryImageWidget extends StatelessWidget {
@@ -22,11 +23,11 @@ class CategoryImageWidget extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
-            blurRadius: 6,
+            blurRadius: 6.r,
             offset: const Offset(0, 3),
           ),
         ],
-      ),
+      ), 
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: _buildImage(),

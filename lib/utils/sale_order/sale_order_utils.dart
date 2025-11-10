@@ -1,5 +1,5 @@
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
-import 'package:cream_ventory/db/functions/stock_db.dart';
+import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:flutter/material.dart';
@@ -180,49 +180,40 @@ class SaleUtils {
               try {
                 // Restock each product in the sale order
                 for (var item in sale.items) {
-                  final productId = item.id;                                  
+                  final productId = item.id;
                   final quantity = item.quantity;
-                  // Find sale transactions for this product and sale date
-                  final stockTransactions = await StockDB.getStocksByProduct(productId);
-                  final saleTransactions = stockTransactions
-                      .where((stock) =>
-                          stock.type == 'Sale' &&
-                          stock.userId == userId &&
-                          stock.date == sale.date && // Match sale date
-                          stock.quantity == quantity) // Match quantity
-                      .toList();
-
-                  if (saleTransactions.isEmpty) {
-                    throw Exception('No matching sale transaction found for product $productId');
-                  }
-
-                  // Assuming one sale transaction per item (adjust if multiple possible)
-                  final saleStockId = saleTransactions.first.id;
-                  await StockDB.cancelSaleOrder(saleStockId);
+                  
+                  // Restore stock using ProductDB
+                  await ProductDB.cancelSale(productId, quantity);
                 }
 
                 // Update sale order status
                 await SaleDB.updateSale(updatedSaleOrder);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Sale order #${sale.invoiceNumber} cancelled and products restocked successfully',
+                
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Sale order #${sale.invoiceNumber} cancelled and products restocked successfully',
+                      ),
+                      backgroundColor: Colors.green[600],
+                      behavior: SnackBarBehavior.floating,
                     ),
-                    backgroundColor: Colors.green[600],
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-                refresh();
+                  );
+                  refresh();
+                }
               } catch (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to cancel sale order: $error'),
-                    backgroundColor: Colors.red[600],
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to cancel sale order: $error'),
+                      backgroundColor: Colors.red[600],
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
-            },   
+            },
             child: Text(
               'Cancel Order',
               style: TextStyle(color: Colors.red[600]),

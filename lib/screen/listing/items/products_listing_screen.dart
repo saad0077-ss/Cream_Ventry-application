@@ -199,7 +199,7 @@ class _ProductsTabState extends State<ProductsTab> {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 5 / 0.8,
+                            mainAxisExtent: 170,
                             mainAxisSpacing: 12,
                             crossAxisSpacing: 12,
                           ), 

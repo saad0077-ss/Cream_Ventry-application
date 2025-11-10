@@ -282,7 +282,7 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
 
             // Chart
             SizedBox(
-              height: 270.h,
+              height: 280.h,
               child: CustomLineChart(
                 currentSpots: _currentSpots,
                 previousSpots: _previousSpots,
@@ -290,7 +290,7 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
                 maxY: _maxY,
                 period: period,
                 cardBackgroundColor: Colors.transparent,
-                gridLineColor: Colors.black38,
+                gridLineColor: Colors.black38, 
                 borderColor: Colors.blueGrey,
                 elevation: 2,
               ),

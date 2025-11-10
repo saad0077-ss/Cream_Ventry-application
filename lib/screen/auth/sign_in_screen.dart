@@ -55,10 +55,12 @@ class _ScreenSignInState extends State<ScreenSignIn>
 
   @override
   Widget build(BuildContext context) {
+
+    final isDesktop = MediaQuery.of(context).size.width >= 900;
     // Define responsive sizes
     final double bottomPadding = 24.3; // ~3% of 812px design height
     final double horizontalPadding = 22.5; // ~6% of 375px design width
-    final double containerHeight = 365.4; // ~45% of 812px design height
+    final double containerHeight = 365.4; // ~45% of 812px design height 
     final double containerPaddingHorizontal = 17.75; // ~5% of 375px design width
     final double containerPaddingVertical = 10.6;  // ~5% of 812px design height
 
@@ -110,12 +112,12 @@ class _ScreenSignInState extends State<ScreenSignIn>
                       vertical: containerPaddingVertical,
                     ),
                     height: containerHeight,
-                    width: MediaQuery.of(context).size.width - (2 * horizontalPadding),
+                    width: isDesktop? MediaQuery.of(context).size.width - (2 * 20):MediaQuery.of(context).size.width - (2 * horizontalPadding),
                     color: Colors.black26,
                     child: FormFeildContainer(),
                   ), 
                 );
-              },
+              }, 
             ),
           ),
         ],

@@ -1,32 +1,33 @@
 // sale_action_buttons_widget.dart
 import 'package:cream_ventory/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SaleActionButtonsWidget {
   /// Builds the action buttons (DELETE/UPDATE or SAVE & NEW/SAVE)
   static Widget buildActionButtons({
     required bool isEditMode,
     required bool isEditable,
-    required VoidCallback? onDelete,
+    required VoidCallback? onDelete, 
     required VoidCallback? onUpdate,
     required VoidCallback? onSaveAndNew,
     required VoidCallback? onSave,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding:  EdgeInsets.only(top: 16.0.h, bottom: 16.0.h, left: 16.0.w, right: 16.0.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: isEditMode
             ? [
-                Expanded(
-                  child: CustomActionButton(
+                Expanded(    
+                  child: CustomActionButton( 
                     label: 'DELETE',
                     backgroundColor: Colors.red,
                     onPressed: onDelete,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: 8.h),
 
                 Expanded(
                   child: CustomActionButton(
@@ -46,7 +47,7 @@ class SaleActionButtonsWidget {
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: 8.h),
                 Expanded(
                   child: CustomActionButton(
                     label: 'SAVE',
@@ -60,3 +61,4 @@ class SaleActionButtonsWidget {
     );
   }
 }
+ 

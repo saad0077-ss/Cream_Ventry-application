@@ -60,6 +60,8 @@ dependencies:
   flutter_markdown: ^0.7.7 
   universal_html: ^2.2.4
   top_snackbar_flutter: ^3.3.0
+  firebase_core: ^4.2.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   build_runner: 2.4.13 
@@ -73,6 +75,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true 
   ios: true 
+  web: true 
   image_path: "assets/icon/Designer.png"
 
 # For information on the generic Dart part of this file, see the

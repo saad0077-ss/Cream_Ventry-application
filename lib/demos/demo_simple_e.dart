@@ -203,9 +203,9 @@ class _MenuItemWidget extends StatelessWidget {
 
   final DropdownEntry entry;
   final ThemeData theme;
-
+ 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {   
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       width: double.infinity,

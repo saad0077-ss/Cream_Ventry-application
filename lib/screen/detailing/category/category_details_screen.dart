@@ -33,7 +33,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
         child: Column(
           children: [
             _buildCategoryCard(screenWidth),
-            const SizedBox(height: 8),
+             SizedBox(height: 8.h),
             _buildProductList(),
           ],
         ),
@@ -47,16 +47,16 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
 
   Widget _buildCategoryCard(double screenWidth) {
     return Card(
-      margin: const EdgeInsets.all(16),
+      margin:  EdgeInsets.all(16.r),
       elevation: 6,
       shadowColor: Colors.black.withOpacity(0.15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           gradient: LinearGradient(colors: [Colors.white, Colors.grey[50]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
-        padding: const EdgeInsets.all(20),
+        padding:  EdgeInsets.all(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,13 +64,13 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CategoryImageWidget(category: widget.category),
-                const SizedBox(width: 20),
+                 SizedBox(width: 20.h),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Description:', style: AppTextStyles.bold18.copyWith(fontSize: 18, color: Colors.black87)),
-                      const SizedBox(height: 4),
+                       SizedBox(height: 4.h),
                       Text(
                         widget.category.discription.isEmpty ? 'No description available' : widget.category.discription,
                         style: AppTextStyles.w500.copyWith(fontSize: 14, color: Colors.grey[600]),
@@ -80,7 +80,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             ValueListenableBuilder<List<ProductModel>>(
               valueListenable: ProductDB.productNotifier,
               builder: (context, productList, _) {
@@ -100,7 +100,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     );
   }
 
-  Widget _buildProductList() {
+  Widget _buildProductList() { 
     return Expanded(
       child: ValueListenableBuilder<List<ProductModel>>(
         valueListenable: ProductDB.productNotifier,

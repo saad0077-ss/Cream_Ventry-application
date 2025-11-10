@@ -32,20 +32,20 @@ class _FormFeildState extends State<FormFeild> {
       key: _formKey,
       child: Column(
         children: [
-          SizedBox(height: 30), // Responsive height (~3.7% of 812px design height)
+          SizedBox(height: 30), 
           CustomTextFormField(
             controller: _usernameController,
             hintText: 'Enter your Username', 
             validator: SignInFunctions.validateUsername,
           ),
-          SizedBox(height: 25), // Responsive height (~3.1% of 812px design height)
+          SizedBox(height: 25), 
           CustomTextFormField(
             controller: _emailController,
             hintText: 'Enter your Email',
             validator: SignInFunctions.validateEmail,
             type: TextInputType.emailAddress,        
           ),
-          SizedBox(height: 25), // Responsive height (~3.1% of 812px design height)
+          SizedBox(height: 25), 
           CustomTextFormField(
             controller: _passwordController,
             hintText: 'Enter your Password',
@@ -58,7 +58,7 @@ class _FormFeildState extends State<FormFeild> {
               });
             },
           ),
-          SizedBox(height: 40), // Responsive height (~4.9% of 812px design height)
+          SizedBox(height: 40),
           AuthButton(
             onPressed: () {
               SignInFunctions.navigateToHome(

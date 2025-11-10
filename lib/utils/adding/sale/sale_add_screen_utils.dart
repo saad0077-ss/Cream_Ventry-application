@@ -3,7 +3,6 @@ import 'package:cream_ventory/db/functions/party_db.dart';
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
 import 'package:cream_ventory/db/functions/sale/sale_item_db.dart';
-import 'package:cream_ventory/db/functions/stock_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:flutter/material.dart';
@@ -169,7 +168,7 @@ class SaleAddUtils {
           try {
             for (var item in sale.items) {
               debugPrint('Restocking ${item.productName}, quantity: ${item.quantity}');
-              await StockDB.restockProduct(item.id, item.quantity);
+              await ProductDB.restockProduct(item.id, item.quantity);
             }
             await SaleDB.deleteSale(sale.id);
             await SaleItemDB.clearSaleItems();
@@ -247,17 +246,19 @@ class SaleAddUtils {
                           debugPrint(
                             'Canceling sale - Product: ${item.productName}, ID: ${item.id}, Quantity Restored: ${item.quantity}',
                           );
-                          await StockDB.restockProduct(item.id, item.quantity);
+                          await ProductDB.restockProduct(item.id, item.quantity);
                         }
                         await SaleItemDB.clearSaleItems();
-                        Navigator.pop(context, true);
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
                         debugPrint('Back navigation confirmed, stock restored');
                       } catch (error) {
                         debugPrint('Error restoring stock: $error');
                         if (context.mounted) {
                           showSnackBarInSales(context, 'Failed to restore stock: $error', Colors.red);
+                          Navigator.pop(context, false);
                         }
-                        Navigator.pop(context, false);
                       }
                     },
                     child: const Text('Yes', style: TextStyle(color: Colors.red)),

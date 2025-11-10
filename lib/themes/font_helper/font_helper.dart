@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
+
+
   static TextStyle holtwood35White = TextStyle(
-    fontSize: 25 ,
+    fontSize: 25,
     fontFamily: 'holtwood',
     color: Colors.white,
   ); 
-
+  
   static TextStyle textSpan = TextStyle(
     fontSize: 30,
     fontFamily: 'holtwood',
@@ -23,11 +25,11 @@ class AppTextStyles {
     fontFamily: 'holtwood',
     color: Colors.white,
   );
-
+ 
   static TextStyle signUpText = TextStyle(
     fontFamily: 'holtwood',   
     color: Colors.white,
-    fontSize: 16,
+    fontSize: 17 ,
     letterSpacing: 1,
     height: 1.7,
   );

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "995631580029",
+    "project_id": "creamventory-eb472",
+    "storage_bucket": "creamventory-eb472.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995631580029:android:d6e6f8aa8344516ec90214",
+        "android_client_info": {
+          "package_name": "com.muhammedsaad.creamventory"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP92DnF7vIErYu_1UOIR_h5PgPHkMmfDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

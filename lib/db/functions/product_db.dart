@@ -1,21 +1,31 @@
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
-import 'package:cream_ventory/db/functions/stock_db.dart';
+import 'package:cream_ventory/db/functions/stock_transaction_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
-import 'package:cream_ventory/db/models/items/products/stock_model.dart';
+import 'package:cream_ventory/db/models/items/products/stock_transaction_model.dart';
+import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class ProductDB {
   static const String _productBoxName = 'productBox';
+
   static ValueNotifier<List<ProductModel>> productNotifier = ValueNotifier([]);
+  static ValueNotifier<List<ProductModel>> lowStockNotifier = ValueNotifier([]);
+
   static Box<ProductModel>? _productBox;
+
+  // ============================================
+  // INITIALIZATION
+  // ============================================
 
   static Future<void> initialize() async {
     try {
-      await _openProductBox(); 
+      await _openProductBox();
+      _productBox?.listenable().addListener(_onProductBoxChange);
+
       debugPrint(
         'ProductDB initialized with ${_productBox?.values.length} products',
       );
@@ -32,6 +42,32 @@ class ProductDB {
     return _productBox!;
   }
 
+  static void _onProductBoxChange() {
+    refreshProducts();
+    _updateLowStockNotifier();
+  }
+
+  static void _updateLowStockNotifier() async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+    final productBox = await _openProductBox();
+
+    final lowStockProducts = productBox.values
+        .where((product) => product.userId == userId && product.stock < 5)
+        .toList();
+
+    if (!listEquals(lowStockNotifier.value, lowStockProducts)) {
+      lowStockNotifier.value = lowStockProducts;
+      debugPrint(
+        'Low stock notifier updated with ${lowStockProducts.length} products',
+      );
+    }
+  }
+
+  // ============================================
+  // PRODUCT CRUD OPERATIONS
+  // ============================================
+
   static Future<void> refreshProducts() async {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
@@ -40,7 +76,7 @@ class ProductDB {
       var products = productBox.values
           .where((product) => product.userId == userId)
           .toList();
-      productNotifier.value = products; 
+      productNotifier.value = products;
       debugPrint('Refreshed products: ${products.length}');
     } catch (e) {
       debugPrint('Error refreshing products: $e');
@@ -52,6 +88,7 @@ class ProductDB {
   static Future<void> addProduct(ProductModel product) async {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
+
     try {
       if (product.stock < 0 || product.purchasePrice < 0) {
         throw Exception('Invalid stock or purchase price');
@@ -59,30 +96,59 @@ class ProductDB {
 
       final productBox = await _openProductBox();
       await productBox.put(product.id, product);
-      debugPrint('Saved Product: ID=${product.id}, Name=${product.name}');
+      debugPrint(
+        'Saved Product: ID=${product.id}, Name=${product.name}, Stock=${product.stock}',
+      );
+
+      // Create opening stock transaction if stock > 0
       if (product.stock > 0) {
-        final openingStock = StockModel(
+        final openingStockTransaction = StockTransactionModel(
           id: const Uuid().v4(),
           productId: product.id,
-          type: 'Opening Stock',
-          date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+          productName: product.name,
+          type: StockTransactionType.openingStock,
           quantity: product.stock,
-          total: product.stock * product.purchasePrice,
+          pricePerUnit: product.purchasePrice,
+          totalValue: product.stock * product.purchasePrice,
+          date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
           userId: userId,
+          notes: 'Initial stock for new product',
+          stockAfterTransaction: product.stock,
         );
-        await StockDB.addStock(openingStock);
-        debugPrint(
-          'Created Stock: StockID=${openingStock.id}, ProductID=${openingStock.productId}, Type=${openingStock.type}, Quantity=${openingStock.quantity}, Total=${openingStock.total}, ',
-        );
-      } else {
-        debugPrint(
-          'No stock entry created for Product ID=${product.id} (stock=0)',
-        );
+
+        await StockTransactionDB.addTransaction(openingStockTransaction);
+        debugPrint('Opening stock transaction created for ${product.name}');
       }
+
       await refreshProducts();
     } catch (e) {
       debugPrint('Error adding product: $e');
       throw Exception('Failed to add product: $e');
+    }
+  }
+
+  static Future<bool> updateProduct(
+    String id,
+    ProductModel updatedProduct,
+  ) async {
+    try {
+      final productBox = await _openProductBox();
+      final oldProduct = productBox.get(id);
+      if (oldProduct == null) {
+        debugPrint('ID not found for update: $id');
+        return false;
+      }
+
+      await productBox.put(id, updatedProduct);
+      debugPrint(
+        'Product Updated: ID=${updatedProduct.id}, Name=${updatedProduct.name}, Stock=${updatedProduct.stock}',
+      );
+
+      await refreshProducts();
+      return true;
+    } catch (e) {
+      debugPrint('Error updating product: $e');
+      throw Exception('Failed to update product: $e');
     }
   }
 
@@ -94,6 +160,7 @@ class ProductDB {
         debugPrint('Product ID $id not found');
         return false;
       }
+
       final isInSales = await SaleDB.isProductInSales(id);
       if (isInSales) {
         debugPrint('Cannot delete product ID $id: Referenced in sales');
@@ -101,6 +168,7 @@ class ProductDB {
           'Cannot delete product because it is part of existing sales',
         );
       }
+
       await productBox.delete(id);
       await refreshProducts();
       debugPrint('Product deleted: ID $id');
@@ -111,47 +179,64 @@ class ProductDB {
     }
   }
 
-  static Future<bool> updateProduct(
-    String id,
-    ProductModel updatedProduct, {
-    bool createStockTransaction = true,
-  }) async {
+  static Future<void> clearAllProducts() async {
+    try {
+      final productBox = await _openProductBox();
+      await productBox.clear();
+      debugPrint('Cleared all products');
+      await refreshProducts();
+    } catch (e) {
+      debugPrint('Error clearing products: $e');
+      throw Exception('Failed to clear products: $e');
+    }
+  }
+
+  // ============================================
+  // PRODUCT RETRIEVAL
+  // ============================================
+
+  static Future<List<ProductModel>> getProducts() async {
+    try {
+      final box = await _openProductBox();
+      final user = await UserDB.getCurrentUser();
+      final userId = user.id;
+      var products = box.values
+          .where((product) => product.userId == userId)
+          .toList();
+      debugPrint('Fetched ${products.length} products in userId $userId');
+      return products;
+    } catch (e) {
+      debugPrint('Error fetching products: $e');
+      return [];
+    }
+  }
+
+  static Future<ProductModel?> getProduct(String productId) async {
+    try {
+      final box = await _openProductBox();
+      final product = box.get(productId);
+      if (product == null) {
+        debugPrint('Product not found: ID $productId');
+        return null;
+      }
+      debugPrint('Fetched product: ID $productId');
+      return product;
+    } catch (e) {
+      debugPrint('Error fetching product: $e');
+      return null;
+    }
+  }
+
+  static Future<ProductModel?> getProductById(String id) async {
+    final products = await getProducts();
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
-      final productBox = await _openProductBox();
-      final oldProduct = productBox.get(id);
-      if (oldProduct == null) {
-        debugPrint('ID not found for update: $id');
-        return false;
-      }
-      final stockChange = updatedProduct.stock - oldProduct.stock;
-      await productBox.put(id, updatedProduct);
-      if (createStockTransaction && stockChange != 0) {
-        final stockingType = stockChange > 0 ? 'Stock Added' : 'Stock Removed';
-        final stockAdjustment = StockModel(
-          id: const Uuid().v4(),
-          productId: updatedProduct.id,
-          type: stockingType,
-          date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
-          quantity: stockChange.abs().toInt(),
-          total: stockChange.abs() * updatedProduct.purchasePrice,
-          userId: userId,
-        );
-        await StockDB.addStock(stockAdjustment);
-        debugPrint(
-          'Stock Transaction Created: ProductID=${updatedProduct.id}, Type=$stockingType, Quantity=${stockAdjustment.quantity}, Total=${stockAdjustment.total}',
-        );
-      } else {
-        debugPrint(
-          'Product Updated (No Stock Change): ID=${updatedProduct.id}, Name=${updatedProduct.name}',
-        );
-      }
-      await refreshProducts();
-      return true;
+      return products.firstWhere(
+        (product) => product.id == id && product.userId == userId,
+      );
     } catch (e) {
-      debugPrint('Error updating product: $e');
-      throw Exception('Failed to update product: $e');
+      return null;
     }
   }
 
@@ -178,58 +263,387 @@ class ProductDB {
     }
   }
 
-  static Future<void> clearAllProducts() async {
-    try {
-      final productBox = await _openProductBox();
-      await productBox.clear();
-      debugPrint('Cleared all products');
-      await refreshProducts();
-    } catch (e) {
-      debugPrint('Error clearing products: $e');
-      throw Exception('Failed to clear products: $e');
-    }
-  }
+  // ============================================
+  // STOCK MANAGEMENT OPERATIONS
+  // ============================================
 
-  static Future<List<ProductModel>> getProducts() async {
-    try {
-      final box = await _openProductBox();
-      final user = await UserDB.getCurrentUser();
-      final userId = user.id;
-      var products = box.values
-          .where((product) => product.userId == userId)
-          .toList();
-      debugPrint('Fetched ${products.length} products in userId $userId ');
-      return products;
-    } catch (e) {
-      debugPrint('Error fetching products: $e');
-      return [];
-    }
-  }
-
-  static Future<ProductModel?> getProductById(String id) async {
-    final products = await getProducts();
+  static Future<void> reduceStockForSale(
+    String productId,
+    int quantitySold,
+    TransactionType transactionType, {
+    String? saleId,
+  }) async {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
+
+    if (productId.isEmpty) {
+      throw Exception('Product ID cannot be empty');
+    }
+    if (quantitySold <= 0) {
+      throw Exception('Quantity sold must be a positive number');
+    }
+
     try {
-      return products.firstWhere((product) => product.id == id && product.userId == userId);
+      final productBox = await _openProductBox();
+      final product = productBox.get(productId);
+
+      if (product == null) {
+        debugPrint('Product not found for ID: $productId');
+        throw Exception('Product ID $productId does not exist');
+      }
+
+      if (product.stock < quantitySold) {
+        debugPrint(
+          'Insufficient stock for product $productId: ${product.stock} available, $quantitySold requested',
+        );
+        throw Exception('Insufficient stock for product $productId');
+      }
+
+      final newStock = product.stock - quantitySold;
+
+      // Update product stock
+      final updatedProduct = ProductModel(
+        id: product.id,
+        name: product.name,
+        stock: newStock,
+        salePrice: product.salePrice,
+        purchasePrice: product.purchasePrice,
+        category: product.category,
+        imagePath: product.imagePath,
+        isAsset: product.isAsset,
+        creationDate: product.creationDate,
+        userId: userId,
+      );
+
+      await productBox.put(productId, updatedProduct);
+
+      // Create stock transaction
+      final stockTransaction = StockTransactionModel(
+        id: const Uuid().v4(),
+        productId: product.id,
+        productName: product.name,
+        type: transactionType == TransactionType.sale
+            ? StockTransactionType.sale
+            : StockTransactionType.saleOrder,
+        quantity: quantitySold,
+        pricePerUnit: product.salePrice,
+        totalValue: quantitySold * product.salePrice,
+        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        userId: userId,
+        referenceId: saleId,
+        stockAfterTransaction: newStock,
+      );
+
+      await StockTransactionDB.addTransaction(stockTransaction);
+
+      final transactionTypeName = transactionType == TransactionType.sale
+          ? 'Sale'
+          : 'Sale Order';
+      debugPrint(
+        '$transactionTypeName completed for product $productId: Quantity $quantitySold, New Stock: $newStock',
+      );
+
+      await refreshProducts();
     } catch (e) {
-      return null;
+      debugPrint('Error reducing stock for sale: $e');
+      throw Exception('Failed to reduce stock for product $productId: $e');
     }
   }
 
-  static Future<ProductModel?> getProduct(String productId) async {
-    try {
-      final box = await _openProductBox();
-      final product = box.get(productId);
-      if (product == null) {
-        debugPrint('Product not found: ID $productId');
-        return null;
-      }
-      debugPrint('Fetched product: ID $productId');
-      return product;
-    } catch (e) {
-      debugPrint('Error fetching product: $e');
-      return null;
+  static Future<void> restockProduct(
+    String productId,
+    int quantity, {
+    double? purchasePrice,
+    String? notes,
+  }) async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    if (productId.isEmpty) {
+      throw Exception('Product ID cannot be empty');
     }
+    if (quantity <= 0) {
+      throw Exception('Restock quantity must be a positive number');
+    }
+
+    try {
+      final productBox = await _openProductBox();
+      final product = productBox.get(productId);
+
+      if (product == null) {
+        debugPrint('Product not found for ID: $productId');
+        throw Exception('Product ID $productId does not exist');
+      }
+
+      final newStock = product.stock + quantity;
+      final priceToUse = purchasePrice ?? product.purchasePrice;
+
+      // Update product stock
+      final updatedProduct = ProductModel(
+        id: product.id,
+        name: product.name,
+        stock: newStock,
+        salePrice: product.salePrice,
+        purchasePrice: product.purchasePrice,
+        category: product.category,
+        imagePath: product.imagePath,
+        isAsset: product.isAsset,
+        creationDate: product.creationDate,
+        userId: userId,
+      );
+
+      await productBox.put(productId, updatedProduct);
+
+      // Create stock transaction
+      final stockTransaction = StockTransactionModel(
+        id: const Uuid().v4(),
+        productId: product.id,
+        productName: product.name,
+        type: StockTransactionType.restock,
+        quantity: quantity,
+        pricePerUnit: priceToUse,
+        totalValue: quantity * priceToUse,
+        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        userId: userId,
+        notes: notes,
+        stockAfterTransaction: newStock,
+      );
+
+      await StockTransactionDB.addTransaction(stockTransaction);
+
+      debugPrint(
+        'Restock completed for product $productId: Quantity $quantity, New Stock: $newStock',
+      );
+
+      await refreshProducts();
+    } catch (e) {
+      debugPrint('Error restocking product: $e');
+      throw Exception('Failed to restock product $productId: $e');
+    }
+  }
+
+  static Future<void> cancelSale(
+    String productId,
+    int quantityToRestore, {
+    String? saleId,
+  }) async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    if (productId.isEmpty) {
+      throw Exception('Product ID cannot be empty');
+    }
+    if (quantityToRestore <= 0) {
+      throw Exception('Quantity to restore must be a positive number');
+    }
+
+    try {
+      final productBox = await _openProductBox();
+      final product = productBox.get(productId);
+
+      if (product == null) {
+        debugPrint('Product not found for ID: $productId');
+        throw Exception('Product ID $productId does not exist');
+      }
+
+      final newStock = product.stock + quantityToRestore;
+
+      // Restore product stock
+      final updatedProduct = ProductModel(
+        id: product.id,
+        name: product.name,
+        stock: newStock,
+        salePrice: product.salePrice,
+        purchasePrice: product.purchasePrice,
+        category: product.category,
+        imagePath: product.imagePath,
+        isAsset: product.isAsset,
+        creationDate: product.creationDate,
+        userId: userId,
+      );
+
+      await productBox.put(productId, updatedProduct);
+
+      // Create stock transaction for sale return
+      final stockTransaction = StockTransactionModel(
+        id: const Uuid().v4(),
+        productId: product.id,
+        productName: product.name,
+        type: StockTransactionType.cancelled,
+        quantity: quantityToRestore,
+        pricePerUnit: product.salePrice,
+        totalValue: quantityToRestore * product.salePrice,
+        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        userId: userId,
+        referenceId: saleId,
+        notes: 'Sale cancelled/returned',
+        stockAfterTransaction: newStock,
+      );
+
+      await StockTransactionDB.addTransaction(stockTransaction);
+
+      debugPrint(
+        'Sale cancelled for product $productId: Quantity restored $quantityToRestore, New Stock: $newStock',
+      );
+
+      await refreshProducts();
+    } catch (e) {
+      debugPrint('Error cancelling sale: $e');
+      throw Exception('Failed to cancel sale for product $productId: $e');
+    }
+  }
+
+  // ============================================
+  // LOW STOCK ALERTS
+  // ============================================
+
+  static Future<List<ProductModel>> getLowStockAlert({
+    double threshold = 5.0,
+    String? sortBy, // 'quantity' or 'date'
+    String? category, // Optional category filter
+    int? limit, // Optional limit for results
+  }) async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    try {
+      final productBox = await _openProductBox();
+      var lowStockList = productBox.values
+          .where(
+            (product) => product.userId == userId && product.stock < threshold,
+          )
+          .toList();
+
+      if (category != null && category.isNotEmpty) {
+        lowStockList = lowStockList
+            .where((product) => product.category.id == category)
+            .toList();
+      }
+
+      if (sortBy != null) {
+        if (sortBy == 'quantity') {
+          lowStockList.sort((a, b) => a.stock.compareTo(b.stock));
+        } else if (sortBy == 'date') {
+          lowStockList.sort(
+            (a, b) => DateFormat('dd/MM/yyyy')
+                .parse(a.creationDate)
+                .compareTo(DateFormat('dd/MM/yyyy').parse(b.creationDate)),
+          );
+        }
+      }
+
+      if (limit != null && limit > 0 && lowStockList.length > limit) {
+        lowStockList = lowStockList.sublist(0, limit);
+      }
+
+      debugPrint(
+        'Fetched ${lowStockList.length} low stock items (threshold: $threshold, sortBy: $sortBy, category: $category, limit: $limit)',
+      );
+      return lowStockList;
+    } catch (e) {
+      debugPrint('Error fetching low stock alert: $e');
+      throw Exception('Failed to fetch low stock alert: $e');
+    }
+  }
+
+  static Future<void> adjustStock(
+    String productId,
+    int quantityChange, { // positive for increase, negative for decrease
+    double? pricePerUnit,
+    String? notes,
+  }) async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    if (productId.isEmpty) {
+      throw Exception('Product ID cannot be empty');
+    }
+    if (quantityChange == 0) {
+      throw Exception('Quantity change cannot be zero');
+    }
+
+    try {
+      final productBox = await _openProductBox();
+      final product = productBox.get(productId);
+
+      if (product == null) {
+        debugPrint('Product not found for ID: $productId');
+        throw Exception('Product ID $productId does not exist');
+      }
+
+      // Calculate new stock
+      final newStock = product.stock + quantityChange;
+
+      if (newStock < 0) {
+        debugPrint(
+          'Adjustment would result in negative stock: ${product.stock} + $quantityChange = $newStock',
+        );
+        throw Exception('Insufficient stock for this adjustment');
+      }
+
+      // Update product stock
+      final updatedProduct = ProductModel(
+        id: product.id,
+        name: product.name,
+        stock: newStock,
+        salePrice: product.salePrice,
+        purchasePrice: product.purchasePrice,
+        category: product.category,
+        imagePath: product.imagePath,
+        isAsset: product.isAsset,
+        creationDate: product.creationDate,
+        userId: userId,
+      );
+
+      await productBox.put(productId, updatedProduct);
+
+      // Create stock transaction
+      final priceToUse =
+          pricePerUnit ??
+          (quantityChange > 0 ? product.purchasePrice : product.salePrice);
+
+      final stockTransaction = StockTransactionModel(
+        id: const Uuid().v4(),
+        productId: product.id,
+        productName: product.name,
+        type: StockTransactionType.adjustment,
+        quantity: quantityChange.abs(),
+        pricePerUnit: priceToUse,
+        totalValue: quantityChange.abs() * priceToUse,
+        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        userId: userId,
+        notes:
+            notes ??
+            (quantityChange > 0
+                ? 'Stock adjustment: Added ${quantityChange.abs()} units'
+                : 'Stock adjustment: Removed ${quantityChange.abs()} units'),
+        stockAfterTransaction: newStock,
+      );
+
+      await StockTransactionDB.addTransaction(stockTransaction);
+
+      debugPrint(
+        'Stock adjustment completed for product $productId: '
+        'Change: $quantityChange, New Stock: $newStock',
+      );
+
+      await refreshProducts();
+    } catch (e) {
+      debugPrint('Error adjusting stock: $e');      
+      throw Exception('Failed to adjust stock for product $productId: $e');
+    }
+  }
+
+  // ============================================
+  // CLEANUP
+  // ============================================
+
+  static void dispose() {
+    _productBox?.listenable().removeListener(_onProductBoxChange);
+    _productBox?.close();
+    _productBox = null;
+    productNotifier.dispose();
+    lowStockNotifier.dispose();
+    debugPrint('ProductDB disposed');
   }
 }

@@ -109,6 +109,7 @@ class StatCard<T> extends StatelessWidget {
                       title,
                       style: titleStyle ??
                           TextStyle(
+                            fontFamily: 'ABeeZee',
                             fontSize: 12.r,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,

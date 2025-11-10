@@ -1,0 +1,37 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "creamventory-eb472",
+          "appId": "1:995631580029:android:d6e6f8aa8344516ec90214",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "creamventory-eb472",
+          "configurations": {
+            "android": "1:995631580029:android:d6e6f8aa8344516ec90214",
+            "web": "1:995631580029:web:c20be24ed464702cc90214"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "site": "creamventory-eb472",   
+    "public": "build\\web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

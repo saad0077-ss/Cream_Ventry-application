@@ -45,7 +45,7 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
             ),
             SizedBox(
               height: 25,
-            ), // Responsive height (~3.1% of 812px design height)
+            ), 
             CustomTextFormField(
               controller: _passwordController,
               hintText: 'Password',
@@ -63,7 +63,7 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
             ), // Responsive height (~2.3% of 812px design height)
             SizedBox(
               height: 19,
-            ), // Responsive height (~2.3% of 812px design height)
+            ), 
             AuthButton(
               onPressed: _handleLogin,
               primaryText: 'SIGN',

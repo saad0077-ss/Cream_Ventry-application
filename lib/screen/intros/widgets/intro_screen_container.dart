@@ -14,6 +14,7 @@ class IntroBottomContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Positioned(
       bottom: 16, // Fixed pixel elevation from bottom
       left: 8, // Fixed pixel margin from left
@@ -22,7 +23,7 @@ class IntroBottomContainer extends StatelessWidget {
         height: containerHeight ?? 300, // Default to 300 pixels (~39% of typical mobile screen height)
         padding: const EdgeInsets.symmetric(
           horizontal: 6, // Fixed pixel padding
-          vertical: 26, // Fixed pixel padding
+        vertical: 26, // Fixed pixel padding
         ),
         decoration: BoxDecoration(
           color: const Color.fromARGB(113, 0, 0, 0),

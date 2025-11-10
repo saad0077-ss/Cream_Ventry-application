@@ -354,11 +354,11 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
-              ),
+              ), 
 
             // ── Chart ──
             SizedBox(
-              height: 270.h,
+              height: 280.h,
               child: CustomLineChart(
                 currentSpots: _currentSpots,
                 previousSpots: _previousSpots,

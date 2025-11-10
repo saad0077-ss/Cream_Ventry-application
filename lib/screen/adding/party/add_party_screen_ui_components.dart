@@ -6,6 +6,7 @@ import 'package:cream_ventory/widgets/text_field.dart';
 import 'package:cream_ventory/db/models/parties/party_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 
@@ -18,20 +19,43 @@ class PartyUIComponents {
     required Function(Uint8List?, String) onPick,
   }) {
     ImageProvider? backgroundImage;
+    
+    // Priority 1: If we have bytes from picker, use them
     if (imageBytes != null) {
       backgroundImage = MemoryImage(imageBytes);
-    } else if (!kIsWeb && imagePath.isNotEmpty) {
-      backgroundImage = FileImage(File(imagePath));
-    } else if (party?.imagePath.isNotEmpty ?? false) {
+    } 
+    // Priority 2: If we have a path and not on web, use file
+    else if (!kIsWeb && imagePath.isNotEmpty) {
+      final file = File(imagePath);
+      if (file.existsSync()) {
+        backgroundImage = FileImage(file);
+      }
+    } 
+    // Priority 3: If party has an existing image
+    else if (party?.imagePath.isNotEmpty ?? false) {
+      final partyImagePath = party!.imagePath;
+      
       if (kIsWeb) {
-        // Assume imagePath is base64 on web
+        // On web, try to decode base64
         try {
-          backgroundImage = MemoryImage(base64Decode(party!.imagePath));
-        } catch (_) {
+          // Check if it has the data:image prefix
+          if (partyImagePath.startsWith('data:image')) {
+            final base64Data = partyImagePath.split(',').last;
+            backgroundImage = MemoryImage(base64Decode(base64Data));
+          } else {
+            // Try direct base64 decode
+            backgroundImage = MemoryImage(base64Decode(partyImagePath));
+          }
+        } catch (e) {
+          debugPrint('Error decoding base64 image: $e');
           backgroundImage = null;
         }
       } else {
-        backgroundImage = FileImage(File(party!.imagePath));
+        // On mobile, use file path
+        final file = File(partyImagePath);
+        if (file.existsSync()) {
+          backgroundImage = FileImage(file);
+        }
       }
     }
 
@@ -43,17 +67,26 @@ class PartyUIComponents {
           onPick(result['bytes'], result['path'] ?? '');
         }
       },
-      child: CircleAvatar(
-        radius: screenWidth * 0.15,
-        backgroundColor: Colors.grey[300],
-        backgroundImage: backgroundImage,
-        child: backgroundImage == null
-            ? Icon(
-                Icons.person,
-                size: screenWidth * 0.15,
-                color: Colors.grey[600],
-              )
-            : null,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.grey[400]!,
+            width: 2,
+          ),
+        ),
+        child: CircleAvatar(
+          radius: 60.r,
+          backgroundColor: Colors.grey[300],
+          backgroundImage: backgroundImage,
+          child: backgroundImage == null
+              ? Icon(
+                  Icons.add_a_photo,
+                  size: 60.r,
+                  color: Colors.grey[600],
+                )
+              : null,
+        ),
       ),
     );
   }
@@ -178,23 +211,23 @@ class PartyUIComponents {
           Expanded(
             child: CustomActionButton(
               label: 'Save & New',
-              backgroundColor:  Color.fromARGB(255, 80, 82, 84),
+              backgroundColor: Color.fromARGB(255, 80, 82, 84),
               onPressed: onSaveAndNew,
-              padding: EdgeInsets.symmetric(  
+              padding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.05,
                 vertical: screenHeight * 0.013,
-              ),
-            ),
+              ), 
+            ),                     
           ),
-          SizedBox(width: 10,),
+          SizedBox(width: 10),
           Expanded(
             child: CustomActionButton(
               label: party != null ? 'Edit Party' : 'Save Party',
-              backgroundColor: Color.fromARGB(255, 85, 172, 213) ,
+              backgroundColor: Color.fromARGB(255, 85, 172, 213),
               onPressed: onSave,
               padding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.05,
-                vertical: screenHeight * 0.013 ,
+                vertical: screenHeight * 0.013,
               ),
             ),
           ),

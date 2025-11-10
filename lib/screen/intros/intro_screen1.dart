@@ -10,6 +10,8 @@ class ScreenIntro1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final bool _isDesktop = MediaQuery.of(context).size.width >= 700; 
     return Scaffold(
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -39,19 +41,21 @@ class ScreenIntro1 extends StatelessWidget {
               ),
               IntroSkipButton(),  
               IntroBottomContainer(
+                containerHeight: _isDesktop ? 340 : 320, 
                 description:
                     '"WELCOME TO Creamventory!🍦\nKEEP YOUR FLAVORS FRESH,\nYOUR STOCK FULL, AND YOUR\nCUSTOMERS HAPPY. LET\'S\nMANAGE YOUR ICE CREAM\nINVENTORY WITH A CHERRY\nON TOP!"',
                 button: CustomButton(
                   label: 'EXPLORE',
+                  fontSize: _isDesktop?20: 18, // Responsive font size
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
+                    Navigator.of(context).pushReplacement( 
                       MaterialPageRoute(builder: (context) => const ScreenIntro2()),
                     );
                   },
                 ),
               ),
             ],
-          );
+          ); 
         },
       ),
     );

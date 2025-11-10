@@ -23,6 +23,17 @@ class CustomActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 400;
+
+    smallfontSize() {
+      if (isSmallScreen) {
+        return 12.0; // Smaller font size for small screens
+      } else {
+        return 19.0; // Default font size for larger screens
+      }
+    }
+
     return SizedBox(
       width: width ?? 170, 
       child: ElevatedButton(
@@ -38,14 +49,14 @@ class CustomActionButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(24), // Fixed pixel radius
             side: BorderSide(
               color: borderColor ?? Colors.blueGrey,
-              width: 2
+              width: 2 
             ),
           ),
         ),
         child: Text(
           label,
-          style: AppTextStyles.regular(
-            fontSize: fontSize ?? 19, // Fixed pixel text size             
+          style: AppTextStyles.regular(      
+            fontSize: fontSize ??  smallfontSize(), // Fixed pixel text size                  
           ),
         ),
       ),

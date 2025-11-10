@@ -112,9 +112,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       CustomTextField(
                         labelText: 'Username',
                         controller: _logic.nameController,
-                        fillColor: Colors.black12,
-                        enabled: false, // Read-only
-                        // Validator still runs on form validate
+                        fillColor: Colors.black12, 
                         validator: _validateUsername,
                       ),
 
@@ -151,7 +149,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         controller: _logic.emailController,
                         keyboardType: TextInputType.emailAddress,
                         fillColor: Colors.black12,
-                        enabled: false,
+                        validator: (value) {
+                          final trimmed = value?.trim() ?? '';
+                          if (trimmed.isEmpty) {
+                            return 'Email is required';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmed)) {
+                            return 'Invalid email format';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 30),

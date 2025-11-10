@@ -36,7 +36,7 @@ class PaymentOutList extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 5 / 0.8,
+                      mainAxisExtent: 170,  
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                     ),

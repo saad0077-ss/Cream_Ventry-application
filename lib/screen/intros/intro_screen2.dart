@@ -35,7 +35,7 @@ class ScreenIntro2 extends StatelessWidget {
               child: SafeArea(
                 child: CustomButton(
                   label: "Let's Get Started",
-                  fontSize: 18, // Responsive font size
+                  fontSize: 18.r, // Responsive font size
                   borderRadius: 10.r, // Responsive border radius
                   onPressed: () {
                     Navigator.of(context).pushReplacement(

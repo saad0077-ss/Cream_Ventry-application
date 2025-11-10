@@ -157,15 +157,15 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
     ),
     builder: (_) => SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding:  EdgeInsets.all(16.r),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+             Text(
               'Export Report',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.r, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+             SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
               title: const Text('Export as PDF'),
@@ -214,20 +214,20 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
         : TimePeriod.monthly;
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding:  EdgeInsets.all(16.r),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title
-            Text(
-              'Expenses Report',
+            Text( 
+              'Expense Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black87,
+                color: Colors.black87, 
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
+             SizedBox(height: 10.h),
 
             // Period filter
             PeriodFilter(
@@ -237,12 +237,12 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                 _loadAll();
               },
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h), 
 
             // Error
             if (_errorMessage != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding:  EdgeInsets.only(bottom: 10.r),
                 child: Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
@@ -251,7 +251,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
 
             // Chart
             SizedBox(
-              height: 270.h,
+              height: 280.h,
               child: CustomLineChart(
                 currentSpots: _currentSpots,
                 previousSpots: _previousSpots,
@@ -264,7 +264,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                 elevation: 2,
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
 
             // Date pickers (re-using the new widget)
             DatePickerRow(
@@ -273,7 +273,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
               onSelectStart: () => _pickDate(true),
               onSelectEnd: () => _pickDate(false),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
 
             // List container
             ReportListContainer<ExpenseModel>(
@@ -286,9 +286,9 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                  contentPadding:  EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
                   ),
                   leading: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -296,42 +296,42 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                     children: [
                       Text(
                         e.category,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 20,
+                          fontSize: 20.r,
                         ),
                       ),
                       Text(
                         _dateFormatter.format(e.date),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 12.r, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                   title: Center(
                     child: Text(
                       e.id.split('-').last,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 12.r,
                         color: Colors.blueAccent,
                       ),
                     ),
                   ),
                   trailing: Text(
                     '₹${e.totalAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 15.r,
                       color: Colors.green,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
 
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding:  EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(8.r),
@@ -339,23 +339,23 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
+                children: [ 
+                   Text(
                     'Total Expenses',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.r),
                   ),
                   Text(
                     '₹${_getTotalExpenses().toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 18.r,
                       color: Colors.red, // Red for expense
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
           ],
         ),
       ),

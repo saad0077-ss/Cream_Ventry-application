@@ -30,7 +30,7 @@ class _SaleScreenState extends State<SaleScreen> {
       sale: widget.sale,
       transactionType: widget.transactionType,
       context: context,
-      setState: setState,                             
+      setState: setState,
     );
     _controller.initialize();
   }
@@ -51,7 +51,7 @@ class _SaleScreenState extends State<SaleScreen> {
       },
       body: SaleBodyWidget.buildBody(
         screenSize: screenSize,
-        children: [
+        scrollableChildren: [
           SaleStatusWarningWidget.buildStatusWarning(
             isCancelled: _controller.isCancelled,
             isClosed: _controller.isClosed,
@@ -64,12 +64,13 @@ class _SaleScreenState extends State<SaleScreen> {
             dueDateController: _controller.dueDateController,
             isEditable: _controller.isEditable,
             transactionType: widget.transactionType,
-            onDateTap: () => SaleAddUtils.selectDate(context, _controller.dateController),
-            onDueDateTap: () => SaleAddUtils.selectDueDate(context, _controller.dueDateController),
+            onDateTap: () =>
+                SaleAddUtils.selectDate(context, _controller.dateController),
+            onDueDateTap: () => SaleAddUtils.selectDueDate(
+                context, _controller.dueDateController),
             onCustomerChanged: _controller.onCustomerChanged,
           ),
           SaleItemsSectionWidget.buildItemsSection(
-            saleItems: _controller.saleItems,
             balanceDue: _controller.balanceDue,
             isEditable: _controller.isEditable,
             onAddItem: _controller.onAddItem,
@@ -78,27 +79,27 @@ class _SaleScreenState extends State<SaleScreen> {
             isReceivedChecked: _controller.isReceivedChecked,
             onReceivedChanged: _controller.onReceivedChanged,
           ),
-          SaleActionButtonsWidget.buildActionButtons(
-            isEditMode: _controller.isEditMode,
-            isEditable: _controller.isEditable,
-            onDelete: () {
-              if (_controller.isEditMode) {
-                SaleAddUtils.deleteSale(
-                  sale: widget.sale!,
-                  context: context,
-                  transactionType: widget.transactionType,
-                ).then((_) {
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
-                });
-              }
-            },
-            onUpdate: () => _controller.saveSale(isSaveAndNew: false),
-            onSaveAndNew: () => _controller.saveSale(isSaveAndNew: true),
-            onSave: () => _controller.saveSale(isSaveAndNew: false),
-          ),
         ],
+        bottomButtons: SaleActionButtonsWidget.buildActionButtons(
+          isEditMode: _controller.isEditMode,
+          isEditable: _controller.isEditable,
+          onDelete: () {
+            if (_controller.isEditMode) {
+              SaleAddUtils.deleteSale(
+                sale: widget.sale!,
+                context: context,
+                transactionType: widget.transactionType,
+              ).then((_) {
+                if (mounted) {
+                  Navigator.pop(context);
+                }
+              });
+            }
+          },
+          onUpdate: () => _controller.saveSale(isSaveAndNew: false),
+          onSaveAndNew: () => _controller.saveSale(isSaveAndNew: true),
+          onSave: () => _controller.saveSale(isSaveAndNew: false),
+        ),
       ),
     );
   }
