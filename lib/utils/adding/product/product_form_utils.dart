@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:cream_ventory/db/functions/category_db.dart';
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
@@ -26,18 +25,18 @@ class ProductFormUtils {
     required void Function(String?) creationDateCallback,
     required void Function(CategoryModel?) selectedCategoryCallback,
     required void Function(File?) selectedImageCallback,
-    required void Function(Uint8List?) selectedImageBytesCallback, // Added for web
+    required void Function(Uint8List?) selectedImageBytesCallback, 
     required void Function(String?) categoryErrorCallback,
     required void Function(bool) isLoadingCallback,
   }) async {
     try {
       isLoadingCallback(true);
 
+      // Load sample categories and refresh - this updates the notifier
       await CategoryDB.loadSampleCategories();
-      final categories = await CategoryDB.getCategoriesByUserId();
-      if (categories.isNotEmpty) {
-        CategoryDB.categoryNotifier.value = categories;
-      }
+      
+      // Just get the current value from the notifier which already has all categories
+      final categories = CategoryDB.categoryNotifier.value;
 
       if (existingProduct != null) {
         _populateExistingProductFields(
@@ -79,7 +78,7 @@ class ProductFormUtils {
     void Function(CategoryModel?) selectedCategoryCallback,
     void Function(File?) selectedImageCallback,
     void Function(Uint8List?) selectedImageBytesCallback,
-    void Function(String?) categoryErrorCallback,
+    void Function(String?) categoryErrorCallback,  
   ) {
     nameController.text = existingProduct.name;
     stockController.text = existingProduct.stock.toString();
@@ -238,25 +237,23 @@ class ProductFormUtils {
       if (existingProduct == null) {
         await ProductDB.addProduct(product);
       } else {
-        await ProductDB.updateProduct(
-          product.id,
-          product,
-          createStockTransaction: false,
-        );
+        await ProductDB.updateProduct(product.id, product);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            existingProduct == null
-                ? 'Product added successfully!'
-                : 'Product updated successfully!',
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              existingProduct == null
+                  ? 'Product added successfully!'
+                  : 'Product updated successfully!',
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
           ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      Navigator.pop(context);
+        );
+        Navigator.pop(context);
+      }
     } catch (e) { 
       _handleError(context, 'Error: $e');
     }
@@ -264,15 +261,14 @@ class ProductFormUtils {
 
   static void _handleError(BuildContext context, String message) {
     debugPrint(message);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating, 
+        ),
+      );
+    }
   }
-
-  
 }
-

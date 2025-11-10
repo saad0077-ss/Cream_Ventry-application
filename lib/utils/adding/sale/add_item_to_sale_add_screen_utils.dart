@@ -2,7 +2,6 @@
 import 'package:cream_ventory/db/functions/category_db.dart';
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/sale/sale_item_db.dart';
-import 'package:cream_ventory/db/functions/stock_db.dart';
 import 'package:cream_ventory/db/functions/user_db.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_item_model.dart';
@@ -102,13 +101,17 @@ class AddItemToSaleUtils {
       int quantityDifference = quantity - originalQuantity;
 
       if (quantityDifference > 0 && product.stock < quantityDifference) {
-        _showSnackBar(context, 'Insufficient stock for ${product.name}', Colors.red);
+        _showSnackBar(
+          context,
+          'Insufficient stock for ${product.name}',
+          Colors.red,
+        );
         return;
       }
 
       try {
         if (isEditMode) {
-          await StockDB.restockProduct(saleItem!.id, originalQuantity);
+          await ProductDB.restockProduct(saleItem!.id, originalQuantity);
         }
 
         final newSaleItem = SaleItemModel(
@@ -133,7 +136,9 @@ class AddItemToSaleUtils {
 
         _showSnackBar(
           context,
-          isEditMode ? 'Sale item updated successfully' : 'Sale item saved successfully',
+          isEditMode
+              ? 'Sale item updated successfully'
+              : 'Sale item saved successfully',
           Colors.green,
         );
 
@@ -152,12 +157,14 @@ class AddItemToSaleUtils {
 
   /// Shows a snackbar with the specified message and color
   static void _showSnackBar(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: color,
-      ),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: color, 
+        ),
+      );
+    }
   }
 }

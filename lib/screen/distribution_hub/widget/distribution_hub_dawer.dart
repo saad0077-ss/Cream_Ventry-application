@@ -23,7 +23,7 @@ class PlaceholderPage extends StatelessWidget {
       body: Center(child: Text('$title Page - Not Implemented')),
     );
   }
-}
+}  
 
 
 
@@ -45,19 +45,19 @@ class DashboardPage extends StatelessWidget {
     final Widget drawerContent = ListView(
       padding: EdgeInsets.zero,
       children: [
-        _buildHeader(screenWidth, isSmallScreen),
+        _buildHeader(screenWidth, isSmallScreen),   
         const SizedBox(height: 50),
         _buildUserInfo(screenWidth, isSmallScreen), 
         const SizedBox(height: 20),
 
         // ----- Menu items ------------------------------------------------
-        _buildMenuItem(
-          context: context,
-          icon: Icons.group,
-          title: 'Parties',
-          onTap: () {},                     // keep your original placeholder
-          isSmallScreen: isSmallScreen,
-        ),
+        // _buildMenuItem(
+        //   context: context,
+        //   icon: Icons.group,
+        //   title: 'Parties',
+        //   onTap: () {},                     // keep your original placeholder
+        //   isSmallScreen: isSmallScreen,
+        // ),
         _buildMenuItem(
           context: context,
           icon: Icons.list,
@@ -108,9 +108,8 @@ class DashboardPage extends StatelessWidget {
     // 3. Return either a Drawer (mobile) or a plain Container (desktop)
     // --------------------------------------------------------------
     if (isDesktop) {
-      // Permanent rail – no scrim, no drag-to-close
       return Container(
-        width: 280,                         // you can tweak this
+        width: 250,                         // you can tweak this
         color: Colors.white,
         child: drawerContent,
       );

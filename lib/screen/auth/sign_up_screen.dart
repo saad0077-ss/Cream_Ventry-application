@@ -63,8 +63,8 @@ class _ScreenSignUpState extends State<ScreenSignUp>
     final double horizontalPadding = 22.w; // ~6% of 375px design width
     // Adjust container height for web/desktop to avoid overflow
     final double containerHeight = kIsWeb
-        ? MediaQuery.of(context).size.height * 0.5 // Larger height for web
-        : 398.h; // ~49% of 812px design height
+        ? MediaQuery.of(context).size.height * 0.48  // Larger height for web
+        : 395.h; // ~49% of 812px design height
     final double containerPaddingHorizontal = 22.5.w; // ~6% of 375px design width
     final double containerPaddingVertical = 20.h; // ~3% of 812px design height
 
@@ -72,8 +72,8 @@ class _ScreenSignUpState extends State<ScreenSignUp>
       body: Stack(
         children: [
           // Animated colored container replacing the background image
-          AnimatedBuilder(
-            animation: _animationController,
+          AnimatedBuilder( 
+            animation: _animationController, 
             builder: (context, child) {
               return Container(
                 decoration: BoxDecoration(

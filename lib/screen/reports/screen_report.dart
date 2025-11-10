@@ -5,6 +5,7 @@ import 'package:cream_ventory/screen/reports/screens/sales_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ScreenReport extends StatefulWidget {
@@ -25,8 +26,8 @@ class _ScreenReportState extends State<ScreenReport> {
       switch (screenName) {
         case 'Sales':
           _currentScreen = const SalesReportScreen();
-          break;
-        case 'Expenses':
+          break; 
+        case 'Expense':
           _currentScreen = const ExpensesReportScreen();    
           break;
         case 'Payment':
@@ -58,10 +59,13 @@ class _ScreenReportState extends State<ScreenReport> {
   }
 
   Widget _buildNavigationButton(String tabName, IconData icon) {
+
+    final bool  isSMobile = MediaQuery.of(context).size.width < 375;
+
     bool isSelected = _getCurrentScreenName() == tabName;
     return Expanded(
       child: GestureDetector(
-        onTapDown: _onTapDown,
+        onTapDown: _onTapDown, 
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
         onTap: () => _navigateToScreen(tabName),
@@ -89,12 +93,12 @@ class _ScreenReportState extends State<ScreenReport> {
                   color: isSelected ? Colors.white : Colors.grey[600],
                   size: 20,
                 ),
-                const SizedBox(height: 4),
+                 SizedBox(height: 4.h),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: isSMobile? 10 : 14.r,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     color: isSelected ? Colors.white : Colors.blueGrey,
                   ),
@@ -110,9 +114,9 @@ class _ScreenReportState extends State<ScreenReport> {
 
   String _getCurrentScreenName() {
     if (_currentScreen is SalesReportScreen) return 'Sales';
-    if (_currentScreen is ExpensesReportScreen) return 'Expenses';
+    if (_currentScreen is ExpensesReportScreen) return 'Expense';
     if (_currentScreen is PaymentsReportScreen) return 'Payment';
-    if (_currentScreen is IncomeReportScreen) return 'Income';
+    if (_currentScreen is IncomeReportScreen) return 'Income'; 
     return 'Income';
   }
 
@@ -121,7 +125,7 @@ class _ScreenReportState extends State<ScreenReport> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Report', 
-        fontSize: 24,
+        fontSize: 24.r,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -131,33 +135,33 @@ class _ScreenReportState extends State<ScreenReport> {
           children: [  
             // Navigation Buttons
             Container(
-              padding: const EdgeInsets.all(8), 
+              padding:  EdgeInsets.all(8.r), 
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
+                    blurRadius: 8.r,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              margin: const EdgeInsets.all(16), 
+              margin:  EdgeInsets.all(16.r), 
               child: Row(
                 children: [ 
-                  _buildNavigationButton('Income', FontAwesomeIcons.indianRupeeSign),
-                  const SizedBox(width: 8,),
+                  _buildNavigationButton('Income', FontAwesomeIcons.indianRupeeSign), 
+                   SizedBox(width: 8.w,),
                   _buildNavigationButton('Sales', Icons.trending_up),
-                  const SizedBox(width: 8),  
-                  _buildNavigationButton('Expenses', FontAwesomeIcons.wallet),
-                  const SizedBox(width: 8),   
+                   SizedBox(width: 8.w),  
+                  _buildNavigationButton('Expense', FontAwesomeIcons.wallet),
+                   SizedBox(width: 8.w),   
                   _buildNavigationButton('Payment', Icons.payment) 
                 ],
               ),
             ),
             // Current Screen
             Expanded(
-              child: _currentScreen,
+              child: _currentScreen, 
             ),
           ],
         ),

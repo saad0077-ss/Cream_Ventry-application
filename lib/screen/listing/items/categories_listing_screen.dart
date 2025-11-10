@@ -22,7 +22,7 @@ class CategoriesTabState extends State<CategoriesTab> {
   Future<void> _loadCategories() async {
     try {
       // Refresh notifier to include samples + current user's categories
-      await CategoryDB.refreshNotifierForCurrentUser();
+      await CategoryDB.loadSampleCategories();
 
       // Update state
       setState(() {
@@ -32,7 +32,7 @@ class CategoriesTabState extends State<CategoriesTab> {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(
+      ScaffoldMessenger.of( 
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to load categories: $e')));
     }
@@ -73,7 +73,7 @@ class CategoriesTabState extends State<CategoriesTab> {
                 return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 5 / 1.4,
+                    mainAxisExtent: 170,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                   ),

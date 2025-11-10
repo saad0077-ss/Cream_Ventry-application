@@ -3,6 +3,7 @@ import 'package:cream_ventory/screen/detailing/category/widgets/category_details
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductCardWidget extends StatelessWidget {
   final ProductModel product;
@@ -12,7 +13,7 @@ class ProductCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin:  EdgeInsets.only(bottom: 16.h),
       elevation: 6,
       shadowColor: Colors.black.withOpacity(0.15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -21,18 +22,18 @@ class ProductCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(colors: [Colors.white, Colors.grey[50]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
-        padding: const EdgeInsets.all(16),
+        padding:  EdgeInsets.all(16.r),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ProductImageWidget(product: product),
-            const SizedBox(width: 16),
+             SizedBox(width: 16.w),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,   
                 children: [
                   Text(product.name, style: AppTextStyles.bold18.copyWith(fontSize: 18, color: Colors.black87)),
-                  const SizedBox(height: 8),
+                   SizedBox(height: 8.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -40,14 +41,14 @@ class ProductCardWidget extends StatelessWidget {
                       _info('Sale Price', '₹${product.salePrice.toStringAsFixed(2)}', Colors.blue[700]!),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                   SizedBox(height: 8.h),
                   _info('Purchase Price', '₹${product.purchasePrice.toStringAsFixed(2)}', Colors.black87),
                 ],
               ),
             ),
           ],
         ),
-      ),
+      ), 
     );
   }
 

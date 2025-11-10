@@ -1,11 +1,7 @@
 // lib/screens/category/widgets/product_image_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io';
-import 'dart:convert';
-
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
-import 'category_details_screen_error_image_widget.dart'; // Fixed import
+import 'package:cream_ventory/utils/adding/image_util.dart';
 
 class ProductImageWidget extends StatelessWidget {
   final ProductModel product;
@@ -19,60 +15,33 @@ class ProductImageWidget extends StatelessWidget {
       height: 80,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[200],
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: _buildImage(),
+        child: Image(
+          image: ImageUtils.getImage(
+            product.imagePath,
+            ),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.red[300],
+              size: 32,
+            ),
+          ),
+        ),
       ),
     );
-  }
-
-  Widget _buildImage() {
-    // 1. Asset Image
-    if (product.isAsset) {
-      return Image.asset(
-        product.imagePath,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => const ErrorImageWidget(),
-      );
-    }
-
-    // 2. Web: Base64 Image
-    if (kIsWeb && product.imagePath.startsWith('data:image')) {
-      try { 
-        final base64Data = product.imagePath.split(',').last;
-        final bytes = base64Decode(base64Data);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const ErrorImageWidget(),
-        );
-      } catch (_) {
-        return const ErrorImageWidget();
-      }
-    }
-
-    // 3. Mobile: File Path
-    try {
-      final file = File(product.imagePath);
-      if (file.existsSync()) {
-        return Image.file(
-          file,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const ErrorImageWidget(),
-        );
-      } else {
-        return const ErrorImageWidget();
-      }
-    } catch (_) {
-      return const ErrorImageWidget();
-    }
   }
 }

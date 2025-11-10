@@ -39,8 +39,8 @@ class ReportListContainer<T> extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
+                style:  TextStyle(
+                  fontSize: 16.r,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

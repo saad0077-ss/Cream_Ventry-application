@@ -15,6 +15,8 @@ class GraphLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final isSmallScreen = MediaQuery.of(context).size.width < 375;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center ,
       children: [
@@ -28,19 +30,19 @@ class GraphLegend extends StatelessWidget {
         ),
         Text(
           selectedPeriod == 'Monthly' ? 'Current Month' : 'Current Week',
-          style: const TextStyle(color: mainColor),
+          style:  TextStyle(color: mainColor,fontSize:isSmallScreen? 10:14.r),
         ),
-        SizedBox(width: 30.w),
+        SizedBox(width: 28.w),
         SizedBox(
-          width: 20.w,
-          child: const Divider(
+          width: 20.w, 
+          child: const Divider(  
             color: Colors.red,
             thickness: 2,
           ),
         ),
         Text(
           selectedPeriod == 'Monthly' ? 'Previous Month' : 'Previous Week',
-          style: const TextStyle(color: Colors.red),
+          style:  TextStyle(color: Colors.red,fontSize:isSmallScreen? 10:14.r),
         ),
       ],
     );

@@ -96,10 +96,12 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                 picker: picker,
                 setStateCallback: setState,
                 selectedImageCallback: (value) => selectedImage = value,
-                selectedImageBytesCallback: (value) => selectedImageBytes = value,
+                selectedImageBytesCallback: (value) =>
+                    selectedImageBytes = value,
                 imageErrorCallback: (value) => imageError = value,
               ),
-              child: (kIsWeb ? selectedImageBytes == null : selectedImage == null)
+              child:
+                  (kIsWeb ? selectedImageBytes == null : selectedImage == null)
                   ? Column(
                       children: [
                         Container(
@@ -155,10 +157,16 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                 }
                 final uniqueCategoryList = categoryList.toList();
                 if (selectedCategory != null &&
-                    !uniqueCategoryList.any((category) => category.id == selectedCategory!.id)) {
+                    !uniqueCategoryList.any(
+                      (c) => c.id == selectedCategory!.id,
+                    )) {
                   setState(() {
-                    selectedCategory = null;
-                    categoryError = 'Selected category not found. Please choose another.';
+                    selectedCategory = uniqueCategoryList.isNotEmpty
+                        ? uniqueCategoryList.first
+                        : null;
+                    categoryError = uniqueCategoryList.isEmpty   
+                        ? 'No categories available.'
+                        : null;
                   });
                 }
                 return Column(
@@ -167,7 +175,7 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                     DropdownButtonFormField<CategoryModel>(
                       value: selectedCategory,
                       hint: const Text('Select Category'),
-                      isExpanded: true,
+                      isExpanded: true,   
                       decoration: InputDecoration(
                         labelText: 'Category',
                         border: const OutlineInputBorder(),
@@ -179,19 +187,22 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                           categoryError = null;
                         });
                       },
-                      items: uniqueCategoryList.map<DropdownMenuItem<CategoryModel>>(
-                        (CategoryModel category) => DropdownMenuItem<CategoryModel>(
-                          value: category,
-                          child: Text(category.name),
-                        ),
-                      ).toList(),
+                      items: uniqueCategoryList
+                          .map<DropdownMenuItem<CategoryModel>>(
+                            (CategoryModel category) =>
+                                DropdownMenuItem<CategoryModel>(
+                                  value: category,
+                                  child: Text(category.name),
+                                ),
+                          )
+                          .toList(),
                     ),
                   ],
                 );
               },
             ),
             const SizedBox(height: 20),
-            TextField( 
+            TextField(
               controller: nameController,
               decoration: InputDecoration(
                 labelText: 'Product Name',
@@ -231,9 +242,11 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
             ),
             const SizedBox(height: 20),
             CustomActionButton(
-              label: widget.existingProduct == null ? 'Create Product' : 'Update Product',
+              label: widget.existingProduct == null
+                  ? 'Create Product'
+                  : 'Update Product',
               backgroundColor: const Color.fromARGB(255, 85, 172, 213),
-               onPressed: () => ProductFormUtils.addButton(
+              onPressed: () => ProductFormUtils.addButton(
                 context: context,
                 existingProduct: widget.existingProduct,
                 nameController: nameController,
@@ -248,7 +261,8 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                 nameErrorCallback: (value) => nameError = value,
                 stockErrorCallback: (value) => stockError = value,
                 salePriceErrorCallback: (value) => salePriceError = value,
-                purchasePriceErrorCallback: (value) => purchasePriceError = value,
+                purchasePriceErrorCallback: (value) =>
+                    purchasePriceError = value,
                 categoryErrorCallback: (value) => categoryError = value,
                 imageErrorCallback: (value) => imageError = value,
               ),

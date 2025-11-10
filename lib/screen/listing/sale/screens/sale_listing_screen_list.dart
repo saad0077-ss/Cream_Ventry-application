@@ -11,7 +11,7 @@ class SaleList extends StatelessWidget {
   const SaleList({super.key, required this.sales});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 900;
  
@@ -21,8 +21,7 @@ class SaleList extends StatelessWidget {
     final bottomPadding = isDesktop ? 100.0 : 60.0;
     final emptyTextSize = isDesktop ? 20.0 : 16.0;
 
-    final gridCrossAxisCount = size.width > 1600 ? 4 : 3;
-    final childAspectRatio =  5 / 1.9;  
+    final gridCrossAxisCount = isDesktop ? 2 : 1;
 
     return Expanded(  
       child: Container(
@@ -55,7 +54,7 @@ class SaleList extends StatelessWidget {
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: gridCrossAxisCount,
-                  childAspectRatio: childAspectRatio,
+                  mainAxisExtent: 170,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 16,
                 ),

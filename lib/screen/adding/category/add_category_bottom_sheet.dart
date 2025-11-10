@@ -83,14 +83,15 @@ class _CategoryBottomSheetContentState
                 children: [
                   _buildHeader(),
                   const SizedBox(height: 12), 
-                  CategoryImagePicker(
+                  CategoryImagePicker( 
                     controller: controller,
                     onImagePicked: () async {
                       await pickCategoryImage(controller,context);
                       updateState();
-                    },
+                    }
                   ),
-                  CategoryErrorText(
+                  CategoryErrorText( 
+
                     errorText: controller.imageError,
                     screenHeight: 800, 
                   ),

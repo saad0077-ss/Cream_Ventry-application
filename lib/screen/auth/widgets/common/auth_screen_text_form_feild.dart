@@ -22,15 +22,18 @@ class CustomTextFormField extends StatelessWidget {
     this.isPassword = false,
     this.isPasswordVisible = false,
     this.togglePasswordVisibility,
-    this.fontFamily = 'ABeeZee',                  
+    this.fontFamily = 'ABeeZee',
     this.textColor,
     this.fillColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = MediaQuery.of(context).size.width > 600;
+
     final Color effectiveTextColor = textColor ?? Colors.white;
-    final Color effectiveFillColor = fillColor ??
+    final Color effectiveFillColor =
+        fillColor ??
         (isPassword
             ? const Color.fromARGB(31, 255, 255, 255)
             : const Color.fromARGB(40, 255, 255, 255));
@@ -38,7 +41,10 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: isPassword && !isPasswordVisible,
-      style: TextStyle(color: effectiveTextColor, fontSize: 16), // Added responsive font size 
+      style: TextStyle(
+        color: effectiveTextColor,
+        fontSize: 16,
+      ), // Added responsive font size
       keyboardType: type,
       decoration: InputDecoration(
         hintText: hintText,
@@ -47,22 +53,21 @@ class CustomTextFormField extends StatelessWidget {
           fontSize: 20, // Responsive font size
           fontFamily: fontFamily,
         ),
-        filled: true,  
+        filled: true,
         fillColor: effectiveFillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.w), // Responsive border radius
+          borderRadius: BorderRadius.circular(
+            isDesktop ? 2.w : 12.w,
+          ), // Responsive border radius
           borderSide: BorderSide.none,
         ),
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 30, // Responsive horizontal padding
-          vertical: 20, // Responsive vertical padding
-        ),
-        suffixIcon: isPassword 
+        contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        suffixIcon: isPassword
             ? IconButton(
-                icon: Icon( 
+                icon: Icon(
                   isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                   color: effectiveTextColor,
-                  size: 24, // Responsive icon size
+                  size: 24, 
                 ),
                 onPressed: togglePasswordVisibility,
               )

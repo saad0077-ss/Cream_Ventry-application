@@ -1,8 +1,6 @@
 import 'package:cream_ventory/db/functions/product_db.dart';
 import 'package:cream_ventory/db/functions/sale/sale_db.dart';
-import 'package:cream_ventory/db/functions/stock_db.dart';
 import 'package:cream_ventory/db/models/items/products/product_model.dart';
-import 'package:cream_ventory/db/models/items/products/stock_model.dart';
 import 'package:cream_ventory/db/models/sale/sale_model.dart';
 import 'package:cream_ventory/db/models/user/user_model.dart';
 import 'package:cream_ventory/screen/home/widgets/home_menu_provider.dart';
@@ -21,189 +19,142 @@ class ScreenHome extends StatelessWidget {
 
   Future<bool> _isNewUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final isNew = !prefs.containsKey('hasLoggedIn_${user.id}');
+    final key = 'hasLoggedIn_${user.id}';
+    final isNew = !prefs.containsKey(key);
     if (isNew) {
-      await prefs.setBool(
-        'hasLoggedIn_${user.id}',
-        true,
-      ); 
+      await prefs.setBool(key, true);
     }
     return isNew;
-  }                       
+  }
 
   @override
   Widget build(BuildContext context) {
     final menuItems = HomeMenuProvider.getMenuItems(context);
     final String today = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
-    // Fetch the current user from UserDB for comparison
-    // final currentUser = UserDB.getCurrentUser(); // Assuming this is a Future
-    // // Since build is synchronous, we'll handle this asynchronously
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   final fetchedUser = await currentUser;
-    //   if (fetchedUser.id != user.id) {
-    //     debugPrint(
-    //       'User ID mismatch! Passed: ${user.id}, Current: ${fetchedUser.id}',
-    //     );
-    //     // Optionally, you can show a snackbar or handle the mismatch
-    //     // ScaffoldMessenger.of(context).showSnackBar(
-    //     //   SnackBar(content: Text('User ID mismatch detected!')),
-    //     // );
-    //   } else { 
-    //     debugPrint('User ID match confirmed: ${user.id}');
-    //   }
-    // });
-
     return Scaffold(
       appBar: CustomAppBar(
         title: ' HOME',
         automaticallyImplyLeading: false,
         center: false,
-      ), 
+      ),
       body: Container(
-        decoration: BoxDecoration(gradient: AppTheme.appGradient),
+        decoration: const BoxDecoration(gradient: AppTheme.appGradient),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.04, 
+              horizontal: MediaQuery.of(context).size.width * 0.04,
               vertical: 20.h,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FutureBuilder<bool>(
-                      future: _isNewUser(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SizedBox.shrink(); // Show nothing while loading
-                        }
-                        final isNewUser = snapshot.data ?? true;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isNewUser
-                                  ? "Welcome to Creamventory" 
-                                  : "Welcome back",   
-                              style: const TextStyle( 
-                                color: Color.fromARGB(255, 55, 56, 57),  
-                                fontFamily: 'Nosifer',
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              isNewUser
-                                  ? "Manage your inventory with ease and efficiency."
-                                  : "Good to see you again! Let's manage your inventory.",
-                              style:  TextStyle(
-                                color: Colors.black,        
-                                fontSize: 12.r,
-                                fontFamily: 'ABeeZee', 
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ), 
-                  ],
-                ), 
-                SizedBox(height: 20.h),
-                // 🔝 Sales Graph Card
-                // SizedBox(
-                //   height: 300, // Define a specific height for SalesGraph
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.center,
-                //     children: [
-                //       Expanded(
-                //         child: SalesGraph(),
-                //       ), // Use Expanded to fill available space
-                //     ],
-                //   ),
-                // ),
-                const SizedBox(height: 20),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Welcome Message
+                FutureBuilder<bool>(
+                  future: _isNewUser(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox.shrink();
+                    }
+                    final isNewUser = snapshot.data ?? true;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: StatCard<List<ProductModel>>(
-                            title: "Total Products",
-                            valueListenable: ProductDB.productNotifier,
+                        Text(
+                          isNewUser ? "Welcome to Creamventory" : "Welcome back",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 55, 56, 57),
+                            fontFamily: 'Nosifer',
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          isNewUser
+                              ? "Manage your inventory with ease and efficiency."
+                              : "Good to see you again! Let's manage your inventory.",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12.r,
+                            fontFamily: 'ABeeZee',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Total Products + Low Stock
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard<List<ProductModel>>(
+                        title: "Total Products",
+                        valueListenable: ProductDB.productNotifier,
+                        valueBuilder: (products) => "${products.length}",
+                        icon: Icons.inventory_2_outlined,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ValueListenableBuilder<List<ProductModel>>(
+                        valueListenable: ProductDB.lowStockNotifier,
+                        builder: (context, lowStockProducts, _) {
+                          return StatCard<List<ProductModel>>(
+                            title: "Low Stocks",
+                            valueListenable: ProductDB.lowStockNotifier,
                             valueBuilder: (products) => "${products.length}",
-                            icon: Icons.inventory_2_outlined,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: ValueListenableBuilder<List<StockModel>>(
-                            valueListenable: StockDB.lowStockNotifier,
-                            builder: (context, lowStockList, _) {
-                              return FutureBuilder<List<StockModel>>(
-                                future: StockDB.getLowStockAlert(
-                                  threshold: 5.0,  
-                                ),
-                                builder: (context, snapshot) {
-                                  final lowStockList =
-                                      snapshot.data ?? StockDB.lowStockNotifier.value;
-                                  final uniqueProductIds = lowStockList
-                                      .map((s) => s.productId)
-                                      .toSet()
-                                      .length;
-                                  return StatCard<int>(
-                                    title: "Low Stocks",
-                                    valueListenable: ValueNotifier(
-                                      uniqueProductIds,
-                                    ),
-                                    valueBuilder: (count) => "$count",
-                                    icon: Icons.warning_amber_outlined,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                            icon: Icons.warning_amber_outlined,
+                            backgroundColor: lowStockProducts.isNotEmpty
+                                ? Colors.orange[50]
+                                : null,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(     
-                          child: StatCard<List<SaleModel>>(
-                            title: "Today's Orders",
-                            valueListenable: SaleDB.saleNotifier,
-                            valueBuilder: (sales) =>
-                                "${sales.where((sale) => sale.dueDate == today).length}",   
-                            icon: Icons.shopping_cart_outlined,
-                          ),
-                        ),   
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: StatCard<List<SaleModel>>(
-                            title: "Today's Sales",
-                            valueListenable: SaleDB.saleNotifier,
-                            valueBuilder: (sales) => 
-                                "${sales.where((sale) => sale.date == today && sale.transactionType != TransactionType.saleOrder).length}",
-                            icon: Icons.attach_money_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+
                 const SizedBox(height: 20),
+
+                // Today's Orders + Today's Sales
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard<List<SaleModel>>(
+                        title: "Today's Orders",
+                        valueListenable: SaleDB.saleNotifier,
+                        valueBuilder: (sales) => sales
+                            .where((sale) => sale.dueDate == today)
+                            .length
+                            .toString(),
+                        icon: Icons.shopping_cart_outlined,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: StatCard<List<SaleModel>>(
+                        title: "Today's Sales",
+                        valueListenable: SaleDB.saleNotifier,
+                        valueBuilder: (sales) => sales
+                            .where((sale) =>
+                                sale.date == today &&
+                                sale.transactionType != TransactionType.saleOrder)
+                            .length
+                            .toString(),
+                        icon: Icons.attach_money_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                // Menu Items with Animation
                 ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: menuItems.length,
                   itemBuilder: (context, index) {
@@ -213,19 +164,20 @@ class ScreenHome extends StatelessWidget {
                       child: TweenAnimationBuilder(
                         tween: Tween<double>(begin: 0, end: 1),
                         duration: Duration(milliseconds: 300 + (index * 100)),
-                        builder: (context, double value, child) {  
+                        builder: (context, double value, child) {
                           return Transform.translate(
-                            offset: Offset(0, 20 * (1 - value)),
+                            offset: Offset(0, 30 * (1 - value)),
                             child: Opacity(
                               opacity: value,
                               child: Card(
-                                elevation: 3,
+                                elevation: 4,
+                                shadowColor: Colors.black.withOpacity(0.1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: HomeMenuTile(item: item),
                               ),
-                            ),    
+                            ),
                           );
                         },
                       ),

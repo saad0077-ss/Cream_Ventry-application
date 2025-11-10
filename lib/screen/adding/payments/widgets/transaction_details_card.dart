@@ -1,6 +1,7 @@
 import 'package:cream_ventory/screen/adding/expense/widgets/adding_expense_screen_dotted_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'qr_code_dialog.dart'; // Import the new QR dialog file
 
 class TransactionDetailsCard extends StatefulWidget {
   final bool isPaymentIn; // Determines if this is for Payment In or Payment Out
@@ -8,6 +9,8 @@ class TransactionDetailsCard extends StatefulWidget {
   final String selectedPaymentType;
   final ValueChanged<String> onAmountChanged;
   final ValueChanged<String?> onPaymentTypeChanged;
+  final String upiId; // UPI ID for QR code (e.g., 'yourbusiness@paytm')
+  final String businessName; // Business name for QR code
 
   const TransactionDetailsCard({
     super.key,
@@ -16,6 +19,8 @@ class TransactionDetailsCard extends StatefulWidget {
     required this.selectedPaymentType,
     required this.onAmountChanged,
     required this.onPaymentTypeChanged,
+    this.upiId = 'business@upi', // Default UPI ID
+    this.businessName = 'Business Name', // Default business name
   });
 
   @override
@@ -55,7 +60,7 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,  
           children: [
             const Text(
               'Transaction Details',
@@ -86,8 +91,8 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard> {
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d*\.?\d{0,2}')),
-                    ],   
-                    onChanged: widget.onAmountChanged,   
+                    ],
+                    onChanged: widget.onAmountChanged,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white24,
@@ -162,7 +167,7 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard> {
                           children: [
                             Icon(
                               paymentType == 'Cash'
-                                  ? Icons.money
+                                  ? Icons.money 
                                   : Icons.payment,
                               color: Colors.black54,
                               size: 20,
@@ -180,7 +185,19 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard> {
                         ),
                       );
                     }).toList(),
-                    onChanged: widget.onPaymentTypeChanged,
+                    onChanged: (String? value) {
+                      widget.onPaymentTypeChanged(value);
+                      // Show QR code dialog for GPay or PhonePe
+                      if (value == 'GPay' || value == 'PhonePe') {
+                        QRCodeDialog.show(
+                          context: context,
+                          paymentType: value!,
+                          amount: widget.amount,
+                          upiId: widget.upiId,
+                          businessName: widget.businessName,
+                        );
+                      }
+                    },
                   ),
                 ),
               ],

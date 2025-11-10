@@ -16,7 +16,7 @@ class NoteAndImageCard extends StatelessWidget {
     required this.imageBytes,
     required this.onImageTap,
   });
-
+                    
   @override
   Widget build(BuildContext context) {
     // Determine image provider

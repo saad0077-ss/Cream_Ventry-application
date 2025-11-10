@@ -189,7 +189,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
         : TimePeriod.monthly;
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding:  EdgeInsets.all(16.r),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +201,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
+             SizedBox(height: 10.h),
 
             // Period Filter
             PeriodFilter(
@@ -211,12 +211,12 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                 _loadAll();
               },
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
 
             // Error
             if (_errorMessage != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding:  EdgeInsets.only(bottom: 10.r),
                 child: Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
@@ -225,7 +225,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
 
             // Chart
             SizedBox(
-              height: 270.h,
+              height: 280.h, 
               child: CustomLineChart(
                 currentSpots: _currentSpots,
                 previousSpots: _previousSpots,
@@ -238,19 +238,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                 elevation: 2,
               ),
             ),
-            const SizedBox(height: 10),
-
-            // // Total Income
-            // Text(
-            //   'Total Income: ₹${_totalIncome.toStringAsFixed(2)}',
-            //   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            //         color: Colors.green,
-            //         fontWeight: FontWeight.w600,
-            //       ),
-            // ),
-            // const SizedBox(height: 20),
-
-            // Date Pickers
+             SizedBox(height: 10.h),
             DatePickerRow(
               startDate: _startDate,
               endDate: _endDate,
@@ -280,22 +268,22 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                     children: [
                       Text(
                         item.type,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style:  TextStyle(
+                          fontSize: 18.r,
                           color: Colors.black87,
                         ),
                       ),
                       Text(
                         _dateFormatter.format(item.date),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 12.r, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                   title: Center(
                     child: Text(
                       item.id.split('-').last,
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style:  TextStyle(
+                        fontSize: 12.r,
                         fontWeight: FontWeight.bold,
                         color: Colors.blueAccent,
                       ),
@@ -303,18 +291,18 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                   ),
                   trailing: Text(
                     '₹${item.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 15.r,
                       color: Colors.green,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+             SizedBox(height: 20.h),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(8.r),  
@@ -323,15 +311,15 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                   Text(
                     'Total Income',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.r),
                   ),
                   Text(
                     '₹${_totalIncome.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 18.r,
                       color: Colors.green,
                     ),
                   ),

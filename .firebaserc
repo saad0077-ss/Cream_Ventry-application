@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "creamventory"
+  },
+  "targets": {
+    "creamventory": {
+      "hosting": {
+        "creamventory": [
+          "creamventory"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -3,11 +3,11 @@ import 'package:cream_ventory/db/functions/sale/sale_item_db.dart';
 import 'package:cream_ventory/db/models/sale/sale_item_model.dart';
 import 'package:cream_ventory/utils/adding/sale/sale_add_screen_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SaleItemsSectionWidget {
   /// Builds the items section (expansion tile, add button, total card)
   static Widget buildItemsSection({
-    required List<SaleItemModel> saleItems,
     required double balanceDue,
     required bool isEditable,
     required VoidCallback onAddItem,
@@ -17,12 +17,12 @@ class SaleItemsSectionWidget {
     required ValueChanged<bool?>? onReceivedChanged,
   }) {
     return ValueListenableBuilder<List<SaleItemModel>>(
-      valueListenable: SaleItemDB.saleItemNotifier,
+      valueListenable: SaleItemDB.saleItemNotifier, 
       builder: (context, items, _) {
         return Column(
           children: [
             ExpansionTile(
-              title: Text(
+              title: Text(                     
                 'Billed Items (${items.length})',
                 style: TextStyle(
                   fontSize: 16,
@@ -38,31 +38,31 @@ class SaleItemsSectionWidget {
               backgroundColor: Theme.of(context).colorScheme.surface,
               collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(12.r),
                 side: BorderSide(
                   color: Theme.of(context).colorScheme.outline,
                   width: 1.0,
                 ),
               ),
               collapsedShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(12.r),
                 side: BorderSide(
                   color: Theme.of(context).colorScheme.outline,
                   width: 1.0,
                 ),
               ),
-              tilePadding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
+              tilePadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
               ),
-              childrenPadding: const EdgeInsets.all(8.0),
+              childrenPadding: EdgeInsets.all(8.w),
               children: items.isEmpty
                   ? [
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          AppConstants.noItemsText,
-                          style: const TextStyle(fontSize: 14),
+                        padding: EdgeInsets.all(16.w),
+                        child: const Text(
+                          'No items added yet',
+                          style: TextStyle(fontSize: 14),
                         ),
                       ),
                     ]
@@ -78,34 +78,34 @@ class SaleItemsSectionWidget {
                             child: Card(
                               elevation: 2,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
+                                borderRadius: BorderRadius.circular(12.r),
                               ),
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 6.0,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 6.h,
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(12.0),
+                                padding: EdgeInsets.all(12.w),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderRadius: BorderRadius.circular(8.r),
                                       child: Container(
-                                        width: 60,
-                                        height: 60,
+                                        width: 60.w,
+                                        height: 60.h,
                                         decoration: BoxDecoration(
                                           image: DecorationImage(
                                             image:
                                                 SaleAddUtils.getImageProvider(
-                                                  item.imagePath,
-                                                ),
+                                              item.imagePath,
+                                            ),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12.0),
+                                    SizedBox(width: 12.w),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -118,24 +118,30 @@ class SaleItemsSectionWidget {
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          const SizedBox(height: 4.0),
+                                          SizedBox(height: 4.h),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12.0,
-                                              vertical: 4.0,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12.w,
+                                              vertical: 4.h,
                                             ),
                                             decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primaryContainer,
                                               borderRadius:
-                                                  BorderRadius.circular(16.0),
+                                                  BorderRadius.circular(16.r),
                                             ),
                                             child: Text(
                                               item.categoryName,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 12,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimaryContainer,
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(height: 8.0),
+                                          SizedBox(height: 8.h),
                                           Text(
                                             '${item.quantity} x ₹${item.rate.toStringAsFixed(2)}',
                                             style: const TextStyle(
@@ -150,23 +156,29 @@ class SaleItemsSectionWidget {
                                           CrossAxisAlignment.end,
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0,
-                                            vertical: 4.0,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w,
+                                            vertical: 4.h,
                                           ),
                                           decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondaryContainer,
                                             borderRadius: BorderRadius.circular(
-                                              8.0,
+                                              8.r,
                                             ),
                                           ),
                                           child: Text(
                                             '#${item.index}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondaryContainer,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(height: 8.0),
+                                        SizedBox(height: 8.h),
                                         Text(
                                           '₹${item.subtotal.toStringAsFixed(2)}',
                                           style: const TextStyle(
@@ -185,13 +197,13 @@ class SaleItemsSectionWidget {
                       ),
                     ],
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 15.h),
             ElevatedButton(
               onPressed: isEditable ? onAddItem : null,
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 elevation: 2,
               ),
@@ -207,14 +219,14 @@ class SaleItemsSectionWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.w),
                 child: Column(
                   children: [
                     Row(
@@ -236,7 +248,7 @@ class SaleItemsSectionWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -250,8 +262,8 @@ class SaleItemsSectionWidget {
                           ],
                         ),
                         SizedBox(
-                          width: 190,
-                          height: 40,
+                          width: 190.w,
+                          height: 40.h,
                           child: TextField(
                             controller: receivedController,
                             keyboardType: TextInputType.number,
@@ -264,7 +276,7 @@ class SaleItemsSectionWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

@@ -3,6 +3,7 @@ import 'package:cream_ventory/screen/distribution_hub/screen/distribution_hub_co
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_appbar.dart';
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_dawer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DistributionHub extends StatefulWidget {
   const DistributionHub({super.key});
@@ -75,7 +76,7 @@ class _DistributionHubState extends State<DistributionHub> {
   @override
   Widget build(BuildContext context) {
     // Determine if the screen is small based on a fixed width threshold
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 800;
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 1000; 
 
     return Scaffold(
       appBar: DistributionAppBar(
@@ -83,7 +84,7 @@ class _DistributionHubState extends State<DistributionHub> {
           Navigator.pop(context); 
         })], 
         isSmallScreen: isSmallScreen,
-      ),
+      ),        
       drawer: isSmallScreen ? DashboardPage() : null,
       body: isSmallScreen ? DistributionHubContainer(
         constraints: BoxConstraints(
@@ -100,7 +101,7 @@ class _DistributionHubState extends State<DistributionHub> {
       ) :
       Row(
         children: [
-          SizedBox(width: 280, child: const DashboardPage()), 
+          SizedBox(width: 280.h, child: const DashboardPage()), 
           Expanded(child: DistributionHubContainer( 
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width,

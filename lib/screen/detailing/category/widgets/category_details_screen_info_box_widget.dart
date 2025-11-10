@@ -1,6 +1,7 @@
 // lib/screens/category/widgets/info_box_widget.dart
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/themes/font_helper/font_helper.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InfoBoxWidget extends StatelessWidget {
   final String label, value;
@@ -13,10 +14,10 @@ class InfoBoxWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: AppTextStyles.w500.copyWith(fontSize: 14, color: Colors.grey[600])),
-        const SizedBox(height: 6),
+         SizedBox(height: 6.h), 
         Container(
           width: screenWidth * 0.4,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding:  EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Colors.grey[100],

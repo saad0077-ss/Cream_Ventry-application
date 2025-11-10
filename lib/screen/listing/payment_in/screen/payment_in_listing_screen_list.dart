@@ -38,7 +38,7 @@ class PaymentInList extends StatelessWidget {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 5 / 0.8, 
+                          mainAxisExtent: 170,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                         ),

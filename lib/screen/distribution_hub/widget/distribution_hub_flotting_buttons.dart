@@ -13,7 +13,7 @@ class ActionButtons extends StatelessWidget {
     required this.onAddSale,
   });
 
-  @override
+  @override  
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -40,7 +40,7 @@ class ActionButtons extends StatelessWidget {
             ),
              
             child: const Icon(Icons.add,color: Colors.white,),
-          ),
+          ),   
           const SizedBox(width: 4), 
           Expanded(
             child: CustomActionButton(

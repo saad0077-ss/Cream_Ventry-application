@@ -22,10 +22,9 @@ class _SaleOrderState extends State<SaleOrder> {
   @override
   void initState() {
     super.initState();
-    SaleDB.init();
   }
 
-  @override
+  @override   
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -53,7 +52,7 @@ class _SaleOrderState extends State<SaleOrder> {
           child: Column(
             children: [
               SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+                scrollDirection: Axis.horizontal,       
                 child: SizedBox(
                   child: Row(
                     children: filters.map((filter) => Padding(

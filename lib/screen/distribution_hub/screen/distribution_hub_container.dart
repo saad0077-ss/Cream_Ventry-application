@@ -7,6 +7,7 @@ import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_bo
 import 'package:cream_ventory/screen/distribution_hub/widget/distribution_hub_flotting_buttons.dart';
 import 'package:cream_ventory/themes/app_theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 class DistributionHubContainer extends StatelessWidget {
@@ -48,7 +49,7 @@ class DistributionHubContainer extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     SizedBox(width: isSmallScreen ? 30 : 50 ),
+                     SizedBox(width: isSmallScreen ? 30.w : 50 ),
                     Expanded(
                       child: buildSummaryCard(
                         onTap: onFilterYoullGet,
@@ -65,7 +66,7 @@ class DistributionHubContainer extends StatelessWidget {
                         currentFilter: currentFilter,
                       ),
                     ),
-                     SizedBox(width:  isSmallScreen ? 35 : 60  ),
+                     SizedBox(width:  isSmallScreen ? 35.w : 60  ),
                     Expanded(
                       child: buildSummaryCard(
                         onTap: onFilterYoullGive,
@@ -82,10 +83,10 @@ class DistributionHubContainer extends StatelessWidget {
                         currentFilter: currentFilter,
                       ),
                     ),
-                     SizedBox(width:  isSmallScreen ? 30 : 50 ),
+                     SizedBox(width:  isSmallScreen ? 30.w : 50 ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                 SizedBox(height: 10.h),
                 Expanded(child: const PartiesTap()), 
               ],
             ),
@@ -94,8 +95,8 @@ class DistributionHubContainer extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: EdgeInsets.only(
-                right: isSmallScreen ? 2 : 12, // Fixed pixel values (0.05 * 400 ≈ 2, 0.3 * 400 ≈ 12)
-                bottom: 24, // Fixed pixel value (3% of typical 800px height ≈ 24)
+                right: isSmallScreen ? 2.w : 12, // Fixed pixel values (0.05 * 400 ≈ 2, 0.3 * 400 ≈ 12)
+                bottom: 24.h, // Fixed pixel value (3% of typical 800px height ≈ 24)
               ),
               child: ActionButtons(
                 onTakePayment: () {
