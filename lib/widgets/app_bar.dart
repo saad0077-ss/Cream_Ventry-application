@@ -1,4 +1,4 @@
-import 'package:cream_ventory/themes/font_helper/font_helper.dart';
+import 'package:cream_ventory/core/constants/font_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

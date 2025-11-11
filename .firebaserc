@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "creamventory"
+    "default": "creamventory-39cfe"
   },
   "targets": {
-    "creamventory": {
+    "creamventory-39cfe": {
       "hosting": {
-        "creamventory": [
-          "creamventory"
+        "main": [
+          "creamventory-39cfe"
         ]
       }
     }
