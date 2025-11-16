@@ -205,7 +205,7 @@ class SaleAddUtils {
   }) async {
     debugPrint('Handling back navigation, isEditMode: $isEditMode');
     bool hasUnsavedChanges = false;
-    final user = await UserDB.getCurrentUser();
+    final user = await UserDB.getCurrentUser();  
     final items = await SaleItemDB.getSaleItems(userId: user.id);
 
     if (isEditMode && isEditable) {
@@ -304,4 +304,4 @@ class SaleAddUtils {
       );
     }
   }
-}
+} 
