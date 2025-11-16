@@ -157,7 +157,7 @@ class _ScreenSplashState extends State<ScreenSplash>
                 child: FadeTransition( 
                   opacity: _logoFadeAnimation, 
                   child: Lottie.asset(
-                    'assets/animation/Main Scene.json',
+                    'assets/animation/mainscene1.json',  
                     controller: _controller,
                     fit: BoxFit.contain,
                     repeat: true,

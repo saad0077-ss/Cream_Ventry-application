@@ -3,6 +3,7 @@ import 'package:cream_ventory/database/functions/payment_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
 import 'package:cream_ventory/models/party_model.dart';
 import 'package:cream_ventory/models/sale_model.dart';
+import 'package:cream_ventory/screens/party/add_party_screen.dart';
 import 'package:cream_ventory/models/payment_in_model.dart';
 import 'package:cream_ventory/models/payment_out_model.dart';
 import 'package:cream_ventory/core/theme/theme.dart';
@@ -24,6 +25,7 @@ class _PartyDetailState extends State<PartyDetail>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  PartyModel? _currentParty;
 
   @override
   void initState() {
@@ -66,6 +68,86 @@ class _PartyDetailState extends State<PartyDetail>
     return party.paymentType.toLowerCase().contains("give") ? "You'll Give" : "You'll Get";
   }
 
+  void _editParty() async {
+  if (_currentParty == null) return;
+
+  final updatedParty = await Navigator.of(context).push<PartyModel>(
+    MaterialPageRoute(    
+      builder: (_) => AddPartyPage(party: _currentParty!),
+    ),    
+  );
+
+  if (updatedParty != null && mounted) {
+    await PartyDb.calculatePartySummary(widget.partyId);
+    setState(() {});   // refresh UI with new data
+  }
+}
+  // Delete Party with confirmation
+  void _deleteParty() async {
+    if (_currentParty == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Text('Delete Party?'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete "${_currentParty!.name}"?\n\nThis action cannot be undone.',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        // Call your delete function here
+        await PartyDb.deleteParty(widget.partyId);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Party deleted successfully'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.pop(context); // Go back after deletion
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete party: $e'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -92,8 +174,65 @@ class _PartyDetailState extends State<PartyDetail>
               userId: '',
             );
 
+        _currentParty = party;
+
         return Scaffold(
-          appBar: CustomAppBar(title: 'PARTY DETAILS', fontSize: 24),
+          appBar: CustomAppBar(
+            title: 'PARTY DETAILS',
+            fontSize: 24,
+            actions: [
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: Colors.black87, size: 28),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                offset: Offset(0, 50),
+                elevation: 8,
+                color: Colors.white,
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    _editParty();
+                  } else if (value == 'delete') {
+                    _deleteParty();
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined, color: Colors.blue, size: 22),
+                        SizedBox(width: 12),
+                        Text(
+                          'Edit Party',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: Colors.red, size: 22),
+                        SizedBox(width: 12),
+                        Text(
+                          'Delete Party',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 8),
+            ],
+          ),
           body: Container(
             width: size.width,
             height: size.height,
@@ -323,8 +462,6 @@ class _PartyDetailState extends State<PartyDetail>
       ),
     );
   }
-
-
 }
 
 // Transaction Item
@@ -430,7 +567,7 @@ class _TransactionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: cancelled
+                      color: cancelled    
                           ? Colors.grey
                           : (item.isPayment
                               ? (item.isIn == true ? const Color(0xFF0DA95F) : const Color(0xFFE74C3C))
@@ -462,7 +599,7 @@ class _TransactionCard extends StatelessWidget {
                 onPressed: () {},
               ),
             ],
-          ),
+          ), 
         ),
       ),
     );

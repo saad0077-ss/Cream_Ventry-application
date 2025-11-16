@@ -8,7 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // 1. Hive (no Firebase inside!)
   await HiveInitialization.initialize();
 
   // await Firebase.initializeApp(
@@ -26,7 +25,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => const MaterialApp(
+      builder: (context, child) => const MaterialApp(   
         debugShowCheckedModeBanner: false,
         home: ScreenSplash(),
       ),

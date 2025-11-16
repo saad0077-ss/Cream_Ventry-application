@@ -18,15 +18,34 @@ class SaleCustomerDropdownWidget {
         if (parties.isEmpty) {
           return TextField(
             controller: customerController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: AppConstants.customerLabel,
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.person),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
+                  width: 2,
+                ),
+              ),
+              prefixIcon: Icon(
+                Icons.person,
+                color: Colors.grey.shade600,
+              ),
               hintText: AppConstants.noCustomersHint,
+              filled: true,
+              fillColor: Colors.grey.shade50,
             ),
             readOnly: true,
           );
         }
+
         PartyModel? selectedParty;
         if (customerController.text.isNotEmpty) {
           selectedParty = parties.firstWhere(
@@ -34,22 +53,112 @@ class SaleCustomerDropdownWidget {
             orElse: () => parties[0],
           );
         }
+
         return DropdownButtonFormField<PartyModel>(
           value: selectedParty,
-          hint: const Text(AppConstants.selectCustomerHint),
+          hint: Text(
+            AppConstants.selectCustomerHint,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
           items: parties.map((party) {
             return DropdownMenuItem<PartyModel>(
               value: party,
-              child: Text(party.name),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                      child: Text(
+                        party.name.isNotEmpty ? party.name[0].toUpperCase() : '?',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        party.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }).toList(),
+          selectedItemBuilder: (BuildContext context) {
+            return parties.map<Widget>((PartyModel party) {
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  party.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }).toList();
+          },
           onChanged: isEditable ? onChanged : null,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: AppConstants.customerLabel,
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
+            labelStyle: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12), 
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),     
+            prefixIcon: Icon(
+              Icons.person,
+              color: isEditable ? Theme.of(context).primaryColor : Colors.grey.shade400,
+            ),
+            filled: true,
+            fillColor: isEditable ? Colors.white : Colors.grey.shade50,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
           isExpanded: true,
+          icon: Icon(
+            Icons.arrow_drop_down,
+            color: isEditable ? Theme.of(context).primaryColor : Colors.grey.shade400,
+          ),
+          dropdownColor: Colors.white,
+          menuMaxHeight: 300,
+          borderRadius: BorderRadius.circular(12),
+          elevation: 8,
           validator: (value) {
             if (value == null && customerController.text.isEmpty) {
               return AppConstants.selectCustomerError;

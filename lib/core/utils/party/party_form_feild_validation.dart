@@ -20,28 +20,26 @@ class PartyValidations {
     }
     // Remove any non-digit characters for validation (e.g., spaces, dashes)
     final cleanedValue = value.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleanedValue.length < 10 || cleanedValue.length > 15) {
-      return 'Contact Number must be between 10 and 15 digits';
+    if (cleanedValue.length <  11) {
+      return 'Contact Number must be at least 10 digits long';
     }
     if (!RegExp(r'^\+?[1-9]\d{9,14}$').hasMatch(cleanedValue)) {
       return 'Enter a valid contact number';
     }
     return null;
-  }
+  }        
 
-  /// Validates the Opening Balance field
-  static String? validateOpeningBalance(String? value) {
+  /// Validates the Opening Balance field (OPTIONAL)
+  static String? validateOpeningBalance(String? value) {  
+    // Opening Balance is now optional - return null if empty
     if (value == null || value.trim().isEmpty) {
-      return 'Opening Balance is required';
+      return null;
     }
     final balance = double.tryParse(value);
     if (balance == null) {
       return 'Enter a valid number';
     }
-    if (balance < 0) {
-      return 'Opening Balance cannot be negative';
-    }
-    if (balance > 10000000) {
+    if (balance > 10000000) {   
       return 'Opening Balance cannot exceed 10,000,000';
     }
     return null;

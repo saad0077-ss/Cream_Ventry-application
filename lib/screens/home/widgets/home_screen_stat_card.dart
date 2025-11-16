@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatCard<T> extends StatelessWidget {
-  final String title; // Card title (e.g., "Total Products")
-  final ValueListenable<T> valueListenable; // Reactive data source
-  final String Function(T) valueBuilder; // Converts value to display string
-  final TextStyle? titleStyle; // Optional title style override
-  final TextStyle? valueStyle; // Optional value style override
-  final IconData? icon; // Optional icon next to title
-  final double blurSigma; // Blur intensity for BackdropFilter
-  final EdgeInsets padding; // Custom padding
-  final double borderRadius; // Corner radius
-  final Color? backgroundColor; // Optional background color override
+  final String title;
+  final ValueListenable<T> valueListenable;
+  final String Function(T) valueBuilder;
+  final TextStyle? titleStyle;
+  final TextStyle? valueStyle;
+  final IconData? icon;
+  final double blurSigma;
+  final EdgeInsets padding;
+  final double borderRadius;
+  final Color? backgroundColor;
+  final List<Color>? gradientColors;
 
   const StatCard({
     super.key,
@@ -24,141 +25,203 @@ class StatCard<T> extends StatelessWidget {
     this.valueStyle,
     this.icon,
     this.blurSigma = 10.0,
-    this.padding = const EdgeInsets.symmetric(horizontal: 18 , vertical: 16), 
+    this.padding = const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
     this.borderRadius = 16.0,
-    this.backgroundColor,
+    this.backgroundColor, 
+    this.gradientColors,
   });
 
   @override
-  Widget build(BuildContext context) {    
-    return Card(
-      elevation: 5, // No elevation to emphasize blur
-      shape: RoundedRectangleBorder(
+  Widget build(BuildContext context) {
+
+    final islargeScreen = MediaQuery.of(context).size.width > 600;
+    
+    final defaultGradient = [
+      Colors.white.withOpacity(0.95),
+      const Color(0xFFF8F9FA).withOpacity(0.98),
+      Colors.white.withOpacity(0.95),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(color: Colors.black.withOpacity(0.3), width: 1),
-      ),  
-      clipBehavior: Clip.antiAlias,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors ?? defaultGradient,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+            spreadRadius: -5,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
           child: Container(
             decoration: BoxDecoration(
-              color: backgroundColor ?? Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(borderRadius),
-              boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),  
-          ], 
-            
+              border: Border.all(
+                color: Colors.grey.withOpacity(0.15),
+                width: 1.5,
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withOpacity(0.5),
+                  Colors.white.withOpacity(0.3),
+                ],
+              ),
             ),
             child: Padding(
               padding: padding,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (icon != null) ...[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [  
-                        ClipOval(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(
-                              sigmaX: 5,
-                              sigmaY: 5,
-                            ), 
-                            child: Container( 
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.transparent,
-                              ),
-                              child: AnimatedScale(
-                                scale: 1.2, // Placeholder for future animation    
-                                duration: const Duration(milliseconds: 200), 
-                                child: Icon(
-                                  icon,
-                                  size: 20.r,
-                                  color: const Color(0xFF8B0000), // Deep Crimson Red
-                                ),
-                              ),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFF667eea).withOpacity(0.95),
+                                const Color(0xFF764ba2).withOpacity(1.0),
+                              ],
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF667eea).withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            icon,
+                            size: 20.r,
+                            color: Colors.white,
                           ),
                         ),
-                         SizedBox(width: 2.w), // Space between icon and title
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: Text(
                             title,
                             style: titleStyle ??
-                                TextStyle( 
+                                TextStyle(
                                   fontSize: 12.r,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                  letterSpacing: 0.2,
                                 ),
-                          ), 
+                          ),
                         ),
                       ],
                     ),
-                     SizedBox(height: 5.h),
+                    SizedBox(height: 12.h),
                   ] else ...[
                     Text(
                       title,
                       style: titleStyle ??
                           TextStyle(
                             fontFamily: 'ABeeZee',
-                            fontSize: 12.r,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            letterSpacing: 0.5,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.5),
-                                offset: const Offset(1, 1),
-                                blurRadius: 9,
-                              ),
-                            ],
+                            fontSize:islargeScreen? 16.r :13.r,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                            letterSpacing: 0.8,
                           ),
                     ),
-                     SizedBox(height: 8.h),
+                    SizedBox(height: 10.h),
                   ],
                   ValueListenableBuilder<T>(
                     valueListenable: valueListenable,
                     builder: (context, value, _) {
                       return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 400),
                         transitionBuilder: (child, animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: child,
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.3),
+                                end: Offset.zero,
+                              ).animate(CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutCubic,
+                              )),
+                              child: child,
+                            ),
                           );
                         },
-                        child: Text(
-                          valueBuilder(value),
+                        child: ShaderMask(
                           key: ValueKey(value),
-                          style: valueStyle ??
-                               TextStyle(
-                                fontSize: 24.r, 
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'ABeeZee',
-                                color: Colors.black,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black26,
-                                    offset: Offset(1, 1),
-                                    blurRadius: 3,
-                                  ), 
-                                ],
-                              ),
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [
+                              Colors.black87,
+                              Colors.black87,
+                            ],
+                          ).createShader(bounds),
+                          child: Text(
+                            valueBuilder(value),
+                            style: valueStyle ??
+                                TextStyle(
+                                  fontSize: 30.r,
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'ABeeZee', 
+                                  color: Colors.black87,
+                                  letterSpacing: -0.5,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                          ),
                         ),
                       );
                     },
                   ),
+                  SizedBox(height: 4.h),
+                  Container(
+                    height: 3,
+                    width: 40.w,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF667eea),
+                          Color(0xFF764ba2),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF667eea).withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
+              ), 
             ),
           ),
         ),

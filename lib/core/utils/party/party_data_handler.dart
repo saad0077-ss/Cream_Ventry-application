@@ -32,7 +32,12 @@ class PartyDataHandler {
       return;
     }
 
-    double parsedBalance = double.tryParse(openingBalance) ?? 0.0;
+    // Handle optional opening balance - default to 0.0 if empty
+    double parsedBalance = 0.0;
+    if (openingBalance.trim().isNotEmpty) {
+      parsedBalance = double.tryParse(openingBalance) ?? 0.0;
+    }
+    
     double finalOpeningBalance =
         paymentType == "You'll Give" ? -parsedBalance.abs() : parsedBalance.abs();
 
@@ -85,7 +90,7 @@ class PartyDataHandler {
 
   void _showSnackBar(BuildContext context, String message, Color backgroundColor) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      SnackBar( 
         content: Text(message),
         behavior: SnackBarBehavior.floating,
         backgroundColor: backgroundColor,

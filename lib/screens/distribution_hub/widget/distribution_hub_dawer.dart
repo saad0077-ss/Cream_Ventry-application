@@ -79,11 +79,6 @@ class DashboardPage extends StatelessWidget {
         ),
         _buildTransactionMenu(context, screenWidth, isSmallScreen),
 
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Divider(color: Colors.grey),
-        ),
-
         _buildMenuItem(
           context: context,
           icon: Icons.person,

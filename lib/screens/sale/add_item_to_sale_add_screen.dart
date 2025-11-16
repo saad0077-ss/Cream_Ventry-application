@@ -6,7 +6,6 @@ import 'package:cream_ventory/screens/sale/widgets/add_items_to_sale/add_item_to
 import 'package:cream_ventory/screens/sale/widgets/add_items_to_sale/add_item_to_sale_add_screen_category_product_selection_widget.dart';
 import 'package:cream_ventory/screens/sale/widgets/add_items_to_sale/add_item_to_sale_add_screen_scaffold_widget.dart';
 import 'package:cream_ventory/screens/sale/widgets/add_items_to_sale/add_item_to_sale_add_screen_total_amount_widget.dart';
-import 'package:cream_ventory/screens/sale/widgets/add_items_to_sale/add_item_to_sale_add_screen_total_button_widget.dart';
 import 'package:flutter/material.dart';
 
 class AddItemToSale extends StatefulWidget {
@@ -53,15 +52,12 @@ class _AddItemToSaleState extends State<AddItemToSale> {
             rateController: _controller.rateController,
           ),
           const SizedBox(height: 20),
-          AddItemTotalButtonWidget.buildTotalButton(
-            onPressed: _controller.calculateTotal, // Use public calculateTotal
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 20),  
           AddItemTotalAmountWidget.buildTotalAmount(
             totalAmountController: _controller.totalAmountController,
           ),
           const SizedBox(height: 20),
-          AddItemActionButtonsWidget.buildActionButtons(
+          AddItemActionButtonsWidget.buildActionButtons( 
             isEditMode: _controller.isEditMode,
             onSaveAndNew: () => _controller.saveSaleItem(saveAndNew: true),
             onSave: () => _controller.saveSaleItem(saveAndNew: false),

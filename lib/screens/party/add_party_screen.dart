@@ -64,7 +64,7 @@ class _AddPartyPageState extends State<AddPartyPage> {
                 SizedBox(height: screenHeight * 0.02),
                 PartyUIComponents.buildPartyNameField(_formController.partyNameController),
                 SizedBox(height: screenHeight * 0.02),
-                PartyUIComponents.buildContactNumberField(_formController.contactNumberController),
+                PartyUIComponents.buildContactNumberField(_formController.contactNumberController,),
                 SizedBox(height: screenHeight * 0.02),
                 PartyUIComponents.buildBalanceAndDateRow(
                   screenWidth: screenWidth,
@@ -77,16 +77,17 @@ class _AddPartyPageState extends State<AddPartyPage> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 PartyUIComponents.buildPaymentTypeSelector(
-                  _formController.paymentType,
-                  (value) {
-                    setState(() {
-                      _formController.paymentType = value.toString();
+                  openingBalanceController: _formController.openingBalanceController,
+                  paymentType: _formController.paymentType,
+                  onChanged: (value) {
+                    setState(() { 
+                      _formController.paymentType = value!;
                     });
                   },
                 ),
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8.0),
-                  child: Text(
+                  child: Text( 
                     'Address',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
@@ -95,10 +96,10 @@ class _AddPartyPageState extends State<AddPartyPage> {
                 SizedBox(height: screenHeight * 0.02),
                 PartyUIComponents.buildEmailField(_formController.emailController),
                 SizedBox(height: screenHeight * 0.05),
-                PartyUIComponents.buildActionButtons(
+                PartyUIComponents.buildActionButtons(      
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
-                  party: widget.party,
+                  party: widget.party,  
                   onSaveAndNew: () => _formController.saveParty(context, clearFields: true),
                   onSave: () => _formController.saveParty(context),
                 ),

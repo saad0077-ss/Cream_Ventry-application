@@ -13,8 +13,8 @@ class PartyFormController {
   final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  String paymentType = "You'll Give";
-  DateTime? selectedDate;
+  String paymentType = "You'll Get";
+  DateTime? selectedDate; 
   Uint8List? imageBytes; // For web image display
   String imagePath = ''; // For native image path
 
