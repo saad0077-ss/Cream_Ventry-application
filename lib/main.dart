@@ -10,17 +10,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveInitialization.initialize();
 
-  // await Firebase.initializeApp(
+  // await Firebase.initializeApp( 
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
-  runApp(const MyApp());
-}
+  runApp(const MyApp());   
+}   
     
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget { 
   const MyApp({super.key});
        
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {   
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,

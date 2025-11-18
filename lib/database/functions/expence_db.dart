@@ -6,10 +6,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 class ExpenseDB {
   static const String _boxName = 'expenseBox';
 
-  // Full expenses notifier (complete list)
   final ValueNotifier<List<ExpenseModel>> allExpensesNotifier = ValueNotifier([]);
   
-  // Keep the original for backward compatibility if needed
   final ValueNotifier<List<ExpenseModel>> expensesNotifier = ValueNotifier([]);
 
   ExpenseDB._internal();
@@ -41,7 +39,7 @@ class ExpenseDB {
       allExpensesNotifier.value = [];
       expensesNotifier.value = [];
     }
-  }
+  } 
 
   // Add a new expense
   Future<void> addExpense(ExpenseModel expense) async {

@@ -42,9 +42,9 @@ class _ChangePasswordState extends State<ChangePassword> {
                     const Text(
                       'RESET YOUR',
                       style: TextStyle(
-                        color: Colors.red,
+                        color: Colors.red, 
                         fontWeight: FontWeight.bold,
-                        fontSize: 69,
+                        fontSize: 61,
                         fontFamily: 'BalooBhaina',
                       ),
                       textAlign: TextAlign.center,
@@ -54,7 +54,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 69,
+                        fontSize: 60,
                         fontFamily: 'BalooBhaina',
                       ),
                       textAlign: TextAlign.center,
@@ -68,7 +68,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       isPassword: true,
                       isPasswordVisible: _logic.isNewPasswordVisible,
                       togglePasswordVisibility: () {
-                        setState(() {
+                        setState(() { 
                           _logic.toggleNewPasswordVisibility();
                         });
                       },
@@ -100,31 +100,36 @@ class _ChangePasswordState extends State<ChangePassword> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomActionButton(
-                          label: 'Cancel',
-                          backgroundColor: Colors.red,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          borderColor: Colors.white,
+                        Expanded(
+                          child: CustomActionButton(
+                            label: 'Cancel',
+                            backgroundColor: Colors.red,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            borderColor: Colors.white,
+                          ),
                         ),
-                        CustomActionButton(
-                          label: 'Change',
-                          backgroundColor: Colors.black,
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _logic.showConfirmDialog(
-                                context,
-                                onConfirm: () async {
-                                  final success = await _logic.changePassword(context);
-                                  if (success) {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                              );
-                            }
-                          },
-                          borderColor: Colors.white,
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: CustomActionButton(
+                            label: 'Change',
+                            backgroundColor: Colors.black,
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _logic.showConfirmDialog(
+                                  context,
+                                  onConfirm: () async {
+                                    final success = await _logic.changePassword(context);
+                                    if (success) {
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                );
+                              }
+                            },
+                            borderColor: Colors.white,
+                          ),
                         ),
                       ],
                     ),

@@ -1,7 +1,7 @@
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/user_model.dart';
 import 'package:cream_ventory/core/theme/theme.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen_body.dart';
+import 'package:cream_ventory/screens/profile/widgets/user_profile_screen_body/user_profile_screen_body.dart';
 import 'package:cream_ventory/core/utils/profile/profile_display_logics.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:flutter/material.dart';

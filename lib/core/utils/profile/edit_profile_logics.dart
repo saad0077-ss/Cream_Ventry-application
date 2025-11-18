@@ -11,79 +11,83 @@ import 'package:uuid/uuid.dart';
 
 class EditProfileLogic {
   File? profileImage;
-  Uint8List? imageBytes; 
+  Uint8List? imageBytes;
   final picker = ImagePicker();
-    final _uuid = Uuid();
-    
+  final _uuid = Uuid();
+  VoidCallback? onImageLoaded;
 
-
-  final TextEditingController nameController = TextEditingController();   
+  // Controllers – now email and username are editable
+  final TextEditingController usernameController = TextEditingController(); // NEW
+  final TextEditingController emailController = TextEditingController();    // Editable
   final TextEditingController distributionController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
   // Initialize profile data for the current user
-  Future<void> initializeProfile() async {
+  Future<void> initializeProfile({VoidCallback? onUpdate}) async {
+    onImageLoaded = onUpdate;
     try {
       final user = await UserDB.getCurrentUser();
+
+      // Name (fallback to username if name is null)
+      usernameController.text = user.name ?? user.username;
+
+
+      // Email is now editable
       emailController.text = user.email;
-      nameController.text = user.name ?? user.username;
+
       distributionController.text = user.distributionName ?? '';
-      phoneController.text = user.phone ?? '';  
+      phoneController.text = user.phone ?? '';
       addressController.text = user.address ?? '';
+
+      // Load existing profile image
       if (user.profileImagePath != null && user.profileImagePath!.isNotEmpty) {
-        if (kIsWeb) { 
-          // Web: Assume profileImagePath is base64 or a URL
+        if (kIsWeb) {
           try {
             imageBytes = base64Decode(user.profileImagePath!);
           } catch (e) {
             debugPrint('Error decoding base64 image: $e');
-          }  
-        } else {   
-          // Native: Load as File
+          }
+        } else {
           profileImage = File(user.profileImagePath!);
-        }   
+        }
       }
-        } catch (e) {
+
+      onImageLoaded?.call();
+    } catch (e) {
       debugPrint('Error initializing profile: $e');
     }
-  }                    
+  }
 
- // Pick image for both web and native
+  // Pick image for both web and native
   Future<void> pickImage(BuildContext context) async {
     try {
       XFile? pickedFile;
-      if (kIsWeb) {
-        // Web: Use file_picker for reliability
+      if (kIsWeb) { 
         FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.image,
           allowMultiple: false,
         );
         if (result != null && result.files.single.bytes != null) {
-          imageBytes = result.files.single.bytes;  
-          profileImage = null; // Clear File for web
+          imageBytes = result.files.single.bytes;
+          profileImage = null;
           pickedFile = XFile.fromData(imageBytes!);
         }
       } else {
-        // Native: Use image_picker
         pickedFile = await picker.pickImage(
           source: ImageSource.gallery,
           imageQuality: 80,
         );
         if (pickedFile != null) {
           profileImage = File(pickedFile.path);
-          imageBytes = null; // Clear bytes for native
+          imageBytes = null;
+          onImageLoaded?.call();
         }
       }
 
-      if (pickedFile != null) {
-        if (!kIsWeb) {
-          // Native: Save image permanently
-          final permanentPath = await _saveImagePermanently(File(pickedFile.path));
-          profileImage = File(permanentPath);
-        }
-        // Web: imageBytes already set
+      if (pickedFile != null && !kIsWeb) {
+        final permanentPath = await _saveImagePermanently(File(pickedFile.path));
+        profileImage = File(permanentPath);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,63 +108,104 @@ class EditProfileLogic {
     final savedImage = await image.copy(permanentPath);
     return savedImage.path;
   }
-  // Save profile changes
+
+  // Save profile changes – now includes email & username
   Future<bool> saveProfile(BuildContext context) async {
-    try {
-      final user = await UserDB.getCurrentUser();
-      String? imagePath;
+  try {
+    final user = await UserDB.getCurrentUser();
 
-      if (kIsWeb && imageBytes != null) {
-        // Web: Store image as base64
-        imagePath = base64Encode(imageBytes!);
-      } else if (profileImage != null) {
-        // Native: Store file path
-        imagePath = profileImage!.path;
-      }
+    // Get and validate inputs
+    final newUsername = usernameController.text.trim();
+    final newEmail = emailController.text.trim().toLowerCase();
 
-      // Update user profile using UserDB
-      final success = await UserDB.updateProfile(
-        userId: user.id,
-        name: nameController.text.trim(),
-        distributionName: distributionController.text.trim(),    
-        phone: phoneController.text.trim(),
-        address: addressController.text.trim(),
-        profileImagePath: imagePath,
-      );
-
-      debugPrint(user.profileImagePath); 
-
-      if (success) {
-        CustomSnackbar.show(
-          context: context,
-          message: 'Profile updated successfully!',
-          backgroundColor: Colors.green,
-        );
-        return true;
-      } else {
-        CustomSnackbar.show(
-          context: context,
-          message: 'Failed to update profile. Please try again.',
-          backgroundColor: Colors.red,
-        );
-        return false;
-      }
-    } catch (e) {
+    // === VALIDATION ===
+    if (newUsername.isEmpty) {
       CustomSnackbar.show(
         context: context,
-        message: 'An error occurred while saving profile.',
+        message: 'Username cannot be empty',
         backgroundColor: Colors.red,
       );
-      print('Error saving profile: $e');
       return false;
     }
-  }
 
-  // Dispose controllers to prevent memory leaks
+    if (newUsername.length < 3) {
+      CustomSnackbar.show(
+        context: context,
+        message: 'Username must be at least 3 characters',
+        backgroundColor: Colors.red,
+      );
+      return false;
+    }
+
+    if (!RegExp(r'^[a-z0-9_]+$').hasMatch(newUsername)) {
+      CustomSnackbar.show(
+        context: context,
+        message: 'Username can only contain lowercase letters, numbers, and _',
+        backgroundColor: Colors.red,
+      );
+      return false;
+    }
+
+    if (!RegExp(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$').hasMatch(newEmail)) {
+      CustomSnackbar.show(
+        context: context,
+        message: 'Please enter a valid email',
+        backgroundColor: Colors.red,
+      );
+      return false;
+    }
+    // === END VALIDATION ===
+
+    String? imagePath;
+    if (kIsWeb && imageBytes != null) {
+      imagePath = base64Encode(imageBytes!);
+    } else if (profileImage != null) {
+      imagePath = profileImage!.path;
+    }
+
+    // === PASS NEW VALUES ===
+    final success = await UserDB.updateProfile(
+      userId: user.id,
+      name: newUsername.isEmpty ? null : newUsername,
+      username: newUsername,           // ← This is now guaranteed non-empty
+      email: newEmail,                 // ← Lowercased
+      distributionName: distributionController.text.trim().isEmpty ? null : distributionController.text.trim(),
+      phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+      address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
+      profileImagePath: imagePath,
+    );
+
+    if (success) {
+      CustomSnackbar.show(
+        context: context,
+        message: 'Profile updated successfully!', 
+        backgroundColor: Colors.green,
+      ); 
+      return true;
+    } else {
+      CustomSnackbar.show(
+        context: context,
+        message: 'Username or email already in use',
+        backgroundColor: Colors.red,
+      );
+      return false;
+    }
+  } catch (e) {
+    debugPrint('Error saving profile: $e');
+    CustomSnackbar.show(
+      context: context,
+      message: 'Failed to update profile: $e',
+      backgroundColor: Colors.red,
+    );
+    return false;
+  }
+}
+
+  // Dispose controllers
   void dispose() {
-    nameController.dispose();
-    distributionController.dispose();
+    usernameController.dispose();   
     emailController.dispose();
+    distributionController.dispose();
     phoneController.dispose();
     addressController.dispose();
   }

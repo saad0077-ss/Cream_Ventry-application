@@ -139,44 +139,67 @@ class UserDB {
 
   /// Update user profile information
   static Future<bool> updateProfile({
-    required String userId,
-    String? name,
-    String? distributionName,
-    String? phone,
-    String? address,
-    String? profileImagePath,
-  }) async {
-    try {
-      await initializeHive();
-      final box = Hive.box<UserModel>(_userBoxName);
-      final user = box.get(userId);
+  required String userId,
+  String? name,
+  String? username,
+  String? email,
+  String? distributionName,
+  String? phone,
+  String? address,
+  String? profileImagePath,
+}) async {
+  try {
+    await initializeHive();
+    final box = Hive.box<UserModel>(_userBoxName);
+    final user = box.get(userId);
 
-      if (user == null) {
-        debugPrint('User not found for ID: $userId');
-        return false;
+    if (user == null) return false;
+
+    // Normalize
+    final normalizedUsername = username?.toLowerCase().trim();
+    final normalizedEmail = email?.toLowerCase().trim(); 
+
+    // Skip if no change
+    final usernameChanged = normalizedUsername != null && normalizedUsername != user.username;
+    final emailChanged = normalizedEmail != null && normalizedEmail != user.email;
+
+    // === CHECK UNIQUENESS ===
+    if (usernameChanged || emailChanged) {
+      for (final u in box.values) {
+        if (u.id == userId) continue;
+
+        if (usernameChanged && u.username == normalizedUsername) {
+          debugPrint('Username already exists: $normalizedUsername');
+          return false;
+        }
+        if (emailChanged && u.email == normalizedEmail) {
+          debugPrint('Email already exists: $normalizedEmail');
+          return false;
+        }
       }
-
-      // Create updated user with new profile data
-      final updatedUser = UserModel(
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        password: user.password,
-        name: name ?? user.name,
-        distributionName: distributionName ?? user.distributionName,
-        phone: phone ?? user.phone,
-        address: address ?? user.address,
-        profileImagePath: profileImagePath ?? user.profileImagePath,
-      );
-
-      await box.put(userId, updatedUser);
-      debugPrint('Profile updated for user: ${updatedUser.username}');
-      return true;
-    } catch (e) {
-      debugPrint('Error updating profile: $e');
-      return false;
     }
+
+    // === SAVE ===
+    final updatedUser = UserModel(
+      id: user.id,
+      email: normalizedEmail ?? user.email,
+      username: normalizedUsername ?? user.username,
+      password: user.password,
+      name: name?.trim(),
+      distributionName: distributionName?.trim(),
+      phone: phone?.trim(),
+      address: address?.trim(),
+      profileImagePath: profileImagePath,
+    );
+
+    await box.put(userId, updatedUser);
+    debugPrint('Profile updated: ${updatedUser.username} (${updatedUser.email})');
+    return true;
+  } catch (e) {
+    debugPrint('Update error: $e');
+    return false;
   }
+}
 
   /// Update user password
   static Future<bool> updatePassword({
