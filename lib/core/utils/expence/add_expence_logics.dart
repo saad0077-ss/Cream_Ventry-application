@@ -5,11 +5,13 @@ import 'package:cream_ventory/models/expence_model.dart';
 import 'package:cream_ventory/models/expense_category_model.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class AddExpenseLogic {
   final TextEditingController invoiceController = TextEditingController();
   final TextEditingController totalAmountController = TextEditingController(
-    text: '₹',
+    text: '₹0.00',
   );
   String selectedCategory = 'EXPENSE CATEGORY';
   DateTime selectedDate = DateTime.now();
@@ -28,8 +30,6 @@ class AddExpenseLogic {
     },
   ];
 
-  // If an expense is provided, it loads the expense for editing.
-  // Otherwise, it generates a new invoice number automatically.
   AddExpenseLogic({ExpenseModel? expense}) {
     if (expense != null) {
       loadExpense(expense);
@@ -38,7 +38,6 @@ class AddExpenseLogic {
     }
   }
 
-  // Initialize data
   Future<void> initializeUserAndData(
     BuildContext context,
     Function setState,
@@ -48,7 +47,6 @@ class AddExpenseLogic {
     }
   }
 
-  // Disposes TextEditingControllers to prevent memory leaks when the widget is destroyed.
   void dispose() {
     for (var item in billedItems) {
       (item['nameController'] as TextEditingController?)?.dispose();
@@ -59,7 +57,6 @@ class AddExpenseLogic {
     totalAmountController.dispose();
   }
 
-  // Automatically generates a new invoice number when adding, not updating.
   Future<void> _setAutoInvoiceNumber() async {
     if (existingExpense != null) return;
     final db = ExpenseDB();
@@ -67,13 +64,25 @@ class AddExpenseLogic {
     invoiceController.text = nextInvoice;
   }
 
-  // Opens a date picker dialog for selecting a date.
   Future<void> selectDate(BuildContext context, Function setState) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue[600]!,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -83,7 +92,6 @@ class AddExpenseLogic {
     }
   }
 
-  // Adds a new item to billedItems with a unique ID and empty controllers.
   void addNewItem(Function setState) {
     debugPrint('Before adding: ${billedItems.length} items');
     setState(() {
@@ -102,7 +110,6 @@ class AddExpenseLogic {
     });
   }
 
-  // Removes an item at the specified index, ensuring at least one item remains.
   void removeItem(int index, Function setState, BuildContext context) {
     setState(() {
       if (billedItems.length > 1) {
@@ -114,19 +121,24 @@ class AddExpenseLogic {
             ?.dispose();
         billedItems.removeAt(index);
         calculateTotal();
+        
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: 'Item removed successfully',
+          ),
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('At least one item is required'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red,
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.info(
+            message: 'At least one item is required',
           ),
         );
       }
     });
   }
 
-  // Calculates each item's amount (qty * rate) and updates the total.
   void calculateTotal() {
     double total = 0.0;
     for (var item in billedItems) {
@@ -140,14 +152,12 @@ class AddExpenseLogic {
     totalAmountController.text = '₹${total.toStringAsFixed(2)}';
   }
 
-  // Saves the expense and resets the form for a new entry.
   Future<void> saveAndNew(Function setState, BuildContext context) async {
     if (!_validateFields(context)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all required fields correctly.'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message: 'Please fill in all required fields correctly',
         ),
       );
       return;
@@ -162,7 +172,7 @@ class AddExpenseLogic {
         (item['rateController'] as TextEditingController?)?.dispose();
       }
       invoiceController.clear();
-      totalAmountController.text = '₹';
+      totalAmountController.text = '₹0.00';
       selectedCategory = 'EXPENSE CATEGORY';
       selectedDate = DateTime.now();
       existingExpense = null;
@@ -174,26 +184,25 @@ class AddExpenseLogic {
           'rate': 0.0,
           'amount': 0.0,
           'nameController': TextEditingController(),
-          'qtyController': TextEditingController(text: '0'),
-          'rateController': TextEditingController(text: '0.0'),
+          'qtyController': TextEditingController(),
+          'rateController': TextEditingController(),
         },
       ];
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Saved and ready for new entry!'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.green,
+    showTopSnackBar(
+      Overlay.of(context),
+      const CustomSnackBar.success(
+        message: '✓ Saved successfully! Ready for new entry',
       ),
     );
 
     await _setAutoInvoiceNumber();
   }
 
-  // Saves the expense to the database (add or update).
   Future<void> save(BuildContext context, {bool shouldPop = true}) async {
     if (!_validateFields(context)) return;
+    
     final user = await UserDB.getCurrentUser();
     final expense = ExpenseModel(
       id:
@@ -221,37 +230,35 @@ class AddExpenseLogic {
     try {
       if (existingExpense != null) {
         await expenseDB.updateExpense(expense);
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: '✓ Expense updated successfully!',
+          ),
+        );
       } else {
         await expenseDB.addExpense(expense);
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            existingExpense != null
-                ? 'Expense updated successfully!'
-                : 'Expense saved successfully!',
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: '✓ Expense saved successfully!',
           ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.green,
-        ),
-      );
+        );
+      }
 
       if (shouldPop) {
         Navigator.of(context).pop(expense);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving expense: $e'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: 'Error saving expense: $e',
         ),
       );
-    }
+    }   
   }
 
-  // Loads an existing expense from the database model.
   void loadExpense(ExpenseModel expense) {
     existingExpense = expense;
     invoiceController.text = expense.invoiceNo;
@@ -279,25 +286,22 @@ class AddExpenseLogic {
     calculateTotal();
   }
 
-  // Add this method to AddExpenseLogic class
-Future<List<ExpenseCategoryModel>> loadCategories() async {
-  return await ExpenseCategoryDB.getCategories();
-}
+  Future<List<ExpenseCategoryModel>> loadCategories() async {
+    return await ExpenseCategoryDB.getCategories();
+  }
 
-// Add textBoldStyle getter if not exists
-TextStyle get textBoldStyle => AppTextStyles.textBold;
+  TextStyle get textBoldStyle => AppTextStyles.textBold;
 
   Future<List<ExpenseCategoryModel>> fetchExpenseCategories() async {
-  final categories = await ExpenseCategoryDB.getCategories();
-  categories.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-  return categories;
-}
+    final categories = await ExpenseCategoryDB.getCategories();
+    categories.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return categories;
+  }
 
-Future<void> addNewCategory(String categoryName) async {
-  await ExpenseCategoryDB.addCategory(categoryName);
-}
+  Future<void> addNewCategory(String categoryName) async {
+    await ExpenseCategoryDB.addCategory(categoryName);
+  }
 
-  // Validates form fields, ensuring all required inputs are correct.
   bool _validateFields(BuildContext context) {
     if (invoiceController.text.isEmpty ||
         selectedCategory == 'EXPENSE CATEGORY' ||
@@ -317,19 +321,11 @@ Future<void> addNewCategory(String categoryName) async {
               qty <= 0 ||
               rate <= 0;
         })) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all required fields correctly.'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
-        ),
-      );
       return false;
     }
     return true;
   }
 
-  // Updates an existing expense in the database.
   Future<void> updateExpense(
     ExpenseModel oldExpense,
     BuildContext context,
@@ -356,45 +352,40 @@ Future<void> addNewCategory(String categoryName) async {
 
     try {
       await ExpenseDB().updateExpense(updatedExpense);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Expense updated successfully'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.green,
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.success(
+          message: '✓ Expense updated successfully',
         ),
       );
       Navigator.of(context).pop();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating expense: $e'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
-        ),       
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: 'Error updating expense: $e',
+        ),
       );
     }
   }
 
-  // Deletes an expense from the database.
   Future<void> deleteExpense(BuildContext context, String expenseId) async {
     try {
       await ExpenseDB().deleteExpense(expenseId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Expense deleted successfully!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.success(
+          message: '✓ Expense deleted successfully!',
         ),
       );
       Navigator.of(context).pop();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting expense: $e'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: 'Error deleting expense: $e',
         ),
       );
     }
   }
-}
+}   

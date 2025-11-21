@@ -56,20 +56,36 @@ class ExpenseCategoryDB {
     }
   }
 
-  // Delete a category at the given index
-  static Future<bool> deleteCategory(int index) async {
+  static Future<bool> deleteCategoryByName(String name) async {
+    if (name.trim().isEmpty) return false;
+
+    final trimmedName = name.trim();
     try {
-      final box = await Hive.openBox<ExpenseCategoryModel>(_boxName);
-      if (index < 0 || index >= box.length) {
-        debugPrint('Invalid index $index for category deletion');
+      final box = Hive.box<ExpenseCategoryModel>(_boxName);
+      final user = await UserDB.getCurrentUser();
+
+      // Find the key of the category that matches name (case-insensitive)
+      final int? keyToDelete = box.keys.cast<int>().firstWhere(
+        (key) {
+          final category = box.get(key);
+          return category != null &&
+                 category.userId == user.id &&
+                 category.name.trim().toLowerCase() == trimmedName.toLowerCase();
+        },
+        orElse: () => -1, // not found
+      );
+
+      if (keyToDelete == -1) {
+        debugPrint('Category "$trimmedName" not found for deletion');
         return false;
       }
-      await box.deleteAt(index);
+
+      await box.delete(keyToDelete);
       _updateNotifier();
-      debugPrint('Deleted category at index $index');
+      debugPrint('Deleted category: "$trimmedName" (key: $keyToDelete)');
       return true;
     } catch (e) {
-      debugPrint('Error deleting category: $e');
+      debugPrint('Error deleting category by name "$trimmedName": $e'); 
       return false;
     }
   }

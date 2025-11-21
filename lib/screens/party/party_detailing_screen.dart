@@ -591,7 +591,7 @@ class _TransactionCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                ],
+                ], 
               ),
               const SizedBox(width: 8),
               IconButton(

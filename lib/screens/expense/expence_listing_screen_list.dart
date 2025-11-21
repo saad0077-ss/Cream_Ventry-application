@@ -1,9 +1,7 @@
-
 import 'package:cream_ventory/models/expence_model.dart';
 import 'package:cream_ventory/screens/expense/add_expense_screen.dart';
-import 'package:cream_ventory/widgets/listing_screen_list.dart';
+import 'package:cream_ventory/screens/expense/widgets/expense_card.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
-import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseList extends StatelessWidget {
@@ -12,12 +10,12 @@ class ExpenseList extends StatelessWidget {
   const ExpenseList({super.key, required this.expenses});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return Expanded(
-      child: Stack(    
+      child: Stack(
         children: [
           if (expenses.isEmpty)
-             Center(   
+            Center(
               child: Text(
                 'No expenses to display.',
                 style: AppTextStyles.emptyListText,
@@ -29,7 +27,8 @@ class ExpenseList extends StatelessWidget {
               itemCount: expenses.length,
               itemBuilder: (context, index) {
                 final expense = expenses[index];
-                return ReportLists(
+                return ExpenseCard(
+                  expense: expense,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -38,14 +37,9 @@ class ExpenseList extends StatelessWidget {
                             AddExpensePage(existingExpense: expense),
                       ),
                     );
-                  },
-                  name: expense.category,
-                  amount:
-                      '₹${FormatUtils.formatAmount(expense.totalAmount)}',
-                  date: FormatUtils.formatDate(expense.date),
-                  saleId: expense.invoiceNo.toString(),
+                  }, 
                 );
-              }, 
+              },
             ),
         ],
       ),
