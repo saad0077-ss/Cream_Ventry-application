@@ -39,16 +39,14 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
               height: 20,
             ), // Responsive height (~2.5% of 812px design height)
             CustomTextFormField(
-              labelText: 'Username or Email' ,
               controller: _usernameController,
               hintText: 'Username or Email',
-              validator: LoginFunctions.validateUsernameOrEmail, 
+              validator: LoginFunctions.validateUsernameOrEmail,
             ),
             SizedBox(
               height: 25,
             ), 
             CustomTextFormField(
-              labelText: 'Password',
               controller: _passwordController,
               hintText: 'Password',
               validator: LoginFunctions.validatePassword,

@@ -1,11 +1,8 @@
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/screens/home/home_screen.dart';
+import 'package:cream_ventory/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Import top_snackbar_flutter
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class SignInFunctions {
   // Navigate to Home after Sign-Up
@@ -22,67 +19,55 @@ class SignInFunctions {
         final email = emailController.text.trim().toLowerCase();
         final password = passwordController.text.trim();
 
-        // Create new user
-        await UserDB.createUser(
+        // Create new user using UserDB
+         await UserDB.createUser(
           email: email,
           username: username,
-          password: password,
+          password: password, 
         );
-
+ 
         final user = await UserDB.getCurrentUser();
 
-        // Save login state
+        // Set isLoggedIn to true after successful sign-up 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await UserDB.setLoggedInStatus(true, user.id);
 
-        // Success Top Snackbar
-        showTopSnackBar(
-          Overlay.of(context),
-          const CustomSnackBar.success(
-            message: "Successfully Registered! Welcome!",
-            icon: Icon(Icons.sentiment_very_satisfied, color: Colors.white, size: 40),
-            backgroundColor: Colors.green,
-          ),
+        await UserDB.setLoggedInStatus(true,user.id); // Set login status in UserDB
+
+        
+        // Show success SnackBar                      
+        CustomSnackbar.show(
+          context: context,
+          message: 'Successfully Registered!',
+          backgroundColor: Colors.green,
         );
 
-        // Navigate to Home after short delay
-        await Future.delayed(const Duration(milliseconds: 1200));
-        if (context.mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => ScreenHome(user: user)),
-            (route) => false,
-          );
-        }
+        // Navigate to HomeScreen after short delay
+        await Future.delayed(const Duration(seconds: 1));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) =>  ScreenHome(user: user,)),
+          (route) => false,
+        );
       } catch (e) {
         String errorMessage;
         if (e.toString().contains('already exists')) {
           errorMessage = 'Email or username already taken.';
         } else {
-          errorMessage = 'Registration failed. Please try again.';
+          errorMessage = 'Registration failed. Please try again.';                  
         }
-
-        // Error Top Snackbar
-        showTopSnackBar(
-          Overlay.of(context),
-          CustomSnackBar.error(
-            message: errorMessage,
-            icon: const Icon(Icons.error_outline, color: Colors.white, size: 40),
-            backgroundColor: Colors.red.shade600,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: errorMessage,
+          backgroundColor: Colors.red,
         );
         debugPrint('Registration error: $e');
       }
     } else {
-      // Form validation failed
-      showTopSnackBar(
-        Overlay.of(context),
-        const CustomSnackBar.info(
-          message: "Please fill out all fields correctly",
-          backgroundColor: Colors.orange,
-          icon: Icon(Icons.info_outline, color: Colors.white, size: 40),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: 'Please fill out all fields correctly',
+        backgroundColor: Colors.red,
       );
     }
   }
@@ -115,7 +100,7 @@ class SignInFunctions {
   static String? validatePassword(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Password is required';
-    } 
+    }
     if (value.trim().length < 6) {
       return 'Password must be at least 6 characters';
     }

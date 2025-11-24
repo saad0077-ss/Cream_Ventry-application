@@ -34,14 +34,12 @@ class _FormFeildState extends State<FormFeild> {
         children: [
           SizedBox(height: 30), 
           CustomTextFormField(
-            labelText: 'Username',
             controller: _usernameController,
             hintText: 'Enter your Username', 
             validator: SignInFunctions.validateUsername,
           ),
           SizedBox(height: 25), 
           CustomTextFormField(
-            labelText: 'Email',
             controller: _emailController,
             hintText: 'Enter your Email',
             validator: SignInFunctions.validateEmail,
@@ -49,7 +47,6 @@ class _FormFeildState extends State<FormFeild> {
           ),
           SizedBox(height: 25), 
           CustomTextFormField(
-            labelText: 'Password',
             controller: _passwordController,
             hintText: 'Enter your Password',
             validator: SignInFunctions.validatePassword,
@@ -58,7 +55,7 @@ class _FormFeildState extends State<FormFeild> {
             togglePasswordVisibility: () {
               setState(() {
                 isPasswordVisible = !isPasswordVisible;
-              }); 
+              });
             },
           ),
           SizedBox(height: 40),

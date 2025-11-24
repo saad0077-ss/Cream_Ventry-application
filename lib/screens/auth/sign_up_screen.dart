@@ -1,4 +1,3 @@
-import 'package:cream_ventory/screens/auth/desktop/screen_sign_up_desktop.dart';
 import 'package:cream_ventory/screens/auth/widgets/auth_screen_center_text.dart';
 import 'package:cream_ventory/screens/auth/widgets/sign_in_screen_text_container.dart';
 import 'package:cream_ventory/screens/auth/widgets/sign_up_screen_form_feild.dart';
@@ -7,7 +6,7 @@ import 'package:cream_ventory/widgets/positioned.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
- 
+
 class ScreenSignUp extends StatefulWidget {
   const ScreenSignUp({super.key});
 
@@ -59,19 +58,6 @@ class _ScreenSignUpState extends State<ScreenSignUp>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Use desktop layout for screens >= 1000px
-    if (screenWidth >= 1000) {
-      return ScreenSignUpDesktop(
-        animationController: _animationController,
-        breatheAnimation: _breatheAnimation,
-        gradientAnimation1: _gradientAnimation1,
-        gradientAnimation2: _gradientAnimation2,
-      );
-    }
-
-    // Mobile/Tablet layout
     // Define responsive sizes using ScreenUtil
     final double bottomPadding = 21.3.h; // ~3% of 812px design height
     final double horizontalPadding = 22.w; // ~6% of 375px design width
