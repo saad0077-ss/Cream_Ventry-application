@@ -11,35 +11,39 @@ import 'package:cream_ventory/database/functions/category_db.dart';
 import 'package:cream_ventory/models/category_model.dart';
 import 'package:uuid/uuid.dart';
 
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
 Future<void> pickCategoryImage(
   CategoryAddController controller,
   BuildContext context,
 ) async {
   if (controller.isPickingImage) return;
-  
+
   controller.isPickingImage = true;
   try {
     String? imagePath;
     Uint8List? imageBytes;
 
     if (kIsWeb) {
-      // Web: Use file_picker for reliability
+      // Web: Use file_picker
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
       );
       if (result != null && result.files.single.bytes != null) {
         imageBytes = result.files.single.bytes!;
-        // Store as base64 string with data URI prefix for web
         imagePath = 'data:image/png;base64,${base64Encode(imageBytes)}';
-        
-        // Update controller with the picked image
+
         controller.selectedImagePath = imagePath;
         controller.selectedImageBytes = imageBytes;
         controller.imageError = null;
+
+        _showSuccess(context, "Image selected successfully!");
       }
     } else {
-      // Native: Use image_picker
+      // Mobile: Use image_picker
       final XFile? pickedFile = await ImagePicker().pickImage(
         source: ImageSource.gallery,
         maxWidth: 800,
@@ -49,33 +53,23 @@ Future<void> pickCategoryImage(
       if (pickedFile != null) {
         final permanentPath = await _saveImagePermanently(File(pickedFile.path));
         imagePath = permanentPath;
-        
-        // Update controller with the picked image
+
         controller.selectedImage = File(permanentPath);
         controller.selectedImagePath = imagePath;
         controller.imageError = null;
+
+        _showSuccess(context, "Image attached!");
       }
     }
 
+    // User canceled → show subtle info
     if (imagePath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No image selected'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showInfo(context, "No image selected");
     }
   } catch (e) {
     debugPrint('Error picking image: $e');
     controller.imageError = 'Failed to pick image';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Failed to pick image: $e'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.red,
-      ),
-    );
+    _showError(context, "Failed to pick image");
   } finally {
     controller.isPickingImage = false;
   }
@@ -84,8 +78,9 @@ Future<void> pickCategoryImage(
 Future<String> _saveImagePermanently(File image) async {
   final directory = await getApplicationDocumentsDirectory();
   final fileName = '${const Uuid().v4()}.jpg';
-  final permanentPath = '${directory.path}/images/$fileName';
-  await Directory('${directory.path}/images').create(recursive: true);
+  final imagesDir = '${directory.path}/category_images';
+  await Directory(imagesDir).create(recursive: true);
+  final permanentPath = '$imagesDir/$fileName';
   final savedImage = await image.copy(permanentPath);
   return savedImage.path;
 }
@@ -93,31 +88,30 @@ Future<String> _saveImagePermanently(File image) async {
 Future<void> saveCategory({
   required CategoryAddController controller,
   required BuildContext context,
-  required bool isEditing,    
+  required bool isEditing,
   required CategoryModel? categoryToEdit,
 }) async {
   controller.validateFields();
 
-  final user = await UserDB.getCurrentUser();
-  final userId = user.id;
-  
   if (!controller.isFormValid) {
+    _showError(context, "Please fix the errors above");
     return;
   }
 
+  final user = await UserDB.getCurrentUser();
+  final userId = user.id;
+
   try {
-    final finalImagePath = await controller.processImage(
-      categoryToEdit: categoryToEdit,
-    );
+    final finalImagePath = await controller.processImage(categoryToEdit: categoryToEdit);
 
     if (isEditing) {
       await CategoryDB.editCategory(
-        categoryToEdit!.id, 
+        categoryToEdit!.id,
         controller.nameController.text.trim(),
         controller.descriptionController.text.trim(),
-        finalImagePath, 
+        finalImagePath,
       );
-      _showSuccessSnackBar(context, 'Category updated successfully!');
+      _showSuccess(context, "Category updated successfully!");
     } else {
       final newCategory = CategoryModel(
         id: const Uuid().v4(),
@@ -127,32 +121,51 @@ Future<void> saveCategory({
         userId: userId,
       );
       await CategoryDB.addCategory(newCategory);
-      _showSuccessSnackBar(context, 'Category added successfully!');
+      _showSuccess(context, "Category added successfully!");
     }
 
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   } catch (e) {
-    _showErrorSnackBar(context, 'Failed to save category. Please try again.');
     debugPrint('Error saving category: $e');
+    _showError(context, "Failed to save category. Please try again.");
   }
 }
 
-void _showSuccessSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.green,
-      behavior: SnackBarBehavior.floating,
+// Reusable Top Snackbar Helpers
+void _showSuccess(BuildContext context, String message) {
+  if (!context.mounted) return;
+  showTopSnackBar(
+    Overlay.of(context),
+    CustomSnackBar.success(
+      message: message,
+      icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
+      backgroundColor: Colors.green.shade600,
     ),
   );
 }
- 
-void _showErrorSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.red,
-      behavior: SnackBarBehavior.floating,
+
+void _showError(BuildContext context, String message) {
+  if (!context.mounted) return;
+  showTopSnackBar(
+    Overlay.of(context),
+    CustomSnackBar.error(
+      message: message,
+      icon: const Icon(Icons.error_outline, color: Colors.white, size: 40),
+      backgroundColor: Colors.red.shade600,
     ),
   );
 }
+
+void _showInfo(BuildContext context, String message) {
+  if (!context.mounted) return;
+  showTopSnackBar(
+    Overlay.of(context),
+    CustomSnackBar.info( 
+      message: message,
+      backgroundColor: Colors.orange.shade700,
+      icon: const Icon(Icons.info_outline, color: Colors.white, size: 40),
+    ),
+  );
+}    

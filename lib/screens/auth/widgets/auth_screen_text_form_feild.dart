@@ -12,10 +12,12 @@ class CustomTextFormField extends StatelessWidget {
   final Color? textColor;
   final Color? fillColor;
   final TextInputType type;
+  final String labelText;
 
   const CustomTextFormField({
     super.key,
     required this.controller,
+    required this.labelText,
     this.type = TextInputType.text,
     required this.hintText,
     required this.validator,
@@ -46,21 +48,33 @@ class CustomTextFormField extends StatelessWidget {
         fontSize: 16,
       ), // Added responsive font size
       keyboardType: type,
+      cursorColor: Colors.white,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
           color: effectiveTextColor.withOpacity(0.8),
-          fontSize: 20, // Responsive font size
+          fontSize: 20,
           fontFamily: fontFamily,
         ),
         filled: true,
+        
         fillColor: effectiveFillColor,
+        label: Text(
+          labelText,
+          style: TextStyle( 
+            color: Colors.white,
+            fontSize: 20
+          ), 
+        ),
       
         border: OutlineInputBorder(
+
           borderRadius: BorderRadius.circular(
             isDesktop ? 2.w : 12.w,
-          ), // Responsive border radius
-          borderSide: BorderSide.none,
+          ),
+          borderSide: BorderSide(
+            width: 4 
+          ),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         suffixIcon: isPassword

@@ -7,74 +7,59 @@ import 'package:cream_ventory/models/expence_model.dart';
 import 'package:cream_ventory/screens/auth/sign_in_screen.dart';
 import 'package:cream_ventory/screens/settings/user_password_change.dart';
 import 'package:cream_ventory/screens/profile/user_profile_editing_screen.dart';
-import 'package:cream_ventory/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class ProfileDisplayLogic {
   final BuildContext context;
 
-  // -----------------------------------------------------------------
-  // 1. Total-expense notifier – UI just reads this
-  // -----------------------------------------------------------------
+  // Financial Notifiers 
   final ValueNotifier<double> totalExpenseNotifier = ValueNotifier(0.0);
   final totalIncomeNotifier = ValueNotifier<double>(0.0);
   final totalYouWillGetNotifier = ValueNotifier<double>(0.0);
   final totalYouWillGiveNotifier = ValueNotifier<double>(0.0);
 
-  // Keep a reference to the Hive notifier so we can react to changes
   late final ValueNotifier<List<ExpenseModel>> _hiveListener;
 
   ProfileDisplayLogic(this.context) {
-    // Initialise DB (idempotent)
     ExpenseDB().initialize();
-
-    // Grab Hive's list notifier
     _hiveListener = ExpenseDB().allExpensesNotifier;
 
-    // Compute initial value
     _recalculateTotal();
-    _recalculateIncome(); 
+    _recalculateIncome();
     _initializePartyFinancials();
-                
-    // Listen for any future changes
+
     _hiveListener.addListener(_recalculateTotal);
   }
 
   Future<void> refreshFinancialSummaries() async {
-   try {
-      final totalYouWillGet = await PartyDb.calculateTotalYoullGet();   
+    try {
+      final totalYouWillGet = await PartyDb.calculateTotalYoullGet();
       final totalYouWillGive = await PartyDb.calculateTotalYoullGive();
 
       totalYouWillGetNotifier.value = totalYouWillGet;
       totalYouWillGiveNotifier.value = totalYouWillGive;
-
-      // Also update income/expense if you have those DBs
-      // totalIncomeNotifier.value = await IncomeDb.getTotalIncome();
-      // totalExpenseNotifier.value = await ExpenseDb.getTotalExpense();
     } catch (e) {
       debugPrint('Error refreshing financial summary: $e');
     }
   }
+
   Future<void> _initializePartyFinancials() async {
     try {
-      // This triggers full recalculation of all party balances
       await PartyDb.loadParties();
-
-      // Now update the profile notifiers
       await refreshFinancialSummaries();
-
       debugPrint('Party financials loaded successfully');
     } catch (e) {
       debugPrint('Failed to load party financials: $e');
     }
   }
 
-  // -----------------------------------------------------------------
-  // 2. Recalculate total expense from the current list
-  // -----------------------------------------------------------------
   void _recalculateTotal() {
     final expenses = _hiveListener.value;
-    final sum = expenses.fold<double>(0.0, (prev, e) => prev + (e.totalAmount));
+    final sum = expenses.fold<double>(0.0, (prev, e) => prev + e.totalAmount);
     totalExpenseNotifier.value = sum;
   }
 
@@ -83,53 +68,61 @@ class ProfileDisplayLogic {
     totalIncomeNotifier.value = income;
   }
 
-  // -----------------------------------------------------------------
-  // -----------------------------------------------------------------
-  // 3. Clean-up when the object is no longer needed
-  // -----------------------------------------------------------------
+  // Cleanup
   void dispose() {
     _hiveListener.removeListener(_recalculateTotal);
     totalExpenseNotifier.dispose();
     totalIncomeNotifier.dispose();
+    totalYouWillGetNotifier.dispose();
+    totalYouWillGiveNotifier.dispose();
   }
 
-  // -----------------------------------------------------------------
-  // 4. Navigation helpers
-  // -----------------------------------------------------------------
+  // Navigation Helpers
   void navigateBack() => Navigator.of(context).pop();
 
   void navigateToChangePassword() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const ChangePassword()));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ChangePassword()),
+    );
   }
 
   void navigateToEditProfile() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const EditProfilePage()));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const EditProfilePage()),
+    );
   }
 
+  // LOGOUT with top_snackbar_flutter
   Future<void> logout() async {
     try {
       await UserDB.logoutUser();
 
-      CustomSnackbar.show(
-        context: context,
-        message: 'Logged out successfully!',
-        backgroundColor: Colors.green,
+      // Success Top Snackbar
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.success(
+          message: "Logged out successfully!",
+          icon: Icon(Icons.logout, color: Colors.white, size: 40),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const ScreenSignIn()),
-        (route) => false,
-      );
+      // Navigate to Sign In
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const ScreenSignIn()),
+          (route) => false,
+        );
+      }
     } catch (e) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Error logging out. Please try again.',
-        backgroundColor: Colors.red,
+      // Error Top Snackbar
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: "Error logging out. Please try again.",
+          backgroundColor: Colors.red.shade600,
+        ),
       );
       debugPrint('Logout error: $e');
     }
