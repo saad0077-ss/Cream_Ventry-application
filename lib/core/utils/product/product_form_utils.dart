@@ -13,6 +13,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
 class ProductFormUtils {
   static Future<void> initializeFields({
     required BuildContext context,
@@ -25,17 +29,13 @@ class ProductFormUtils {
     required void Function(String?) creationDateCallback,
     required void Function(CategoryModel?) selectedCategoryCallback,
     required void Function(File?) selectedImageCallback,
-    required void Function(Uint8List?) selectedImageBytesCallback, 
+    required void Function(Uint8List?) selectedImageBytesCallback,
     required void Function(String?) categoryErrorCallback,
     required void Function(bool) isLoadingCallback,
   }) async {
     try {
       isLoadingCallback(true);
-
-      // Load sample categories and refresh - this updates the notifier
       await CategoryDB.loadSampleCategories();
-      
-      // Just get the current value from the notifier which already has all categories
       final categories = CategoryDB.categoryNotifier.value;
 
       if (existingProduct != null) {
@@ -78,15 +78,15 @@ class ProductFormUtils {
     void Function(CategoryModel?) selectedCategoryCallback,
     void Function(File?) selectedImageCallback,
     void Function(Uint8List?) selectedImageBytesCallback,
-    void Function(String?) categoryErrorCallback,  
+    void Function(String?) categoryErrorCallback,
   ) {
     nameController.text = existingProduct.name;
     stockController.text = existingProduct.stock.toString();
     salePriceController.text = existingProduct.salePrice.toString();
     purchasePriceController.text = existingProduct.purchasePrice.toString();
     creationDateCallback(existingProduct.creationDate);
+
     if (kIsWeb) {
-      // For web, assume imagePath is a base64 string
       selectedImageCallback(null);
       try {
         selectedImageBytesCallback(base64Decode(existingProduct.imagePath));
@@ -100,7 +100,7 @@ class ProductFormUtils {
 
     if (categories.isNotEmpty) {
       selectedCategoryCallback(categories.firstWhere(
-        (category) => category.id == existingProduct.category.id,
+        (c) => c.id == existingProduct.category.id,
         orElse: () => categories.first,
       ));
     } else {
@@ -188,7 +188,7 @@ class ProductFormUtils {
       purchasePriceErrorCallback: purchasePriceErrorCallback,
       categoryErrorCallback: categoryErrorCallback,
       imageErrorCallback: imageErrorCallback,
-      selectedImageBytes: selectedImageBytes
+      selectedImageBytes: selectedImageBytes,
     )) {
       final user = await UserDB.getCurrentUser();
       await _saveProduct(
@@ -241,34 +241,36 @@ class ProductFormUtils {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              existingProduct == null
-                  ? 'Product added successfully!'
-                  : 'Product updated successfully!',
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
+        showTopSnackBar(
+          Overlay.of(context),
+          CustomSnackBar.success(
+            message: existingProduct == null
+                ? 'Product added successfully!'
+                : 'Product updated successfully!',
+            icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
+            backgroundColor: Colors.green.shade600,
           ),
         );
+
         Navigator.pop(context);
       }
-    } catch (e) { 
-      _handleError(context, 'Error: $e');
+    } catch (e) {
+      _handleError(context, 'Failed to save product: $e');
     }
   }
 
+  // Unified error handler using top_snackbar_flutter
   static void _handleError(BuildContext context, String message) {
     debugPrint(message);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating, 
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: message,
+          backgroundColor: Colors.red.shade600,
+          icon: const Icon(Icons.error_outline, color: Colors.white, size: 40),
         ),
       );
     }
-  }
+  } 
 }

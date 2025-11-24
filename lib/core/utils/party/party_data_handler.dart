@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/party_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:convert';
+
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class PartyDataHandler {
   final _uuid = const Uuid();
@@ -28,25 +32,27 @@ class PartyDataHandler {
     if (!formKey.currentState!.validate()) return;
 
     if (partyName.isEmpty || contactNumber.isEmpty) {
-      _showSnackBar(context, "Party Name and Contact Number are required!", Colors.red);
+      _showError(context, "Party Name and Contact Number are required!");
       return;
     }
 
-    // Handle optional opening balance - default to 0.0 if empty
+    // Parse opening balance safely
     double parsedBalance = 0.0;
     if (openingBalance.trim().isNotEmpty) {
       parsedBalance = double.tryParse(openingBalance) ?? 0.0;
     }
-    
+
+    // Determine sign based on payment type
     double finalOpeningBalance =
         paymentType == "You'll Give" ? -parsedBalance.abs() : parsedBalance.abs();
 
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
 
+    // Handle image path (Web vs Native)
     String finalImagePath = '';
     if (kIsWeb && imageBytes != null) {
-      finalImagePath = base64Encode(imageBytes); // Store as base64 for web
+      finalImagePath = base64Encode(imageBytes);
     } else {
       finalImagePath = imagePath.isNotEmpty ? imagePath : (party?.imagePath ?? '');
     }
@@ -67,34 +73,56 @@ class PartyDataHandler {
 
     try {
       if (party != null) {
+        // Update existing party
         bool success = await PartyDb.updatePartyBasic(newParty);
         if (success) {
-          _showSnackBar(context, "Party updated successfully!", Colors.green);
+          _showSuccess(context, "Party updated successfully!");
         } else {
           throw Exception("Failed to update party: Not found");
         }
       } else {
+        // Add new party
         await PartyDb.addParty(newParty);
-        _showSnackBar(context, "Party added successfully!", Colors.green);
+        _showSuccess(context, "Party added successfully!");
       }
 
+      // Navigate or clear form
       if (clearFields) {
         clearForm();
       } else {
-        Navigator.of(context).pop(newParty);
+        if (context.mounted) {
+          Navigator.of(context).pop(newParty);
+        }
       }
     } catch (e) {
-      _showSnackBar(context, "Failed to save party: $e", Colors.red);
+      debugPrint("Error saving party: $e");
+      _showError(context, "Failed to save party. Please try again.");
     }
   }
 
-  void _showSnackBar(BuildContext context, String message, Color backgroundColor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar( 
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: backgroundColor,
+  // Success feedback
+  void _showSuccess(BuildContext context, String message) {
+    if (!context.mounted) return;
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.success(
+        message: message,
+        icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
+        backgroundColor: Colors.green.shade600,
       ),
     );
   }
+
+  // Error feedback
+  void _showError(BuildContext context, String message) {
+    if (!context.mounted) return;
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.error(
+        message: message,
+        icon: const Icon(Icons.error_outline, color: Colors.white, size: 40),
+        backgroundColor: Colors.red.shade600,
+      ),
+    );
+  } 
 }

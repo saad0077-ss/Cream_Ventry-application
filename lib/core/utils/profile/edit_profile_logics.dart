@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cream_ventory/database/functions/user_db.dart';
-import 'package:cream_ventory/widgets/snack_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class EditProfileLogic {
   File? profileImage;
@@ -16,24 +19,20 @@ class EditProfileLogic {
   final _uuid = Uuid();
   VoidCallback? onImageLoaded;
 
-  // Controllers – now email and username are editable
-  final TextEditingController usernameController = TextEditingController(); // NEW
-  final TextEditingController emailController = TextEditingController();    // Editable
+  // Controllers – email & username now editable
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController distributionController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
-  // Initialize profile data for the current user
+  // Initialize profile data
   Future<void> initializeProfile({VoidCallback? onUpdate}) async {
     onImageLoaded = onUpdate;
     try {
       final user = await UserDB.getCurrentUser();
 
-      // Name (fallback to username if name is null)
       usernameController.text = user.name ?? user.username;
-
-
-      // Email is now editable
       emailController.text = user.email;
 
       distributionController.text = user.distributionName ?? '';
@@ -59,11 +58,11 @@ class EditProfileLogic {
     }
   }
 
-  // Pick image for both web and native
+  // Pick image (Web + Mobile)
   Future<void> pickImage(BuildContext context) async {
     try {
       XFile? pickedFile;
-      if (kIsWeb) { 
+      if (kIsWeb) {
         FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.image,
           allowMultiple: false,
@@ -89,12 +88,22 @@ class EditProfileLogic {
         final permanentPath = await _saveImagePermanently(File(pickedFile.path));
         profileImage = File(permanentPath);
       }
+
+      // Optional: Show small success feedback
+      if (pickedFile != null) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.info(
+            message: "Profile picture updated!",
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Failed to pick image: $e"),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: "Failed to pick image: ${e.toString()}",
         ),
       );
       debugPrint('Image picker error: $e');
@@ -109,101 +118,104 @@ class EditProfileLogic {
     return savedImage.path;
   }
 
-  // Save profile changes – now includes email & username
+  // Save profile changes (with full validation)
   Future<bool> saveProfile(BuildContext context) async {
-  try {
-    final user = await UserDB.getCurrentUser();
+    try {
+      final user = await UserDB.getCurrentUser();
 
-    // Get and validate inputs
-    final newUsername = usernameController.text.trim();
-    final newEmail = emailController.text.trim().toLowerCase();
+      final newUsername = usernameController.text.trim();
+      final newEmail = emailController.text.trim().toLowerCase();
 
-    // === VALIDATION ===
-    if (newUsername.isEmpty) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Username cannot be empty',
-        backgroundColor: Colors.red,
+      // === VALIDATION ===
+      if (newUsername.isEmpty) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(message: "Username cannot be empty"),
+        );
+        return false;
+      }
+
+      if (newUsername.length < 3) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(message: "Username must be at least 3 characters"),
+        );
+        return false;
+      }
+
+      if (!RegExp(r'^[a-z0-9_]+$').hasMatch(newUsername)) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: "Username can only contain lowercase letters, numbers, and _",
+          ),
+        );
+        return false;
+      }
+
+      if (!RegExp(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$').hasMatch(newEmail)) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(message: "Please enter a valid email"),
+        );
+        return false;
+      }
+
+      // === IMAGE PATH ===
+      String? imagePath;
+      if (kIsWeb && imageBytes != null) {
+        imagePath = base64Encode(imageBytes!);
+      } else if (profileImage != null) {
+        imagePath = profileImage!.path;
+      }
+
+      // === UPDATE PROFILE ===
+      final success = await UserDB.updateProfile(
+        userId: user.id,
+        name: newUsername.isEmpty ? null : newUsername,
+        username: newUsername,
+        email: newEmail,
+        distributionName: distributionController.text.trim().isEmpty
+            ? null
+            : distributionController.text.trim(),
+        phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+        address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
+        profileImagePath: imagePath,
+      );
+
+      if (success) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: "Profile updated successfully!",
+            icon: Icon(Icons.check_circle, color: Colors.white, size: 40),
+          ),
+        );
+        return true;
+      } else {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: "Username or email already in use",
+          ),
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error saving profile: $e');
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(
+          message: "Failed to update profile: ${e.toString()}",
+        ),
       );
       return false;
     }
-
-    if (newUsername.length < 3) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Username must be at least 3 characters',
-        backgroundColor: Colors.red,
-      );
-      return false;
-    }
-
-    if (!RegExp(r'^[a-z0-9_]+$').hasMatch(newUsername)) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Username can only contain lowercase letters, numbers, and _',
-        backgroundColor: Colors.red,
-      );
-      return false;
-    }
-
-    if (!RegExp(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$').hasMatch(newEmail)) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Please enter a valid email',
-        backgroundColor: Colors.red,
-      );
-      return false;
-    }
-    // === END VALIDATION ===
-
-    String? imagePath;
-    if (kIsWeb && imageBytes != null) {
-      imagePath = base64Encode(imageBytes!);
-    } else if (profileImage != null) {
-      imagePath = profileImage!.path;
-    }
-
-    // === PASS NEW VALUES ===
-    final success = await UserDB.updateProfile(
-      userId: user.id,
-      name: newUsername.isEmpty ? null : newUsername,
-      username: newUsername,           // ← This is now guaranteed non-empty
-      email: newEmail,                 // ← Lowercased
-      distributionName: distributionController.text.trim().isEmpty ? null : distributionController.text.trim(),
-      phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
-      address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
-      profileImagePath: imagePath,
-    );
-
-    if (success) {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Profile updated successfully!', 
-        backgroundColor: Colors.green,
-      ); 
-      return true;
-    } else {
-      CustomSnackbar.show(
-        context: context,
-        message: 'Username or email already in use',
-        backgroundColor: Colors.red,
-      );
-      return false;
-    }
-  } catch (e) {
-    debugPrint('Error saving profile: $e');
-    CustomSnackbar.show(
-      context: context,
-      message: 'Failed to update profile: $e',
-      backgroundColor: Colors.red,
-    );
-    return false;
   }
-}
 
   // Dispose controllers
   void dispose() {
-    usernameController.dispose();   
+    usernameController.dispose();
     emailController.dispose();
     distributionController.dispose();
     phoneController.dispose();

@@ -36,6 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: const CustomAppBar(title: 'Edit Profile', fontSize: 35),
       body: Container(
         width: double.infinity,
+        height: double.infinity ,
         decoration: const BoxDecoration(gradient: AppTheme.appGradient),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),

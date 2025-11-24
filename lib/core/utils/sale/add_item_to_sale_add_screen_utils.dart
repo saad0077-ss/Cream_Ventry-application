@@ -7,6 +7,10 @@ import 'package:cream_ventory/models/product_model.dart';
 import 'package:cream_ventory/models/sale_item_model.dart';
 import 'package:flutter/material.dart';
 
+// Import top_snackbar_flutter
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
 class AddItemToSaleUtils {
   /// Initializes the form for creating or editing a sale item
   static Future<void> initializeForm({
@@ -22,12 +26,12 @@ class AddItemToSaleUtils {
       await ProductDB.initialize();
       await SaleItemDB.init();
 
-      if (isEditMode) {
-        final item = saleItem!;
-        quantityController.text = item.quantity.toString();
-        rateController.text = item.rate.toStringAsFixed(2);
-        totalAmountController.text = item.subtotal.toStringAsFixed(2);
-        final product = await ProductDB.getProductById(item.id);
+      if (isEditMode && saleItem != null) {
+        quantityController.text = saleItem.quantity.toString();
+        rateController.text = saleItem.rate.toStringAsFixed(2);
+        totalAmountController.text = saleItem.subtotal.toStringAsFixed(2);
+
+        final product = await ProductDB.getProductById(saleItem.id);
         if (product != null) {
           onFormInitialized(product.category.id);
         }
@@ -85,86 +89,97 @@ class AddItemToSaleUtils {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
 
-    if (selectedProductId != null &&
-        selectedCategoryName != null &&
-        quantityController.text.isNotEmpty &&
-        rateController.text.isNotEmpty) {
-      final product = products.firstWhere((p) => p.id == selectedProductId);
-      final quantity = int.tryParse(quantityController.text) ?? 0;
+    if (selectedProductId == null ||
+        selectedCategoryName == null ||
+        quantityController.text.isEmpty ||
+        rateController.text.isEmpty) {
+      _showError(context, 'Please fill all required fields');
+      return;
+    }
 
-      if (quantity <= 0) {
-        _showSnackBar(context, 'Please enter a valid quantity', Colors.red);
-        return;
+    final product = products.firstWhere((p) => p.id == selectedProductId);
+    final quantity = int.tryParse(quantityController.text) ?? 0;
+
+    if (quantity <= 0) {
+      _showError(context, 'Please enter a valid quantity');
+      return;
+    }
+
+    int originalQuantity = isEditMode ? saleItem!.quantity : 0;
+    int quantityDifference = quantity - originalQuantity;
+
+    if (quantityDifference > 0 && product.stock < quantityDifference) {
+      _showError(context, 'Insufficient stock for ${product.name}');
+      return;
+    }
+
+    try {
+      // Restore stock if editing
+      if (isEditMode) {
+        await ProductDB.restockProduct(saleItem!.id, originalQuantity);
       }
 
-      int originalQuantity = isEditMode ? saleItem!.quantity : 0;
-      int quantityDifference = quantity - originalQuantity;
+      final newSaleItem = SaleItemModel(
+        id: selectedProductId,
+        productName: product.name,
+        quantity: quantity,
+        rate: double.parse(rateController.text),
+        subtotal: double.parse(totalAmountController.text),
+        categoryName: selectedCategoryName,
+        index: isEditMode
+            ? saleItem!.index
+            : (await SaleItemDB.getSaleItems(userId: userId)).length + 1,
+        imagePath: product.imagePath,
+        userId: userId,
+      );
 
-      if (quantityDifference > 0 && product.stock < quantityDifference) {
-        _showSnackBar(
-          context,
-          'Insufficient stock for ${product.name}',
-          Colors.red,
-        );
-        return;
+      if (isEditMode) {
+        await SaleItemDB.updateSaleItem(newSaleItem.id, newSaleItem);
+      } else {
+        await SaleItemDB.addSaleItem(newSaleItem);
       }
 
-      try {
-        if (isEditMode) {
-          await ProductDB.restockProduct(saleItem!.id, originalQuantity);
-        }
+      _showSuccess(
+        context,
+        isEditMode
+            ? 'Sale item updated successfully'
+            : 'Sale item added successfully',
+      );
 
-        final newSaleItem = SaleItemModel(
-          id: selectedProductId,
-          productName: product.name,
-          quantity: quantity,
-          rate: double.parse(rateController.text),
-          subtotal: double.parse(totalAmountController.text),
-          categoryName: selectedCategoryName,
-          index: isEditMode
-              ? saleItem!.index
-              : (await SaleItemDB.getSaleItems(userId: userId)).length + 1,
-          imagePath: product.imagePath,
-          userId: userId,
-        );
-
-        if (isEditMode) {
-          await SaleItemDB.updateSaleItem(newSaleItem.id, newSaleItem);
-        } else {
-          await SaleItemDB.addSaleItem(newSaleItem);
-        }
-
-        _showSnackBar(
-          context,
-          isEditMode
-              ? 'Sale item updated successfully'
-              : 'Sale item saved successfully',
-          Colors.green,
-        );
-
-        if (saveAndNew) {
-          clearForm();
-        } else {
-          popScreen();
-        }
-      } catch (e) {
-        _showSnackBar(context, 'Error saving sale item: $e', Colors.red);
+      if (saveAndNew) {
+        clearForm();
+      } else {
+        if (context.mounted) popScreen();
       }
-    } else {
-      _showSnackBar(context, 'Please fill all fields', Colors.red);
+    } catch (e) {
+      debugPrint('Error saving sale item: $e');
+      _showError(context, 'Failed to save item. Please try again.');
     }
   }
 
-  /// Shows a snackbar with the specified message and color
-  static void _showSnackBar(BuildContext context, String message, Color color) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: color, 
-        ),
-      );
-    }
+  // Success Toast
+  static void _showSuccess(BuildContext context, String message) {
+    if (!context.mounted) return;
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.success(
+        message: message,
+        icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
+        backgroundColor: Colors.green.shade600,
+      ),
+    );
+  }
+
+  // Error Toast
+  static void _showError(BuildContext context, String message) {
+    if (!context.mounted) return;
+    showTopSnackBar( 
+      Overlay.of(context),
+      CustomSnackBar.error(
+        message: message,
+        icon: const Icon(Icons.error_outline, color: Colors.white, size: 40),
+        backgroundColor: Colors.red.shade600,
+      ),
+    );
   }
 }
