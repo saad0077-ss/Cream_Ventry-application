@@ -46,7 +46,7 @@ class SaleList extends StatelessWidget {
               )
             else if (isDesktop)
               GridView.builder(
-                padding: EdgeInsets.only(
+                padding: EdgeInsets.only(  
                   left: horizontalPadding,
                   right: horizontalPadding,
                   top: verticalPadding,
@@ -54,7 +54,7 @@ class SaleList extends StatelessWidget {
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: gridCrossAxisCount,
-                  mainAxisExtent: 200, // Increased height for new card
+                  mainAxisExtent: 220, // Increased height for status badge
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                 ),
@@ -64,9 +64,11 @@ class SaleList extends StatelessWidget {
                   return SaleCard(
                     onTap: () => _navigateToDetail(context, sale),
                     customerName: sale.customerName ?? 'No Customer',
-                    amount: '₹${FormatUtils.formatAmount(sale.total)}',
+                    amount: FormatUtils.formatAmount(sale.total),
                     date: FormatUtils.formatDate(sale.date),
                     invoiceNumber: sale.invoiceNumber,
+                    transactionType: sale.transactionType ?? TransactionType.sale,
+                    status: sale.status,
                   );
                 },
               )
@@ -86,9 +88,11 @@ class SaleList extends StatelessWidget {
                     child: SaleCard(
                       onTap: () => _navigateToDetail(context, sale),
                       customerName: sale.customerName ?? 'No Customer',
-                      amount: FormatUtils.formatAmount(sale.total),
+                      amount: FormatUtils.formatAmount(sale.total), 
                       date: FormatUtils.formatDate(sale.date),
                       invoiceNumber: sale.invoiceNumber,
+                      transactionType: sale.transactionType ?? TransactionType.sale,
+                      status: sale.status,
                     ),
                   );
                 },
@@ -98,14 +102,15 @@ class SaleList extends StatelessWidget {
       ),
     );
   }
-
+ 
   void _navigateToDetail(BuildContext context, SaleModel sale) {
+     final transactionType = sale.transactionType ?? TransactionType.sale;    
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SaleScreen(
           sale: sale,
-          transactionType: TransactionType.sale,
+          transactionType: transactionType,
         ),
       ),
     );

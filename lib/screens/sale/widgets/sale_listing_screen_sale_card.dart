@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:cream_ventory/models/sale_model.dart';
 
 class SaleCard extends StatelessWidget {
   final String customerName;
   final String amount;
   final String date;
   final String invoiceNumber;
+  final TransactionType transactionType;
+  final SaleStatus status;
   final VoidCallback onTap;
 
   const SaleCard({
@@ -13,8 +16,108 @@ class SaleCard extends StatelessWidget {
     required this.amount,
     required this.date,
     required this.invoiceNumber,
+    required this.transactionType,
+    required this.status,
     required this.onTap,
   });
+
+  // Helper method to get transaction type label
+  String _getTypeLabel() {
+    switch (transactionType) {
+      case TransactionType.sale:
+        return 'Sale';
+      case TransactionType.saleOrder:
+        return 'Sale Order';
+    }
+  }
+
+  // Helper method to get transaction type colors
+  Color _getTypeColor() {
+    switch (transactionType) {
+      case TransactionType.sale:
+        return Colors.green.shade700;
+      case TransactionType.saleOrder:
+        return Colors.orange.shade700;
+    }
+  }
+
+  Color _getTypeBackgroundColor() {
+    switch (transactionType) {
+      case TransactionType.sale:
+        return Colors.green.shade50;
+      case TransactionType.saleOrder:
+        return Colors.orange.shade50;
+    }
+  }
+
+  Color _getTypeBorderColor() {
+    switch (transactionType) {
+      case TransactionType.sale:
+        return Colors.green.shade300;
+      case TransactionType.saleOrder:
+        return Colors.orange.shade300;
+    }
+  }
+
+  // Helper method to get status label
+  String _getStatusLabel() {
+    switch (status) {
+      case SaleStatus.open:
+        return 'Open';
+      case SaleStatus.closed:
+        return 'Closed';
+      case SaleStatus.cancelled:
+        return 'Cancelled';
+    }
+  }
+
+  // Helper method to get status color
+  Color _getStatusColor() {
+    switch (status) {
+      case SaleStatus.open:
+        return Colors.blue.shade700;
+      case SaleStatus.closed:
+        return Colors.green.shade700;
+      case SaleStatus.cancelled:
+        return Colors.red.shade700;
+    }
+  }
+
+  // Helper method to get status background color
+  Color _getStatusBackgroundColor() {
+    switch (status) {
+      case SaleStatus.open:
+        return Colors.blue.shade50;
+      case SaleStatus.closed:
+        return Colors.green.shade50;
+      case SaleStatus.cancelled:
+        return Colors.red.shade50;
+    }
+  }
+
+  // Helper method to get status border color
+  Color _getStatusBorderColor() {
+    switch (status) {
+      case SaleStatus.open:
+        return Colors.blue.shade300;
+      case SaleStatus.closed:
+        return Colors.green.shade300;
+      case SaleStatus.cancelled:
+        return Colors.red.shade300;
+    }
+  }
+
+  // Helper method to get status icon
+  IconData _getStatusIcon() {
+    switch (status) {
+      case SaleStatus.open:
+        return Icons.lock_open;
+      case SaleStatus.closed:
+        return Icons.check_circle_outline;
+      case SaleStatus.cancelled:
+        return Icons.cancel_outlined;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,32 +157,101 @@ class SaleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Row - Invoice Number
+                // Header Row - Invoice Number, Type Label, and Status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.blue.shade400,
-                            Colors.blue.shade600,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '$invoiceNumber',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: isDesktop ? 13 : 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
+                    Expanded(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          // Invoice Number Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blue.shade400,
+                                  Colors.blue.shade600,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              invoiceNumber,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isDesktop ? 13 : 12,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          // Type Label Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getTypeBackgroundColor(),
+                              border: Border.all(
+                                color: _getTypeBorderColor(),
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _getTypeLabel(),
+                              style: TextStyle(
+                                color: _getTypeColor(),
+                                fontSize: isDesktop ? 11 : 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                          // Status Badge - Only show for Sale Orders
+                          if (transactionType == TransactionType.saleOrder)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getStatusBackgroundColor(),
+                                border: Border.all(
+                                  color: _getStatusBorderColor(),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getStatusIcon(),
+                                    size: isDesktop ? 14 : 13,
+                                    color: _getStatusColor(),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _getStatusLabel().toUpperCase(),
+                                    style: TextStyle(
+                                      color: _getStatusColor(),
+                                      fontSize: isDesktop ? 11 : 10,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     Icon(
@@ -212,5 +384,21 @@ class SaleCard extends StatelessWidget {
         ),
       ),
     );
-  } 
+  }
+
+  // Factory constructor to create SaleCard from SaleModel
+  factory SaleCard.fromSaleModel({
+    required SaleModel sale,
+    required VoidCallback onTap,
+  }) {
+    return SaleCard( 
+      customerName: sale.customerName ?? 'Walk-in Customer',
+      amount: '₹${sale.total.toStringAsFixed(2)}',
+      date: sale.date,
+      invoiceNumber: sale.invoiceNumber,
+      transactionType: sale.transactionType ?? TransactionType.sale,
+      status: sale.status,
+      onTap: onTap,
+    );
+  }
 }
