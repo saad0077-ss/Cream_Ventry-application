@@ -17,7 +17,7 @@ class PartyModel extends HiveObject {
   double openingBalance;
 
   @HiveField(4)
-  DateTime asOfDate;
+  String asOfDate;
 
   @HiveField(5)
   String billingAddress;

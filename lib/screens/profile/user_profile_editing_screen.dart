@@ -1,9 +1,9 @@
 
 import 'package:cream_ventory/core/theme/theme.dart';
 import 'package:cream_ventory/core/utils/profile/edit_profile_logics.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_editing_screen/user_profile_editing_screen_action_buttons_row.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_editing_screen/user_profile_editing_screen_info_feild..dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_editing_screen/user_profile_editing_screen_profile_avatar.dart'; 
+import 'package:cream_ventory/screens/profile/widgets/editing/user_profile_editing_screen_action_buttons_row.dart';
+import 'package:cream_ventory/screens/profile/widgets/editing/user_profile_editing_screen_info_feild.dart';
+import 'package:cream_ventory/screens/profile/widgets/editing/user_profile_editing_screen_profile_avatar.dart'; 
 import 'package:cream_ventory/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 

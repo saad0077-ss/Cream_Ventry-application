@@ -21,7 +21,7 @@ class PartyModelAdapter extends TypeAdapter<PartyModel> {
       name: fields[1] as String,
       contactNumber: fields[2] as String,
       openingBalance: fields[3] as double,
-      asOfDate: fields[4] as DateTime,
+      asOfDate: fields[4] as String,
       billingAddress: fields[5] as String,
       email: fields[6] as String,
       paymentType: fields[7] as String,

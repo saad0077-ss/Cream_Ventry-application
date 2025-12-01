@@ -257,22 +257,24 @@ class SaleDB {
     }
   }
 
-  static Future<void> refreshSales() async {
-    final user = await UserDB.getCurrentUser();
-    final userId = user.id;
-    try {
-      final box = await Hive.openBox<SaleModel>(boxName);
-      final sales = box.values.where((sale) => sale.userId == userId).toList();
-      saleNotifier.value = sales;
-      debugPrint(
-        'Sale notifier refreshed with ${saleNotifier.value.length} sales',
-      );
-    } catch (e) {
-      debugPrint('Error refreshing sales: $e');
-      saleNotifier.value = [];
-    }
-  }
+ static Future<void> refreshSales() async {
+  final user = await UserDB.getCurrentUser();
 
+  final userId = user.id;
+
+  try {
+    final box = Hive.box<SaleModel>(boxName); // Just get the open box
+    final sales = box.values
+        .where((sale) => sale.userId == userId)
+        .toList();
+
+    saleNotifier.value = sales;
+    debugPrint('Refreshed ${sales.length} sales for user $userId');
+  } catch (e) {
+    debugPrint('Error reading sales: $e'); 
+    saleNotifier.value = [];
+  }
+}
   // static Future<double> getTotalReceivedAmountByDate(DateTime date) async {
   //   final user = await UserDB.getCurrentUser();
   //   final userId = user.id;

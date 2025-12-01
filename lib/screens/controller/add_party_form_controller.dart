@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cream_ventory/models/party_model.dart';
 
-
 class PartyFormController {
   final TextEditingController partyNameController = TextEditingController();
   final TextEditingController contactNumberController = TextEditingController();
-  final TextEditingController openingBalanceController = TextEditingController();
-  final TextEditingController billingAddressController = TextEditingController();
+  final TextEditingController openingBalanceController =
+      TextEditingController();
+  final TextEditingController billingAddressController =
+      TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   String paymentType = "You'll Get";
-  DateTime? selectedDate; 
+  DateTime? selectedDate;
   Uint8List? imageBytes; // For web image display
-  String imagePath = ''; // For native image path
-
+  String imagePath = ''; // For native image
   final PartyImageHandler _imageHandler = PartyImageHandler();
   final PartyDataHandler _dataHandler = PartyDataHandler();
   final PartyModel? party;
@@ -33,7 +33,8 @@ class PartyFormController {
       billingAddressController.text = party!.billingAddress;
       emailController.text = party!.email;
       paymentType = party!.paymentType;
-      selectedDate = party!.asOfDate;
+      selectedDate =
+          party!.asOfDate.isNotEmpty ? DateTime.parse(party!.asOfDate) : null;
       if (party!.imagePath.isNotEmpty && !kIsWeb) {
         imagePath = party!.imagePath;
       }
@@ -64,7 +65,8 @@ class PartyFormController {
     }
   }
 
-  Future<void> saveParty(BuildContext context, {bool clearFields = false}) async {
+  Future<void> saveParty(BuildContext context,
+      {bool clearFields = false}) async {
     await _dataHandler.saveParty(
       context: context,
       formKey: formKey,

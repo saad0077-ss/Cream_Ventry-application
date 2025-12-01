@@ -285,7 +285,7 @@ class PartyUIComponents {
     required DateTime? selectedDate,
     required bool isEditMode,
     required Future<void> Function(BuildContext) pickDate,
-    required BuildContext context,
+    required BuildContext context, 
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +431,7 @@ class PartyUIComponents {
                           hintText: 'Select Date',
                           controller: TextEditingController(
                             text: selectedDate != null
-                                ? DateFormat('dd/MM/yyyy').format(selectedDate)
+                                ? DateFormat('dd MMM yyyy').format(selectedDate)
                                 : '',
                           ),
                         ),

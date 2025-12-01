@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 
 part '../database/adapters/items/category/category_model.g.dart';
-
+ 
 @HiveType(typeId: 1)
 class CategoryModel extends HiveObject {
   @HiveField(0)

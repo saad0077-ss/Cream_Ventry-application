@@ -24,7 +24,7 @@ class HiveInitialization {
   static Future<void> initialize() async {
     await Hive.initFlutter();
     await _registerAdapters();
-    await _openBoxes();
+    await _openBoxes(); 
     _initializeDatabases();
   }
 

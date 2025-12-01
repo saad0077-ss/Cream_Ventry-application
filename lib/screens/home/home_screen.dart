@@ -13,21 +13,37 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ScreenHome extends StatelessWidget {
+class ScreenHome extends StatefulWidget {
   final UserModel user;
   const ScreenHome({super.key, required this.user});
 
-   Future<bool> _isNewUser() async {
+  @override
+  State<ScreenHome> createState() => _ScreenHomeState();
+}
+
+class _ScreenHomeState extends State<ScreenHome> {
+  Future<bool> _isNewUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'hasLoggedIn_${user.id}';
+    final key = 'hasLoggedIn_${widget.user.id}';
     final hasLoggedIn = prefs.getBool(key) ?? false;
     if (!hasLoggedIn) {
       await prefs.setBool(key, true);
-      return true; // First time user                           
+      return true; // First time user
     }
     return false; // Returning user
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // Extra safety: refresh when page is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) { 
+      ProductDB.refreshProducts();
+      ProductDB.getLowStockAlert();
+      SaleDB.refreshSales();
+    }); 
+  }
+ 
   @override
   Widget build(BuildContext context) {
     final menuItems = HomeMenuProvider.getMenuItems(context);
@@ -64,7 +80,9 @@ class ScreenHome extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isNewUser ? "Welcome to Creamventory" : "Welcome back",    
+                          isNewUser
+                              ? "Welcome to Creamventory"
+                              : "Welcome back",
                           style: const TextStyle(
                             color: Color.fromARGB(255, 55, 56, 57),
                             fontFamily: 'Nosifer',
@@ -95,11 +113,16 @@ class ScreenHome extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: StatCard<List<ProductModel>>(
-                          title: "Total Products",
+                        child: ValueListenableBuilder(
                           valueListenable: ProductDB.productNotifier,
-                          valueBuilder: (products) => "${products.length}",
-                          icon: Icons.inventory_2_outlined,
+                          builder: (context, products, _) { 
+                            return StatCard<List<ProductModel>>(
+                              title: "Total Products",
+                              valueListenable: ProductDB.productNotifier,
+                              valueBuilder: (products) => "${products.length}",
+                              icon: Icons.inventory_2_outlined,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -121,28 +144,41 @@ class ScreenHome extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: StatCard<List<SaleModel>>(
-                          title: "Today's Orders",
+                        child: ValueListenableBuilder(
                           valueListenable: SaleDB.saleNotifier,
-                          valueBuilder: (sales) => sales
-                              .where((sale) => sale.dueDate == today)
-                              .length
-                              .toString(),
-                          icon: Icons.shopping_cart_outlined,
+                          builder: (context, sales, _) {
+                            return StatCard<List<SaleModel>>(
+                              title: "Today's Orders",
+                              valueListenable: SaleDB.saleNotifier,
+                              valueBuilder: (sales) => sales
+                                  .where((sale) => sale.dueDate == today)
+                                  .length
+                                  .toString(),
+                              icon: Icons.shopping_cart_outlined,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: StatCard<List<SaleModel>>(
-                          title: "Today's Sales",
+                        child: ValueListenableBuilder(
                           valueListenable: SaleDB.saleNotifier,
-                          valueBuilder: (sales) => sales
-                              .where((sale) =>
-                                  sale.date == today &&
-                                  sale.transactionType != TransactionType.saleOrder)
-                              .length
-                              .toString(),
-                          icon: Icons.attach_money_outlined,
+                          builder: (context, sales, _) {
+                            return StatCard<List<SaleModel>>(
+                              title: "Today's Sales",
+                              valueListenable: SaleDB.saleNotifier,
+                              valueBuilder: (sales) => sales
+                                  .where(
+                                    (sale) =>
+                                        sale.date == today &&
+                                        sale.transactionType !=
+                                            TransactionType.saleOrder,
+                                  )
+                                  .length
+                                  .toString(),
+                              icon: Icons.attach_money_outlined,
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -154,14 +190,20 @@ class ScreenHome extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: StatCard<List<ProductModel>>(
-                              title: "Total Products",
+                            child: ValueListenableBuilder(
                               valueListenable: ProductDB.productNotifier,
-                              valueBuilder: (products) => "${products.length}",
-                              icon: Icons.inventory_2_outlined,
+                              builder: (context, products, _) {
+                                return StatCard<List<ProductModel>>(    
+                                  title: "Total Products",
+                                  valueListenable: ProductDB.productNotifier,
+                                  valueBuilder: (products) =>
+                                      "${products.length}",
+                                  icon: Icons.inventory_2_outlined,
+                                );
+                              },
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 10), 
                           Expanded(
                             child: ValueListenableBuilder<List<ProductModel>>(
                               valueListenable: ProductDB.lowStockNotifier,
@@ -169,7 +211,8 @@ class ScreenHome extends StatelessWidget {
                                 return StatCard<List<ProductModel>>(
                                   title: "Low Stocks",
                                   valueListenable: ProductDB.lowStockNotifier,
-                                  valueBuilder: (products) => "${products.length}",
+                                  valueBuilder: (products) =>
+                                      "${products.length}",
                                   icon: Icons.warning_amber_outlined,
                                   backgroundColor: lowStockProducts.isNotEmpty
                                       ? Colors.orange[50]
@@ -184,28 +227,41 @@ class ScreenHome extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: StatCard<List<SaleModel>>(
-                              title: "Today's Orders",
+                            child: ValueListenableBuilder(
                               valueListenable: SaleDB.saleNotifier,
-                              valueBuilder: (sales) => sales
-                                  .where((sale) => sale.dueDate == today)
-                                  .length
-                                  .toString(),
-                              icon: Icons.shopping_cart_outlined,
+                              builder: (context, sales, _) {
+                                return StatCard<List<SaleModel>>(
+                                  title: "Today's Orders",
+                                  valueListenable: SaleDB.saleNotifier,
+                                  valueBuilder: (sales) => sales
+                                      .where((sale) => sale.dueDate == today)
+                                      .length
+                                      .toString(),
+                                  icon: Icons.shopping_cart_outlined,
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: StatCard<List<SaleModel>>(
-                              title: "Today's Sales",
+                            child: ValueListenableBuilder(
                               valueListenable: SaleDB.saleNotifier,
-                              valueBuilder: (sales) => sales
-                                  .where((sale) =>
-                                      sale.date == today &&
-                                      sale.transactionType != TransactionType.saleOrder)
-                                  .length
-                                  .toString(),
-                              icon: Icons.attach_money_outlined,
+                              builder: (context, sales, _) {
+                                return StatCard<List<SaleModel>>(
+                                  title: "Today's Sales",
+                                  valueListenable: SaleDB.saleNotifier,
+                                  valueBuilder: (sales) => sales
+                                      .where(
+                                        (sale) =>
+                                            sale.date == today &&
+                                            sale.transactionType !=
+                                                TransactionType.saleOrder,
+                                      )
+                                      .length
+                                      .toString(),
+                                  icon: Icons.attach_money_outlined,
+                                );
+                              },
                             ),
                           ),
                         ],
@@ -240,7 +296,7 @@ class ScreenHome extends StatelessWidget {
                                 ),
                                 child: HomeMenuTile(item: item),
                               ),
-                            ),  
+                            ),
                           );
                         },
                       ),

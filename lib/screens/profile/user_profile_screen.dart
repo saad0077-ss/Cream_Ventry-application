@@ -2,12 +2,12 @@ import 'package:cream_ventory/core/theme/theme.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/user_model.dart';
 import 'package:cream_ventory/core/utils/profile/profile_display_logics.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_account_actions_section.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_account_stats_section.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_address_section.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_contact_info_section.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_financial_summary_section.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_header.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_account_actions_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_account_stats_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_address_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_contact_info_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_financial_summary_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_header.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 

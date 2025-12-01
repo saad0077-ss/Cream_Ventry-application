@@ -7,18 +7,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); 
   await HiveInitialization.initialize();
 
   // await Firebase.initializeApp( 
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
-  runApp(const MyApp());   
+  runApp(const MyApp());                
 }   
-       
+         
 class MyApp extends StatelessWidget { 
-  const MyApp({super.key});
-       
+  const MyApp({super.key});       
+           
 
   @override
   Widget build(BuildContext context) {   
@@ -30,6 +30,6 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: ScreenSplash(),
       ),
-    );
+    ); 
   }
-}   
+}      

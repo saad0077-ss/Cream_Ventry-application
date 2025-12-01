@@ -7,19 +7,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 class CategoryDB {
   static const String _boxName = 'categoryBox';
   static late Box<CategoryModel> _box;
-  static final ValueNotifier<List<CategoryModel>> categoryNotifier = ValueNotifier([]);
+  static final ValueNotifier<List<CategoryModel>> categoryNotifier =
+      ValueNotifier([]);
 
   static Future<void> initialize() async {
     try {
-      _box = Hive.isBoxOpen(_boxName) 
+      _box = Hive.isBoxOpen(_boxName)
           ? Hive.box<CategoryModel>(_boxName)
           : await Hive.openBox<CategoryModel>(_boxName);
-
-      await refreshCategories(); // ← Only one call
-
-      debugPrint('CategoryDB initialized: ${_box.values.length} total categories');
-    } catch (e) {   
-      debugPrint('Error initializing CategoryDB: $e'); 
+      debugPrint(
+          'CategoryDB initialized: ${_box.values.length} total categories');
+    } catch (e) {
+      debugPrint('Error initializing CategoryDB: $e');
     }
   }
 
@@ -36,27 +35,47 @@ class CategoryDB {
       // Optional: sort for consistent order
       allCategories.sort((a, b) => a.name.compareTo(b.name));
 
-      categoryNotifier.value = allCategories;  
-      debugPrint('Refreshed: ${allCategories.length} categories (user: $userId)'); 
+      categoryNotifier.value = allCategories;
+      debugPrint(
+          'Refreshed: ${allCategories.length} categories (user: $userId)');
     } catch (e) {
       debugPrint('Error in refreshCategories: $e');
     }
   }
   // ======================================
 
-  static Future<void> addCategory(CategoryModel category) async {
-    try {
-      if (_box.containsKey(category.id)) {
-        debugPrint('Category ${category.id} exists');
-        return;
-      }
-      await _box.put(category.id, category);
-      await refreshCategories(); // ← ONLY THIS
-      debugPrint('Added: ${category.name}');
-    } catch (e) {
-      debugPrint('Add error: $e');
+ // In category_db.dart
+static Future<String?> addCategory(CategoryModel category) async {
+  try {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    // Prevent duplicate by ID
+    if (_box.containsKey(category.id)) {
+      return "Category already exists with this ID!";
     }
+
+    // Prevent duplicate by NAME (case-insensitive, includes sample categories)
+    final newNameLower = category.name.trim().toLowerCase();
+
+    final bool nameExists = _box.values.any((cat) =>
+        cat.name.trim().toLowerCase() == newNameLower &&
+        (cat.userId == null || cat.userId == userId));
+
+    if (nameExists) {
+      return "Category '${category.name.trim()}' already exists!";
+    }
+
+    // All good → Add it
+    await _box.put(category.id, category);
+    await refreshCategories();
+    return null; // Success = null
+
+  } catch (e) {
+    debugPrint('Add category error: $e');
+    return "Failed to add category. Please try again.";
   }
+}
 
   static Future<bool> deleteCategory(String id) async {
     try {
@@ -80,16 +99,38 @@ class CategoryDB {
       final category = _box.get(id);
       if (category == null) return false;
 
+      final user = await UserDB.getCurrentUser();
+      final userId = user.id;
+
+      final trimmedNewName = newName.trim();
+      final lowerCaseNewName = trimmedNewName.toLowerCase();
+      final oldNameLower = category.name.trim().toLowerCase();
+
+      // Check if the new name (if different) already exists
+      if (lowerCaseNewName != oldNameLower) {
+        final bool nameExists = _box.values.any((cat) =>
+            cat.id != id && // exclude current category
+            cat.name.trim().toLowerCase() == lowerCaseNewName &&
+            (cat.userId == userId || cat.userId == null));
+
+        if (nameExists) {
+          debugPrint(
+              'Cannot rename: Category "$trimmedNewName" already exists');
+          return false;
+        }
+      }
+
       final updated = CategoryModel(
         id: id,
-        name: newName,
+        name: trimmedNewName,
         imagePath: imagePath,
         discription: description,
         isAsset: category.isAsset,
         userId: category.userId,
       );
+
       await _box.put(id, updated);
-      await refreshCategories(); // ← ONLY THIS
+      await refreshCategories();
       return true;
     } catch (e) {
       debugPrint('Edit error: $e');
@@ -137,6 +178,4 @@ class CategoryDB {
       debugPrint('Clear error: $e');
     }
   }
-
-
 }

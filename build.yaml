@@ -1,0 +1,8 @@
+﻿targets:
+  $default:
+    sources:
+      include:
+        - lib/**
+      exclude:
+        - test/**
+        - "**/*.g.dart"

@@ -46,59 +46,133 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   }
 
   Widget _buildCategoryCard(double screenWidth) {
-    return Card(
-      margin:  EdgeInsets.all(16.r),
-      elevation: 6,
-      shadowColor: Colors.black.withOpacity(0.15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          gradient: LinearGradient(colors: [Colors.white, Colors.grey[50]!], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        ),
-        padding:  EdgeInsets.all(20.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CategoryImageWidget(category: widget.category),
-                 SizedBox(width: 20.h),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Description:', style: AppTextStyles.bold18.copyWith(fontSize: 18, color: Colors.black87)),
-                       SizedBox(height: 4.h),
-                      Text(
-                        widget.category.discription.isEmpty ? 'No description available' : widget.category.discription,
-                        style: AppTextStyles.w500.copyWith(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-             SizedBox(height: 20.h),
-            ValueListenableBuilder<List<ProductModel>>(
-              valueListenable: ProductDB.productNotifier,
-              builder: (context, productList, _) {
-                final categoryProducts = productList.where((p) => p.category.id == widget.category.id).toList();
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InfoBoxWidget(label: 'Category Name', value: widget.category.name, screenWidth: screenWidth),
-                    InfoBoxWidget(label: 'No. of Products', value: categoryProducts.length.toString(), screenWidth: screenWidth),
-                  ],
-                );
-              },
-            ),
+  return Card(
+    margin: EdgeInsets.all(16.r),
+    elevation: 8,
+    shadowColor: Colors.black.withOpacity(0.1),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20.r),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white,
+            Colors.blue.shade50.withOpacity(0.3),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-    );
-  }
+      padding: EdgeInsets.all(24.r),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: CategoryImageWidget(category: widget.category),
+              ),
+              SizedBox(width: 20.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.description_outlined,
+                          size: 20.r,
+                          color: Colors.blue.shade700,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Description',
+                          style: AppTextStyles.bold18.copyWith(
+                            fontSize: 18,
+                            color: Colors.blue.shade700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      widget.category.discription.isEmpty
+                          ? 'No description available'
+                          : widget.category.discription,
+                      style: AppTextStyles.w500.copyWith(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        height: 1.5,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  Colors.grey.shade300,
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 24.h),
+          ValueListenableBuilder<List<ProductModel>>(
+            valueListenable: ProductDB.productNotifier,
+            builder: (context, productList, _) {
+              final categoryProducts = productList
+                  .where((p) => p.category.id == widget.category.id)
+                  .toList(); 
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                    child: InfoBoxWidget(
+                      label: 'Category Name',
+                      value: widget.category.name,
+                      screenWidth: screenWidth,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: InfoBoxWidget(
+                      label: 'No. of Products',
+                      value: categoryProducts.length.toString(),
+                      screenWidth: screenWidth,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Widget _buildProductList() { 
     return Expanded(
@@ -109,7 +183,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
           if (categoryProducts.isEmpty) {
             return Center(
               child: Text("No products in this category.", style: AppTextStyles.w500.copyWith(fontSize: 16, color: Colors.grey[600])),
-            );
+            ); 
           }
           return ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -122,4 +196,4 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
       ),
     );
   }
-}
+}  

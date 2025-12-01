@@ -1,4 +1,4 @@
-import 'package:cream_ventory/screens/profile/widgets/user_profile_editing_screen/user_profile_editing_screen_info_dialog.dart' show showInfoDialog;
+import 'package:cream_ventory/screens/profile/widgets/editing/user_profile_editing_screen_info_dialog.dart' show showInfoDialog;
 import 'package:cream_ventory/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 
