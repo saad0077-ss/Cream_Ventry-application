@@ -39,7 +39,8 @@ class PaymentOutUtils {
     } catch (e) {
       debugPrint('Error generating receipt number: $e');
       setState(() {
-        receiptController.text = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        receiptController.text =
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
       });
     }
   }
@@ -58,7 +59,7 @@ class PaymentOutUtils {
     );
     if (picked != null) {
       setState(() {
-        dateController.text =  DateFormat('dd MMM yyyy').format(picked); 
+        dateController.text = DateFormat('dd MMM yyyy').format(picked);
       });
     }
   }
@@ -100,7 +101,8 @@ class PaymentOutUtils {
           imageQuality: 80,
         );
         if (pickedFile != null) {
-          final permanentPath = await _saveImagePermanently(File(pickedFile.path));
+          final permanentPath =
+              await _saveImagePermanently(File(pickedFile.path));
           imagePath = permanentPath;
           setImagePathCallback(imagePath);
           setImageBytesCallback(null);
@@ -168,15 +170,18 @@ class PaymentOutUtils {
   }) async {
     // Validation
     if (selectedParty == null) {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please select a party"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please select a party"));
       return;
     }
     if (phoneNumberController.text.trim().isEmpty) {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please enter a phone number"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please enter a phone number"));
       return;
     }
     if (paidAmount.isEmpty || paidAmount == '0.00') {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please enter a valid amount"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please enter a valid amount"));
       return;
     }
 
@@ -192,13 +197,20 @@ class PaymentOutUtils {
       phoneNumber: phoneNumberController.text.trim(),
       paidAmount: double.parse(formattedAmount),
       paymentType: selectedPaymentType,
-      note: noteController.text.trim().isEmpty ? null : noteController.text.trim(),
+      note: noteController.text.trim().isEmpty
+          ? null
+          : noteController.text.trim(),
       imagePath: imagePath,
       userId: user.id,
     );
 
     try {
-      await PaymentOutDb.savePayment(payment);
+      if (isEditMode && existingPayment != null) {
+        await PaymentOutDb.updatePayment(payment);
+      } else { 
+        await PaymentOutDb.savePayment(payment);
+      }
+
       await PartyDb.updateBalanceAfterPayment(
         payment.partyName,
         payment.paidAmount,
@@ -208,7 +220,9 @@ class PaymentOutUtils {
       showTopSnackBar(
         Overlay.of(context),
         CustomSnackBar.success(
-          message: isEditMode ? "Payment updated successfully" : "Payment saved successfully",
+          message: isEditMode
+              ? "Payment updated successfully"
+              : "Payment saved successfully",
           icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
           backgroundColor: Colors.green.shade600,
         ),
@@ -252,7 +266,9 @@ class PaymentOutUtils {
         title: const Text('Confirm Delete'),
         content: const Text('Are you sure you want to delete this payment?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               try {
@@ -270,7 +286,8 @@ class PaymentOutUtils {
                   Overlay.of(context),
                   const CustomSnackBar.success(
                     message: "Payment deleted successfully!",
-                    icon: Icon(Icons.delete_forever, color: Colors.white, size: 40),
+                    icon: Icon(Icons.delete_forever,
+                        color: Colors.white, size: 40),
                   ),
                 );
               } catch (e) {
@@ -290,4 +307,4 @@ class PaymentOutUtils {
       ),
     );
   }
-} 
+}

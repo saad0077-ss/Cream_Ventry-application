@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 
 class PaymentInDb {
   static const String boxName = 'payment_in_box';
-  static Box<PaymentInModel>? _box;   
+  static Box<PaymentInModel>? _box;
   static const _uuid = Uuid();
   static final ValueNotifier<List<PaymentInModel>> paymentInNotifier =
       ValueNotifier<List<PaymentInModel>>([]);
@@ -17,7 +17,7 @@ class PaymentInDb {
   static Future<void> init() async {
     try {
       if (!Hive.isAdapterRegistered(12)) {
-        Hive.registerAdapter(PaymentInModelAdapter()); 
+        Hive.registerAdapter(PaymentInModelAdapter());
       }
       _box = await Hive.openBox<PaymentInModel>(boxName);
       debugPrint(
@@ -38,7 +38,9 @@ class PaymentInDb {
   static Future<void> savePayment(PaymentInModel payment) async {
     if (_box == null) await init();
     try {
-      payment.id = _generateUniqueId();
+      if (payment.id.isEmpty) { 
+        payment.id = _generateUniqueId();
+      }
       await _box!.put(payment.id, payment);
       _updateNotifier();
       debugPrint('Saved payment: ${payment.receiptNo}');
@@ -57,9 +59,8 @@ class PaymentInDb {
         paymentInNotifier.value = [];
         return;
       }
-      var payments = _box!.values
-          .where((payments) => payments.userId == userId)
-          .toList();
+      var payments =
+          _box!.values.where((payments) => payments.userId == userId).toList();
       paymentInNotifier.value = payments;
       debugPrint(
         'Notifier updated with ${paymentInNotifier.value.length} payments',
@@ -105,8 +106,7 @@ class PaymentInDb {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
-      var payments =
-          _box?.values
+      var payments = _box?.values
               .where((payments) => payments.userId == userId)
               .toList() ??
           [];
@@ -169,9 +169,8 @@ class PaymentInDb {
     final userId = user.id;
     try {
       final box = await Hive.openBox<PaymentInModel>(boxName);
-      var payments = box.values
-          .where((payments) => payments.userId == userId)
-          .toList();
+      var payments =
+          box.values.where((payments) => payments.userId == userId).toList();
       paymentInNotifier.value = payments;
       debugPrint(
         'PaymentIn notifier refreshed with ${paymentInNotifier.value.length} payments',
@@ -179,7 +178,7 @@ class PaymentInDb {
     } catch (e) {
       debugPrint('Error refreshing payments: $e');
       paymentInNotifier.value = [];
-    }   
+    }
   }
 
   static Future<double> getTotalAmountByDate(DateTime date) async {
@@ -187,16 +186,14 @@ class PaymentInDb {
     final userId = user.id;
     try {
       final payments = await getAllPayments();
-      final total = payments
-          .where((payment) {
-            final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
+      final total = payments.where((payment) {
+        final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
 
-            return paymentDate.year == date.year &&
-                paymentDate.month == date.month &&
-                paymentDate.day == date.day &&
-                payment.userId == userId;
-          })
-          .fold(0.0, (sum, payment) => sum + (payment.receivedAmount));
+        return paymentDate.year == date.year &&
+            paymentDate.month == date.month &&
+            paymentDate.day == date.day &&
+            payment.userId == userId;
+      }).fold(0.0, (sum, payment) => sum + (payment.receivedAmount));
       debugPrint('Total payment-in amount for $date: $total');
       return total;
     } catch (e) {
@@ -240,8 +237,7 @@ class PaymentOutDb {
     final userId = user.id;
 
     try {
-      final payments =
-          _box?.values
+      final payments = _box?.values
               .where((payments) => payments.userId == userId)
               .toList() ??
           [];
@@ -256,7 +252,10 @@ class PaymentOutDb {
   static Future<void> savePayment(PaymentOutModel payment) async {
     if (_box == null) await init();
     try {
-      payment.id = _generateUniqueId();
+      if(payment.id.isEmpty){
+        payment.id = _generateUniqueId();
+      }
+      
       await _box!.put(payment.id, payment);
       _updateNotifier();
       debugPrint('Saved payment: ${payment.receiptNo}');
@@ -313,9 +312,8 @@ class PaymentOutDb {
         paymentOutNotifier.value = [];
         return;
       }
-      var payments = _box!.values
-          .where((payments) => payments.userId == userId)
-          .toList();
+      var payments =
+          _box!.values.where((payments) => payments.userId == userId).toList();
       paymentOutNotifier.value = payments;
       debugPrint(
         'Notifier updated with ${paymentOutNotifier.value.length} payments',
@@ -341,8 +339,7 @@ class PaymentOutDb {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     try {
-      var payments =
-          _box?.values
+      var payments = _box?.values
               .where((payments) => payments.userId == userId)
               .toList() ??
           [];
@@ -375,9 +372,8 @@ class PaymentOutDb {
     final userId = user.id;
     try {
       final box = await Hive.openBox<PaymentOutModel>(boxName);
-      var payments = box.values
-          .where((payments) => payments.userId == userId)
-          .toList();
+      var payments =
+          box.values.where((payments) => payments.userId == userId).toList();
       paymentOutNotifier.value = payments;
       debugPrint(
         'PaymentOut notifier refreshed with ${paymentOutNotifier.value.length} payments',
@@ -398,6 +394,4 @@ class PaymentOutDb {
       debugPrint('Error closing Hive box: $e');
     }
   }
-
-  
 }

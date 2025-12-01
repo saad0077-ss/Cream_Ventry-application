@@ -1,8 +1,7 @@
 import 'package:cream_ventory/models/payment_out_model.dart';
 import 'package:cream_ventory/screens/payments/payment_out_add_screen.dart';
-import 'package:cream_ventory/widgets/listing_screen_list.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
-import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/screens/payments/widgets/payment_out_card.dart';
 import 'package:flutter/material.dart';
 
 class PaymentOutList extends StatelessWidget {
@@ -25,44 +24,41 @@ class PaymentOutList extends StatelessWidget {
             Center(
               child: Text(
                 'No payments to display.',
-                style: AppTextStyles.emptyListText, 
+                style: AppTextStyles.emptyListText,
                 textAlign: TextAlign.center,
-              ),     
+              ),
             )
           // List or Grid
           else
             isDesktop
                 ? GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      mainAxisExtent: 170,  
+                      mainAxisExtent: 170,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                     ),
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return ReportLists(
+                      return PaymentOutCard(
+                        payment: payment,
                         onTap: () => _navigateToDetail(context, payment),
-                        name: payment.partyName,
-                        amount: FormatUtils.formatAmount(payment.paidAmount),
-                        date: FormatUtils.formatDate(payment.date),
-                        saleId: payment.receiptNo,
                       );
                     },
-                  )
+                  ) 
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return ReportLists(
+                      return PaymentOutCard(
+                        payment: payment,
                         onTap: () => _navigateToDetail(context, payment),
-                        name: payment.partyName,
-                        amount: FormatUtils.formatAmount(payment.paidAmount),
-                        date: FormatUtils.formatDate(payment.date),
-                        saleId: payment.receiptNo,
                       );
                     },
                   ),

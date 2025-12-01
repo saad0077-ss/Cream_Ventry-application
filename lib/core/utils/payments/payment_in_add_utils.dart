@@ -39,7 +39,8 @@ class PaymentInUtils {
     } catch (e) {
       debugPrint('Error generating receipt number: $e');
       setState(() {
-        receiptController.text = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        receiptController.text =
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
       });
     }
   }
@@ -58,12 +59,12 @@ class PaymentInUtils {
     );
     if (picked != null) {
       setState(() {
-        dateController.text =  DateFormat('dd MMM yyyy').format(picked);
+        dateController.text = DateFormat('dd MMM yyyy').format(picked);
       });
     }
   }
 
-  // Pick image (Web + Mobile) 
+  // Pick image (Web + Mobile)
   static Future<void> pickImage(
     BuildContext context,
     Function(String?) setImagePathCallback,
@@ -101,7 +102,8 @@ class PaymentInUtils {
           imageQuality: 80,
         );
         if (pickedFile != null) {
-          final permanentPath = await _saveImagePermanently(File(pickedFile.path));
+          final permanentPath =
+              await _saveImagePermanently(File(pickedFile.path));
           imagePath = permanentPath;
           setImagePathCallback(imagePath);
           setImageBytesCallback(null);
@@ -116,7 +118,8 @@ class PaymentInUtils {
         }
       }
 
-      if (imagePath == null && (result == null || result.files.single.bytes == null)) {
+      if (imagePath == null &&
+          (result == null || result.files.single.bytes == null)) {
         showTopSnackBar(
           Overlay.of(context),
           const CustomSnackBar.info(
@@ -167,15 +170,18 @@ class PaymentInUtils {
   }) async {
     // Validation
     if (selectedParty == null) {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please select a party"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please select a party"));
       return;
     }
     if (phoneNumberController.text.trim().isEmpty) {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please enter a phone number"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please enter a phone number"));
       return;
     }
     if (receivedAmount.isEmpty || receivedAmount == '0.00') {
-      showTopSnackBar(Overlay.of(context), const CustomSnackBar.error(message: "Please enter a valid amount"));
+      showTopSnackBar(Overlay.of(context),
+          const CustomSnackBar.error(message: "Please enter a valid amount"));
       return;
     }
 
@@ -184,20 +190,28 @@ class PaymentInUtils {
     final formattedAmount = parsedAmount.toStringAsFixed(2);
 
     final payment = PaymentInModel(
-      id: isEditMode ? existingPayment!.id.toString() : '0',
+      id: isEditMode ? existingPayment!.id : _uuid.v4(),
       receiptNo: receiptController.text,
       date: dateController.text,
       partyName: selectedParty.name,
       phoneNumber: phoneNumberController.text.trim(),
       receivedAmount: double.parse(formattedAmount),
       paymentType: selectedPaymentType,
-      note: noteController.text.trim().isEmpty ? null : noteController.text.trim(),
+      note: noteController.text.trim().isEmpty
+          ? null
+          : noteController.text.trim(),
       imagePath: imagePath,
       userId: user.id,
     );
 
     try {
-      await PaymentInDb.savePayment(payment);
+      if (isEditMode && existingPayment != null) {
+        // UPDATE existing
+        await PaymentInDb.updatePayment(payment);
+      } else {
+        // INSERT new 
+        await PaymentInDb.savePayment(payment); // this will generate new ID
+      } 
       await PartyDb.updateBalanceAfterPayment(
         payment.partyName!,
         payment.receivedAmount,
@@ -207,7 +221,9 @@ class PaymentInUtils {
       showTopSnackBar(
         Overlay.of(context),
         CustomSnackBar.success(
-          message: isEditMode ? "Payment updated successfully" : "Payment saved successfully",
+          message: isEditMode
+              ? "Payment updated successfully"
+              : "Payment saved successfully",
           icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
         ),
       );
@@ -250,7 +266,9 @@ class PaymentInUtils {
         title: const Text('Confirm Delete'),
         content: const Text('Are you sure you want to delete this payment?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               try {
@@ -268,7 +286,8 @@ class PaymentInUtils {
                   Overlay.of(context),
                   const CustomSnackBar.success(
                     message: "Payment deleted successfully!",
-                    icon: Icon(Icons.delete_forever, color: Colors.white, size: 40),
+                    icon: Icon(Icons.delete_forever,
+                        color: Colors.white, size: 40),
                   ),
                 );
               } catch (e) {

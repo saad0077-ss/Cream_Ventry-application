@@ -1,8 +1,7 @@
 import 'package:cream_ventory/models/payment_in_model.dart';
 import 'package:cream_ventory/screens/payments/payment_in_add_screen.dart';
-import 'package:cream_ventory/widgets/listing_screen_list.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
-import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/screens/payments/widgets/payment_in_card.dart';
 import 'package:flutter/material.dart';
 
 class PaymentInList extends StatelessWidget {
@@ -16,7 +15,7 @@ class PaymentInList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = _isDesktop(context);
-
+ 
     return Expanded(
       child: Stack(
         children: [
@@ -37,41 +36,31 @@ class PaymentInList extends StatelessWidget {
                     ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisExtent: 170,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                        ),
+                      crossAxisCount: 2,
+                      mainAxisExtent: 180,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                    ),
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return ReportLists(
+                      return PaymentInCard(
+                        payment: payment,
                         onTap: () => _navigateToDetail(context, payment),
-                        name: payment.partyName ?? '',
-                        amount: FormatUtils.formatAmount(
-                          payment.receivedAmount,
-                        ),
-                        date: FormatUtils.formatDate(payment.date),
-                        saleId: payment.receiptNo,
                       );
                     },
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
+                      horizontal: 16, 
                       vertical: 8,
                     ),
                     itemCount: payments.length,
                     itemBuilder: (context, index) {
                       final payment = payments[index];
-                      return ReportLists(
+                      return PaymentInCard(
+                        payment: payment,
                         onTap: () => _navigateToDetail(context, payment),
-                        name: payment.partyName ?? '',
-                        amount: FormatUtils.formatAmount(
-                          payment.receivedAmount,
-                        ),
-                        date: FormatUtils.formatDate(payment.date), 
-                        saleId: payment.receiptNo,
                       );
                     },
                   ),

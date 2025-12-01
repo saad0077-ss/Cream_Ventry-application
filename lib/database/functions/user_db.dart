@@ -348,7 +348,7 @@ class UserDB {
       } else {
         await prefs.remove('isLoggedIn');
         await prefs.remove('currentUserId');
-        debugPrint('Cleared logged-in status');
+        debugPrint('Cleared logged-in status'); 
         return false;
       }
     } catch (e) {
