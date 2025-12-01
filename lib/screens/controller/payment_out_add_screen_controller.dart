@@ -88,7 +88,7 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
           });
         }
       } else {
-        _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+        _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
         _paidAmountController.text = _paidAmount;
         await PaymentOutUtils.generateReceiptNumber(
           _receiptController,

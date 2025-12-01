@@ -70,7 +70,7 @@ class PaymentInList extends StatelessWidget {
                         amount: FormatUtils.formatAmount(
                           payment.receivedAmount,
                         ),
-                        date: FormatUtils.formatDate(payment.date),
+                        date: FormatUtils.formatDate(payment.date), 
                         saleId: payment.receiptNo,
                       );
                     },

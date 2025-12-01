@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part '../database/adapters/expence/expence_model.g.dart';
+ part '../database/adapters/expence/expence_model.g.dart';
 
 @HiveType(typeId: 3)
 class ExpenseModel extends HiveObject {

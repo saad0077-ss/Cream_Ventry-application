@@ -17,7 +17,7 @@ class PaymentInDb {
   static Future<void> init() async {
     try {
       if (!Hive.isAdapterRegistered(12)) {
-        Hive.registerAdapter(PaymentInModelAdapter());
+        Hive.registerAdapter(PaymentInModelAdapter()); 
       }
       _box = await Hive.openBox<PaymentInModel>(boxName);
       debugPrint(
@@ -189,7 +189,7 @@ class PaymentInDb {
       final payments = await getAllPayments();
       final total = payments
           .where((payment) {
-            final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+            final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
 
             return paymentDate.year == date.year &&
                 paymentDate.month == date.month &&

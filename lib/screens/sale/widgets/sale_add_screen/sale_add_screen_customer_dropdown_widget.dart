@@ -154,7 +154,7 @@ class SaleCustomerDropdownWidget {
           icon: Icon(
             Icons.arrow_drop_down,
             color: isEditable ? Theme.of(context).primaryColor : Colors.grey.shade400,
-          ),
+          ), 
           dropdownColor: Colors.white,
           menuMaxHeight: 300,
           borderRadius: BorderRadius.circular(12),

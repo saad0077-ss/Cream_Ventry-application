@@ -1,4 +1,5 @@
 // sale_screen_controller.dart
+import 'package:cream_ventory/core/constants/sale_add_screen_constant.dart';
 import 'package:cream_ventory/database/functions/sale/sale_item_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/party_model.dart';
@@ -161,10 +162,10 @@ class SaleScreenController {
         setState(() {
           _customerController.clear();
           _invoiceController.text = (int.parse(_invoiceController.text) + 1).toString();
-          _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+          _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
           _receivedController.clear();
           _dueDateController.text = transactionType == TransactionType.saleOrder
-              ? DateFormat('dd/MM/yyyy').format(DateTime.now())
+              ? DateFormat('dd MMM yyyy').format(DateTime.now())
               : '';
           _isReceivedChecked = false;
           _balanceDue = 0.0;

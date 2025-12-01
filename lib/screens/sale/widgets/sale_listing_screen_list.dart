@@ -1,6 +1,6 @@
 import 'package:cream_ventory/models/sale_model.dart';
 import 'package:cream_ventory/screens/sale/sale_add_screen.dart';
-import 'package:cream_ventory/widgets/listing_screen_list.dart';
+import 'package:cream_ventory/screens/sale/widgets/sale_listing_screen_sale_card.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
 import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +11,11 @@ class SaleList extends StatelessWidget {
   const SaleList({super.key, required this.sales});
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {  
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 900;
  
-    // Responsive values (same as PaymentInList)
+    // Responsive values
     final horizontalPadding = isDesktop ? 32.0 : 16.0;
     final verticalPadding = isDesktop ? 16.0 : 8.0;
     final bottomPadding = isDesktop ? 100.0 : 60.0;
@@ -54,19 +54,19 @@ class SaleList extends StatelessWidget {
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: gridCrossAxisCount,
-                  mainAxisExtent: 170,
-                  mainAxisSpacing: 12,
+                  mainAxisExtent: 200, // Increased height for new card
+                  mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                 ),
                 itemCount: sales.length,
                 itemBuilder: (context, index) {
                   final sale = sales[index];
-                  return ReportLists(
+                  return SaleCard(
                     onTap: () => _navigateToDetail(context, sale),
-                    name: sale.customerName ?? 'No Customer',
+                    customerName: sale.customerName ?? 'No Customer',
                     amount: '₹${FormatUtils.formatAmount(sale.total)}',
                     date: FormatUtils.formatDate(sale.date),
-                    saleId: sale.invoiceNumber,
+                    invoiceNumber: sale.invoiceNumber,
                   );
                 },
               )
@@ -81,12 +81,15 @@ class SaleList extends StatelessWidget {
                 itemCount: sales.length,
                 itemBuilder: (context, index) {
                   final sale = sales[index];
-                  return ReportLists(
-                    onTap: () => _navigateToDetail(context, sale),
-                    name: sale.customerName ?? 'No Customer',
-                    amount: '₹${FormatUtils.formatAmount(sale.total)}',
-                    date: FormatUtils.formatDate(sale.date),
-                    saleId: sale.invoiceNumber,
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: SaleCard(
+                      onTap: () => _navigateToDetail(context, sale),
+                      customerName: sale.customerName ?? 'No Customer',
+                      amount: FormatUtils.formatAmount(sale.total),
+                      date: FormatUtils.formatDate(sale.date),
+                      invoiceNumber: sale.invoiceNumber,
+                    ),
                   );
                 },
               ), 
@@ -107,4 +110,4 @@ class SaleList extends StatelessWidget {
       ),
     );
   }
-} 
+}

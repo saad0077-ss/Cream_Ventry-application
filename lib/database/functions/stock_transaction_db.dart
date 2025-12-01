@@ -49,9 +49,9 @@ class StockTransactionDB {
       var transactions = box.values
           .where((txn) => txn.userId == userId)
           .toList()
-        ..sort((a, b) => DateFormat('dd/MM/yyyy')
+        ..sort((a, b) => DateFormat('dd MMM yyyy')
             .parse(b.date)
-            .compareTo(DateFormat('dd/MM/yyyy').parse(a.date)));
+            .compareTo(DateFormat('dd MMM yyyy').parse(a.date)));
       
       transactionNotifier.value = transactions;
       debugPrint('Refreshed ${transactions.length} stock transactions');
@@ -125,9 +125,9 @@ class StockTransactionDB {
               txn.userId == userId
           )
           .toList()
-        ..sort((a, b) => DateFormat('dd/MM/yyyy')
+        ..sort((a, b) => DateFormat('dd MMM yyyy')
             .parse(b.date)
-            .compareTo(DateFormat('dd/MM/yyyy').parse(a.date)));
+            .compareTo(DateFormat('dd MMM yyyy').parse(a.date)));
       
       debugPrint(
         'Fetched ${transactions.length} transactions for product $productId'
@@ -153,9 +153,9 @@ class StockTransactionDB {
               txn.userId == userId
           )
           .toList()
-        ..sort((a, b) => DateFormat('dd/MM/yyyy')
+        ..sort((a, b) => DateFormat('dd MMM yyyy')
             .parse(b.date)
-            .compareTo(DateFormat('dd/MM/yyyy').parse(a.date)));
+            .compareTo(DateFormat('dd MMM yyyy').parse(a.date)));
       
       debugPrint('Fetched ${transactions.length} transactions of type $type');
       return transactions;
@@ -185,14 +185,14 @@ class StockTransactionDB {
                    txnDate.isBefore(endDate.add(const Duration(days: 1)));
           })
           .toList()
-        ..sort((a, b) => DateFormat('dd/MM/yyyy')
+        ..sort((a, b) => DateFormat('dd MMM yyyy')
             .parse(b.date)
-            .compareTo(DateFormat('dd/MM/yyyy').parse(a.date)));
+            .compareTo(DateFormat('dd MMM yyyy').parse(a.date)));
       
       debugPrint(
         'Fetched ${transactions.length} transactions between '
-        '${DateFormat('dd/MM/yyyy').format(startDate)} and '
-        '${DateFormat('dd/MM/yyyy').format(endDate)}'
+        '${DateFormat('dd MMM yyyy').format(startDate)} and '
+        '${DateFormat('dd MMM yyyy').format(endDate)}'
       );
       return transactions;
     } catch (e) {

@@ -85,13 +85,13 @@ class _PaymentInScreenState extends State<PaymentInScreenState> {
           final party = await PartyDb.getPartyByIdFromName(payment.partyName!);
           if (party != null) {
             setState(() {
-              _selectedParty = party;
+              _selectedParty = party; 
               _phoneNumberController.text = party.contactNumber;
             });
           }
         }
       } else {
-        _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+        _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
         _receivedAmountController.text = _receivedAmount;
         await PaymentInUtils.generateReceiptNumber(
           _receiptController,

@@ -15,7 +15,7 @@ class UserDB {
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(UserModelAdapter());
       }
-      await Hive.openBox<UserModel>(_userBoxName);
+      await Hive.openBox<UserModel>(_userBoxName); 
       _isInitialized = true;
     }
   }
@@ -249,7 +249,7 @@ class UserDB {
     }
 
     final box = Hive.box<UserModel>(_userBoxName);
-    final user = box.get(userId);
+    final user = box.get(userId);      
     if (user == null) {
       throw Exception('User not found in database');
     }

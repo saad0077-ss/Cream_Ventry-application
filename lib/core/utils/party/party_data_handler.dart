@@ -22,9 +22,9 @@ class PartyDataHandler {
     required String openingBalance,
     required String paymentType,
     required DateTime? selectedDate,
-    required String billingAddress,
+    required String billingAddress,   
     required String email,
-    required Uint8List? imageBytes,
+    required Uint8List? imageBytes, 
     required String imagePath,
     required bool clearFields,
     required VoidCallback clearForm,
@@ -57,12 +57,14 @@ class PartyDataHandler {
       finalImagePath = imagePath.isNotEmpty ? imagePath : (party?.imagePath ?? '');
     }
 
+
+
     final newParty = PartyModel(
       id: party?.id ?? _uuid.v4(),
       name: partyName,
       contactNumber: contactNumber,
       openingBalance: finalOpeningBalance,
-      asOfDate: selectedDate ?? DateTime.now(),
+      asOfDate: (selectedDate ?? DateTime.now()).toIso8601String(),
       billingAddress: billingAddress,
       email: email,
       paymentType: paymentType,

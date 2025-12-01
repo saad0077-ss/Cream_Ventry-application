@@ -9,7 +9,6 @@ import 'package:cream_ventory/models/payment_out_model.dart';
 import 'package:cream_ventory/core/theme/theme.dart';
 import 'package:cream_ventory/core/utils/image_util.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
-import 'package:cream_ventory/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -27,6 +26,10 @@ class _PartyDetailState extends State<PartyDetail>
   late Animation<double> _fadeAnimation;
   PartyModel? _currentParty;
 
+  // Filter states
+  Set<String> _selectedTypes = {'Sale Order', 'Sale', 'Payment In', 'Payment Out'};
+  DateTimeRange? _dateRange;
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +37,10 @@ class _PartyDetailState extends State<PartyDetail>
       duration: const Duration(milliseconds: 700),
       vsync: this,
     );
-    _fadeAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    );
     _animationController.forward();
 
     _refreshBalance();
@@ -58,31 +64,33 @@ class _PartyDetailState extends State<PartyDetail>
     final bal = party.partyBalance;
     if (bal > 0) return const Color(0xFF0DA95F);
     if (bal < 0) return const Color(0xFFE74C3C);
-    return party.paymentType.toLowerCase().contains("give") ? const Color(0xFFE74C3C) : const Color(0xFF0DA95F);
+    return party.paymentType.toLowerCase().contains("give")
+        ? const Color(0xFFE74C3C)
+        : const Color(0xFF0DA95F);
   }
 
   String _balanceLabel(PartyModel party) {
     final bal = party.partyBalance;
     if (bal > 0) return "You'll Get";
     if (bal < 0) return "You'll Give";
-    return party.paymentType.toLowerCase().contains("give") ? "You'll Give" : "You'll Get";
+    return party.paymentType.toLowerCase().contains("give")
+        ? "You'll Give"
+        : "You'll Get";
   }
 
   void _editParty() async {
-  if (_currentParty == null) return;
+    if (_currentParty == null) return;
 
-  final updatedParty = await Navigator.of(context).push<PartyModel>(
-    MaterialPageRoute(    
-      builder: (_) => AddPartyPage(party: _currentParty!),
-    ),    
-  );
+    final updatedParty = await Navigator.of(context).push<PartyModel>(
+      MaterialPageRoute(builder: (_) => AddPartyPage(party: _currentParty!)),
+    );
 
-  if (updatedParty != null && mounted) {
-    await PartyDb.calculatePartySummary(widget.partyId);
-    setState(() {});   // refresh UI with new data
+    if (updatedParty != null && mounted) {
+      await PartyDb.calculatePartySummary(widget.partyId);
+      setState(() {});
+    }
   }
-}
-  // Delete Party with confirmation
+
   void _deleteParty() async {
     if (_currentParty == null) return;
 
@@ -104,16 +112,24 @@ class _PartyDetailState extends State<PartyDetail>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
-            child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 16)),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -121,9 +137,8 @@ class _PartyDetailState extends State<PartyDetail>
 
     if (confirmed == true) {
       try {
-        // Call your delete function here
         await PartyDb.deleteParty(widget.partyId);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -132,7 +147,7 @@ class _PartyDetailState extends State<PartyDetail>
               behavior: SnackBarBehavior.floating,
             ),
           );
-          Navigator.pop(context); // Go back after deletion
+          Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
@@ -148,18 +163,466 @@ class _PartyDetailState extends State<PartyDetail>
     }
   }
 
+  void _showFilterDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setDialogState) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 8,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(maxWidth: 400),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  Colors.blue.shade50.withOpacity(0.3),
+                ],
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade400, Colors.blue.shade600],
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text(
+                        'Filter Transactions',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Content
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(17),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Transaction Type Section
+                        Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Transaction Type',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey[800],
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _buildModernFilterChip('Sale Order', Icons.shopping_bag_outlined, setDialogState),
+                            _buildModernFilterChip('Sale', Icons.point_of_sale_outlined, setDialogState),
+                            _buildModernFilterChip('Payment In', Icons.arrow_downward_rounded, setDialogState),
+                            _buildModernFilterChip('Payment Out', Icons.arrow_upward_rounded, setDialogState),
+                          ],
+                        ),
+                        
+                        SizedBox(height: 28),
+                        
+                        // Divider with style
+                        Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.grey.shade300,
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        SizedBox(height: 28),
+                        
+                        // Date Range Section
+                        Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Date Range',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey[800],
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDateRangePicker(
+                              context: context,
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime.now(),
+                              initialDateRange: _dateRange,
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: ColorScheme.light(
+                                      primary: Colors.blue.shade600,
+                                      onPrimary: Colors.white,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (picked != null) {
+                              setDialogState(() {
+                                _dateRange = picked;
+                              });
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              border: Border.all(
+                                color: _dateRange != null 
+                                    ? Colors.blue.shade300 
+                                    : Colors.grey.shade300,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade100,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.calendar_today_rounded,
+                                    color: Colors.blue.shade700,
+                                    size: 22,
+                                  ),
+                                ),
+                                SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _dateRange == null ? 'Select Date Range' : 'Selected Range',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      if (_dateRange != null) SizedBox(height: 2),
+                                      Text(
+                                        _dateRange == null
+                                            ? 'Tap to choose dates'
+                                            : '${DateFormat('dd MMM yyyy').format(_dateRange!.start)} - ${DateFormat('dd MMM yyyy').format(_dateRange!.end)}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: _dateRange == null 
+                                              ? Colors.grey[500] 
+                                              : Colors.blue.shade800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (_dateRange != null)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: Icon(Icons.close_rounded, size: 20),
+                                      color: Colors.red.shade400,
+                                      onPressed: () {
+                                        setDialogState(() {
+                                          _dateRange = null;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // Actions
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedTypes = {'Sale Order', 'Sale', 'Payment In', 'Payment Out'};
+                              _dateRange = null;
+                            });
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: Colors.grey.shade400, width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.refresh_rounded, size: 20, color: Colors.grey[700]),
+                              SizedBox(width: 8),
+                              Text(
+                                'Reset',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {});
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.blue.shade600,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_rounded, size: 20, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Apply',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+Widget _buildModernFilterChip(String label, IconData icon, StateSetter setDialogState) {
+  final isSelected = _selectedTypes.contains(label);
+  
+  return InkWell(
+    onTap: () {
+      setDialogState(() {
+        if (isSelected) {
+          _selectedTypes.remove(label);
+        } else {
+          _selectedTypes.add(label);
+        }
+      });
+    },
+    borderRadius: BorderRadius.circular(12),
+    child: AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 11),
+      decoration: BoxDecoration(
+        gradient: isSelected
+            ? LinearGradient(
+                colors: [Colors.blue.shade400, Colors.blue.shade600],
+              )
+            : null,
+        color: isSelected ? null : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected ? Colors.blue.shade600 : Colors.grey.shade300,
+          width: 2,
+        ),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: isSelected ? Colors.white : Colors.grey[700],
+          ),
+          SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : Colors.grey[800],
+            ),
+          ),
+          if (isSelected) ...[
+            SizedBox(width: 6),
+            Icon(
+              Icons.check_circle,
+              size: 16,
+              color: Colors.white,
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+}
+  
+
+  List<_TransactionItem> _applyFilters(List<_TransactionItem> list) {
+    var filtered = list.where((item) => _selectedTypes.contains(item.type)).toList();
+
+    if (_dateRange != null) {
+      filtered = filtered.where((item) {
+        final itemDate = DateFormat('dd MMM yyyy').parse(item.date);
+        return itemDate.isAfter(_dateRange!.start.subtract(Duration(days: 1))) &&
+            itemDate.isBefore(_dateRange!.end.add(Duration(days: 1)));
+      }).toList();
+    }
+
+    return filtered;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final hasActiveFilters = _selectedTypes.length < 4 || _dateRange != null;
 
     return FutureBuilder<PartyModel?>(
       future: PartyDb.getPartyById(widget.partyId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
-        final party = snapshot.data ??
+        final party =
+            snapshot.data ??
             PartyModel(
               id: widget.partyId,
               name: 'Unknown Party',
@@ -169,7 +632,7 @@ class _PartyDetailState extends State<PartyDetail>
               openingBalance: 0.0,
               paymentType: "You'll Give",
               imagePath: '',
-              asOfDate: DateTime.now(),
+              asOfDate: DateTime.now().toString(),
               partyBalance: 0.0,
               userId: '',
             );
@@ -205,7 +668,10 @@ class _PartyDetailState extends State<PartyDetail>
                         SizedBox(width: 12),
                         Text(
                           'Edit Party',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -249,7 +715,9 @@ class _PartyDetailState extends State<PartyDetail>
                     child: Card(
                       elevation: 8,
                       shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -269,35 +737,51 @@ class _PartyDetailState extends State<PartyDetail>
                                   child: CircleAvatar(
                                     radius: 42,
                                     backgroundColor: Colors.grey[200],
-                                    backgroundImage: ImageUtils.getImage(party.imagePath, fallback: 'assets/image/account.png'),
+                                    backgroundImage: ImageUtils.getImage(
+                                      party.imagePath,
+                                    ),
                                     child: party.imagePath.isEmpty
-                                        ? const Icon(Icons.person, size: 48, color: Colors.grey)
+                                        ? const Icon(
+                                            Icons.person,
+                                            size: 48,
+                                            color: Colors.grey,
+                                          )
                                         : null,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         party.name,
-                                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'ABeeZee'),
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'ABeeZee',
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
-                                        children: [
+                                        children: [    
                                           Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: _balanceColor(party).withOpacity(0.15),
+                                              color: _balanceColor(
+                                                party,
+                                              ).withOpacity(0.15),
                                               shape: BoxShape.circle,
                                             ),
                                             child: Icon(
-                                              party.partyBalance > 0 || !party.paymentType.toLowerCase().contains("give")
-                                                  ? Icons.arrow_downward_rounded
+                                              party.partyBalance > 0 ||
+                                                      !party.paymentType
+                                                          .toLowerCase()
+                                                          .contains("give")
+                                                  ? Icons.arrow_downward_rounded 
                                                   : Icons.arrow_upward_rounded,
                                               color: _balanceColor(party),
                                               size: 28,
@@ -305,11 +789,16 @@ class _PartyDetailState extends State<PartyDetail>
                                           ),
                                           const SizedBox(width: 12),
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 _balanceLabel(party),
-                                                style: TextStyle(fontSize: 15, color: Colors.grey[700], fontWeight: FontWeight.w600),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.grey[700],
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                               Text(
                                                 '₹ ${party.partyBalance.abs().toStringAsFixed(2)}',
@@ -331,9 +820,26 @@ class _PartyDetailState extends State<PartyDetail>
                             const SizedBox(height: 20),
                             const Divider(height: 1, color: Color(0xFFE0E0E0)),
                             const SizedBox(height: 16),
-                            _infoRow(Icons.email_outlined, 'Email', party.email.isEmpty ? 'Not added' : party.email),
-                            _infoRow(Icons.phone_outlined, 'Phone', party.contactNumber.isEmpty ? 'Not added' : party.contactNumber),
-                            _infoRow(Icons.location_on_outlined, 'Address', party.billingAddress.isEmpty ? 'Not added' : party.billingAddress, isMultiLine: true),
+                            _infoRow(
+                              Icons.email_outlined,
+                              'Email',
+                              party.email.isEmpty ? 'Not added' : party.email,
+                            ),
+                            _infoRow(
+                              Icons.phone_outlined,
+                              'Phone',
+                              party.contactNumber.isEmpty
+                                  ? 'Not added'
+                                  : party.contactNumber,
+                            ),
+                            _infoRow(
+                              Icons.location_on_outlined,
+                              'Address',
+                              party.billingAddress.isEmpty
+                                  ? 'Not added'
+                                  : party.billingAddress,
+                              isMultiLine: true,
+                            ),
                           ],
                         ),
                       ),
@@ -341,10 +847,47 @@ class _PartyDetailState extends State<PartyDetail>
                   ),
 
                   const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: CustomSearchBar(hintText: 'Search transactions...', onChanged: (v) {}),
+                  
+                  // Filter Button
+                  Row(
+                    mainAxisAlignment:MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ElevatedButton.icon(
+                            onPressed: _showFilterDialog,
+                            icon: Icon(
+                              Icons.filter_list,
+                              color: hasActiveFilters ? Colors.white : Colors.blue,
+                            ),
+                            label: Text(
+                              hasActiveFilters ? 'Filters Applied' : 'Filter Transactions',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: hasActiveFilters ? Colors.white : Colors.blue,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: hasActiveFilters ? Colors.blue : Colors.white,
+                              elevation: 4,
+                              shadowColor: Colors.black26,
+                              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: BorderSide(
+                                  color: Colors.blue,
+                                  width: hasActiveFilters ? 0 : 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                  
                   const SizedBox(height: 16),
 
                   // Transactions List
@@ -358,60 +901,112 @@ class _PartyDetailState extends State<PartyDetail>
                             return ValueListenableBuilder<List<PaymentInModel>>(
                               valueListenable: PaymentInDb.paymentInNotifier,
                               builder: (context, paymentsIn, _) {
-                                return ValueListenableBuilder<List<PaymentOutModel>>(
-                                  valueListenable: PaymentOutDb.paymentOutNotifier,
+                                return ValueListenableBuilder<
+                                  List<PaymentOutModel>
+                                >(
+                                  valueListenable:
+                                      PaymentOutDb.paymentOutNotifier,
                                   builder: (context, paymentsOut, _) {
                                     final List<_TransactionItem> list = [];
 
                                     // Sales
-                                    for (var s in sales.where((s) => s.customerName == party.name)) {
-                                      list.add(_TransactionItem(
-                                        type: s.transactionType == TransactionType.saleOrder ? 'Sale Order' : 'Sale',
-                                        date: s.date,
-                                        amount: s.total,
-                                        balanceDue: s.balanceDue,
-                                        refNo: s.invoiceNumber,
-                                        status: s.status,
-                                        isPayment: false,
-                                      ));
-                                    }
-
-                                    // Payment In
-                                    for (var p in paymentsIn.where((p) => p.partyName == party.name)) {
-                                      list.add(_TransactionItem(
-                                        type: 'Payment In',
-                                        date: p.date,
-                                        amount: p.receivedAmount,
-                                        refNo: p.receiptNo,
-                                        isPayment: true,
-                                        isIn: true,
-                                      ));
-                                    }
-
-                                    // Payment Out
-                                    for (var p in paymentsOut.where((p) => p.partyName == party.name)) {
-                                      list.add(_TransactionItem(
-                                        type: 'Payment Out',
-                                        date: p.date,
-                                        amount: p.paidAmount,
-                                        refNo: p.receiptNo,
-                                        isPayment: true,
-                                        isIn: false,
-                                      ));
-                                    }
-
-                                    if (list.isEmpty) {
-                                      return const Center(
-                                        child: Text('No transactions yet', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                                    for (var s in sales.where(
+                                      (s) => s.customerName == party.name,
+                                    )) {
+                                      list.add(
+                                        _TransactionItem(
+                                          type:
+                                              s.transactionType ==
+                                                  TransactionType.saleOrder
+                                              ? 'Sale Order'
+                                              : 'Sale',
+                                          date: s.date,
+                                          amount: s.total,
+                                          balanceDue: s.balanceDue,
+                                          refNo: s.invoiceNumber,
+                                          status: s.status,
+                                          isPayment: false,
+                                        ),
                                       );
                                     }
 
-                                    list.sort((a, b) => DateFormat('dd/MM/yyyy').parse(b.date).compareTo(DateFormat('dd/MM/yyyy').parse(a.date)));
+                                    // Payment In
+                                    for (var p in paymentsIn.where(
+                                      (p) => p.partyName == party.name,
+                                    )) {
+                                      list.add(
+                                        _TransactionItem(
+                                          type: 'Payment In',
+                                          date: p.date,
+                                          amount: p.receivedAmount,
+                                          refNo: p.receiptNo,
+                                          isPayment: true,
+                                          isIn: true,
+                                        ),
+                                      );
+                                    }
+
+                                    // Payment Out
+                                    for (var p in paymentsOut.where(
+                                      (p) => p.partyName == party.name,
+                                    )) {
+                                      list.add(
+                                        _TransactionItem(
+                                          type: 'Payment Out',
+                                          date: p.date,
+                                          amount: p.paidAmount,
+                                          refNo: p.receiptNo,
+                                          isPayment: true,
+                                          isIn: false,
+                                        ),
+                                      );
+                                    }
+
+                                    // Apply filters
+                                    final filteredList = _applyFilters(list);
+
+                                    if (filteredList.isEmpty) {
+                                      return Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.filter_list_off,
+                                              size: 64,
+                                              color: Colors.grey[400],
+                                            ),
+                                            SizedBox(height: 16),
+                                            Text(
+                                              hasActiveFilters
+                                                  ? 'No transactions match the filters'
+                                                  : 'No transactions yet',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+
+                                    filteredList.sort(
+                                      (a, b) => DateFormat('dd MMM yyyy')
+                                          .parse(b.date)
+                                          .compareTo(
+                                            DateFormat(
+                                              'dd MMM yyyy',
+                                            ).parse(a.date),
+                                          ),
+                                    );
 
                                     return ListView.builder(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      itemCount: list.length,
-                                      itemBuilder: (context, i) => _TransactionCard(item: list[i]),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                      ),
+                                      itemCount: filteredList.length,
+                                      itemBuilder: (context, i) =>
+                                          _TransactionCard(item: filteredList[i]),
                                     );
                                   },
                                 );
@@ -431,15 +1026,25 @@ class _PartyDetailState extends State<PartyDetail>
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value, {bool isMultiLine = false}) {
+  Widget _infoRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isMultiLine = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
-        crossAxisAlignment: isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: isMultiLine
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(icon, color: Colors.grey[700], size: 24),
           ),
           const SizedBox(width: 14),
@@ -447,7 +1052,14 @@ class _PartyDetailState extends State<PartyDetail>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   value,
@@ -456,14 +1068,13 @@ class _PartyDetailState extends State<PartyDetail>
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
-            ),
+            ), 
           ),
         ],
       ),
     );
   }
 }
-
 // Transaction Item
 class _TransactionItem {
   final String type;
@@ -509,7 +1120,9 @@ class _TransactionCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             gradient: LinearGradient(
-              colors: cancelled ? [Colors.grey[100]!, Colors.grey[200]!] : [Colors.white, const Color(0xFFFDFDFD)],
+              colors: cancelled
+                  ? [Colors.grey[100]!, Colors.grey[200]!]
+                  : [Colors.white, const Color(0xFFFDFDFD)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -539,7 +1152,7 @@ class _TransactionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '#${item.refNo}',
+                      item.refNo  ,
                       style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 4),
@@ -551,7 +1164,10 @@ class _TransactionCard extends StatelessWidget {
                       const Padding(
                         padding: EdgeInsets.only(top: 6),
                         child: Chip(
-                          label: Text('Cancelled', style: TextStyle(fontSize: 10, color: Colors.white)),
+                          label: Text(
+                            'Cancelled',
+                            style: TextStyle(fontSize: 10, color: Colors.white),
+                          ),
                           backgroundColor: Colors.red,
                           padding: EdgeInsets.zero,
                         ),
@@ -567,39 +1183,46 @@ class _TransactionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: cancelled    
+                      color: cancelled
                           ? Colors.grey
                           : (item.isPayment
-                              ? (item.isIn == true ? const Color(0xFF0DA95F) : const Color(0xFFE74C3C))
-                              : Colors.black87),
+                                ? (item.isIn == true
+                                      ? const Color(0xFF0DA95F)
+                                      : const Color(0xFFE74C3C))
+                                : Colors.black87),
                     ),
                   ),
                   const SizedBox(height: 6),
                   if (isSale && !cancelled)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: fullyPaid ? const Color(0xFF0DA95F).withOpacity(0.15) : const Color(0xFFE74C3C).withOpacity(0.15),
+                        color: fullyPaid
+                            ? const Color(0xFF0DA95F).withOpacity(0.15)
+                            : const Color(0xFFE74C3C).withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        fullyPaid ? 'Paid' : 'Due ₹ ${item.balanceDue!.toStringAsFixed(2)}',
+                        fullyPaid
+                            ? 'Paid'
+                            : 'Due ₹ ${item.balanceDue!.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: fullyPaid ? const Color(0xFF0DA95F) : const Color(0xFFE74C3C),
+                          color: fullyPaid
+                              ? const Color(0xFF0DA95F)
+                              : const Color(0xFFE74C3C),
                         ),
                       ),
                     ),
-                ], 
+                ],
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.share_rounded, color: Colors.grey, size: 22),
-                onPressed: () {},
-              ),
+              
             ],
-          ), 
+          ),
         ),
       ),
     );

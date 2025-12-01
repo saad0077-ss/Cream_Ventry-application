@@ -11,7 +11,7 @@ class PaymentDetailsCard extends StatelessWidget {
   final VoidCallback onDateTap;
 
   const PaymentDetailsCard({
-    super.key,
+    super.key,           
     required this.receiptController,
     required this.dateController,
     required this.phoneNumberController,

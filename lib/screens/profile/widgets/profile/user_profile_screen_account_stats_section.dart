@@ -2,8 +2,8 @@
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/product_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_section_card.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_stat_card.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_section_card.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_stat_card.dart';
 import 'package:flutter/material.dart';
 
 

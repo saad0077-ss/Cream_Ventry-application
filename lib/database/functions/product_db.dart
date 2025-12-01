@@ -110,7 +110,7 @@ class ProductDB {
           quantity: product.stock,
           pricePerUnit: product.purchasePrice,
           totalValue: product.stock * product.purchasePrice,
-          date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+          date: DateFormat('dd MMM yyyy').format(DateTime.now()),
           userId: userId,
           notes: 'Initial stock for new product',
           stockAfterTransaction: product.stock,
@@ -328,7 +328,7 @@ class ProductDB {
         quantity: quantitySold,
         pricePerUnit: product.salePrice,
         totalValue: quantitySold * product.salePrice,
-        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        date: DateFormat('dd MMM yyyy').format(DateTime.now()),
         userId: userId,
         referenceId: saleId,
         stockAfterTransaction: newStock,
@@ -403,7 +403,7 @@ class ProductDB {
         quantity: quantity,
         pricePerUnit: priceToUse,
         totalValue: quantity * priceToUse,
-        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        date: DateFormat('dd MMM yyyy').format(DateTime.now()),
         userId: userId,
         notes: notes,
         stockAfterTransaction: newStock,
@@ -473,7 +473,7 @@ class ProductDB {
         quantity: quantityToRestore,
         pricePerUnit: product.salePrice,
         totalValue: quantityToRestore * product.salePrice,
-        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        date: DateFormat('dd MMM yyyy').format(DateTime.now()),
         userId: userId,
         referenceId: saleId,
         notes: 'Sale cancelled/returned',
@@ -525,9 +525,9 @@ class ProductDB {
           lowStockList.sort((a, b) => a.stock.compareTo(b.stock));
         } else if (sortBy == 'date') {
           lowStockList.sort(
-            (a, b) => DateFormat('dd/MM/yyyy')
+            (a, b) => DateFormat('dd MMM yyyy')
                 .parse(a.creationDate)
-                .compareTo(DateFormat('dd/MM/yyyy').parse(b.creationDate)),
+                .compareTo(DateFormat('dd MMM yyyy').parse(b.creationDate)),
           );
         }
       }
@@ -610,7 +610,7 @@ class ProductDB {
         quantity: quantityChange.abs(),
         pricePerUnit: priceToUse,
         totalValue: quantityChange.abs() * priceToUse,
-        date: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        date: DateFormat('dd MMM yyyy').format(DateTime.now()),
         userId: userId,
         notes:
             notes ??

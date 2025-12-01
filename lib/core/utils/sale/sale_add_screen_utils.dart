@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cream_ventory/core/constants/sale_add_screen_constant.dart';
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/product_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
@@ -10,20 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
-class AppConstants {
-  static const String customerLabel = 'Customer';
-  static const String invoiceNoLabel = 'Invoice No';
-  static const String dateLabel = 'Date';
-  static const String dueDateLabel = 'Due Date';
-  static const String noItemsText = 'No items added yet.';
-  static const String selectCustomerHint = 'Select a customer';
-  static const String noCustomersHint = 'No customers available';
-  static const String saveSuccess = 'saved successfully!';
-  static const String updateSuccess = 'updated successfully!';
-  static const String deleteSuccess = 'deleted successfully!';
-  static const String addItemError = 'Please add at least one item to save.';
-  static const String selectCustomerError = 'Please select a customer.';
-}
+
 
 class SaleAddUtils {
   static const String _fallbackImagePath = 'assets/images/ice2.jpg';
@@ -53,9 +41,9 @@ class SaleAddUtils {
         await SaleItemDB.loadItemsForEdit(currentSale.items);
         debugPrint('Form initialized for edit mode, saleId: ${currentSale.id}');
       } else {
-        dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+        dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
         if (transactionType == TransactionType.saleOrder) {
-          dueDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+          dueDateController.text = DateFormat('dd MMM yyyy').format(DateTime.now()); 
         }
         await SaleDB.init();
         final latestInvoice = await SaleDB.getLatestInvoiceNumber();
@@ -79,7 +67,7 @@ class SaleAddUtils {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      dateController.text = DateFormat('dd/MM/yyyy').format(picked);
+      dateController.text = DateFormat('dd MMM yyyy').format(picked);
       debugPrint('Date selected: ${dateController.text}');
     }
   }
@@ -94,7 +82,7 @@ class SaleAddUtils {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      dueDateController.text = DateFormat('dd/MM/yyyy').format(picked);
+      dueDateController.text = DateFormat('dd MMM yyyy').format(picked);
       debugPrint('Due date selected: ${dueDateController.text}');
     }
   }
@@ -170,7 +158,7 @@ class SaleAddUtils {
               debugPrint('Restocking ${item.productName}, quantity: ${item.quantity}');
               await ProductDB.restockProduct(item.id, item.quantity);
             }
-            await SaleDB.deleteSale(sale.id);
+            await SaleDB.deleteSale(sale.id);      
             await SaleItemDB.clearSaleItems();
             debugPrint('Sale deleted successfully');
             if (context.mounted) {

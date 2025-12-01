@@ -1,7 +1,7 @@
 // lib/screens/profile/widgets/financial_summary_section.dart
 import 'package:cream_ventory/core/utils/profile/profile_display_logics.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_section_card.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_stat_card.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_section_card.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_stat_card.dart';
 import 'package:flutter/material.dart';
 
 class FinancialSummarySection extends StatelessWidget {

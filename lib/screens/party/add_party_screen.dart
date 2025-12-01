@@ -14,7 +14,7 @@ class AddPartyPage extends StatefulWidget {
   @override
   State<AddPartyPage> createState() => _AddPartyPageState();
 }
-   
+      
 class _AddPartyPageState extends State<AddPartyPage> {
   late final PartyFormController _formController;
 

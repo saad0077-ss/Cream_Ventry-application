@@ -33,7 +33,7 @@ class _SaleReportScreenState extends State<SaleReportScreen> {
 
   Future<void> _fetchSales() async {
     List<SaleModel> fetchedSales = await SaleDB.getSales();
-    final dateFormat = DateFormat('dd/MM/yyyy');
+    final dateFormat = DateFormat('dd MMM yyyy');
 
     // Filter for sales and sale orders
     List<SaleModel> filtered = fetchedSales

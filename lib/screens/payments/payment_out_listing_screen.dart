@@ -86,20 +86,33 @@ class _PaymentOutTransactionState extends State<PaymentOutTransaction> {
   }
 
   List<PaymentOutModel> _filterPayments(List<PaymentOutModel> payments) {
-    if (startDate == null || endDate == null) return payments;
-
-    final dateFormat = DateFormat('dd/MM/yyyy');
-    return payments.where((payment) {
-      try {
-        final paymentDate = dateFormat.parse(payment.date);
-        return paymentDate.isAfter(startDate!.subtract(const Duration(days: 1))) &&
-               paymentDate.isBefore(endDate!.add(const Duration(days: 1)));
-      } catch (e) {
-        debugPrint('Error parsing date for payment ${payment.receiptNo}: $e');
-        return false;
-      }
-    }).toList();
+  debugPrint('Total payments before filter: ${payments.length}');
+  debugPrint('Start date: $startDate, End date: $endDate');
+  
+  if (startDate == null || endDate == null) {
+    debugPrint('No date filter applied');
+    return payments;
   }
+
+  final dateFormat = DateFormat('dd MMM yyyy');
+  final filtered = payments.where((payment) {
+    try {
+      debugPrint('Parsing date: ${payment.date}');
+      final paymentDate = dateFormat.parse(payment.date);
+      final isInRange = paymentDate.isAfter(startDate!.subtract(const Duration(days: 1))) &&
+             paymentDate.isBefore(endDate!.add(const Duration(days: 1)));
+      debugPrint('Payment date: $paymentDate, In range: $isInRange');
+      return isInRange;
+    } catch (e) {
+      debugPrint('Error parsing date for payment ${payment.receiptNo}: $e');
+      debugPrint('Date string was: ${payment.date}'); 
+      return false;
+    }
+  }).toList();
+  
+  debugPrint('Filtered payments count: ${filtered.length}');
+  return filtered; 
+}
 
   void _onDateRangeChanged(DateTime newStartDate, DateTime newEndDate) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

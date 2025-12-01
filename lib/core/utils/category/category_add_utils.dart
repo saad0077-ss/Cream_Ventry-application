@@ -105,14 +105,21 @@ Future<void> saveCategory({
     final finalImagePath = await controller.processImage(categoryToEdit: categoryToEdit);
 
     if (isEditing) {
-      await CategoryDB.editCategory(
+      final bool success = await CategoryDB.editCategory(
         categoryToEdit!.id,
         controller.nameController.text.trim(),
         controller.descriptionController.text.trim(),
         finalImagePath,
       );
+      if (!success) {    
+        _showError(context, "Failed to update category");
+        return;
+      }
+
       _showSuccess(context, "Category updated successfully!");
+       Navigator.pop(context); 
     } else {
+      // === ADD NEW CATEGORY ===
       final newCategory = CategoryModel(
         id: const Uuid().v4(),
         name: controller.nameController.text.trim(),
@@ -120,24 +127,28 @@ Future<void> saveCategory({
         discription: controller.descriptionController.text.trim(),
         userId: userId,
       );
-      await CategoryDB.addCategory(newCategory);
-      _showSuccess(context, "Category added successfully!");
-    }
 
-    if (context.mounted) {
+      final String? errorMessage = await CategoryDB.addCategory(newCategory);
+
+      if (errorMessage != null) {
+        _showError(context, errorMessage); // This will show "Category 'Food' already exists!"
+        return; // Stop here — don't pop or refresh
+      }
+ 
+      _showSuccess(context, "Category added successfully!");
       Navigator.pop(context);
     }
   } catch (e) {
     debugPrint('Error saving category: $e');
-    _showError(context, "Failed to save category. Please try again.");
-  }
+    _showError(context, "Failed to save category. Please try again."); 
+  }  
 }
 
 // Reusable Top Snackbar Helpers
 void _showSuccess(BuildContext context, String message) {
   if (!context.mounted) return;
   showTopSnackBar(
-    Overlay.of(context),
+    Overlay.of(context), 
     CustomSnackBar.success(
       message: message,
       icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),

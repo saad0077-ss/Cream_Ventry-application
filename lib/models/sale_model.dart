@@ -1,11 +1,11 @@
 import 'package:hive/hive.dart';
 import 'package:cream_ventory/models/sale_item_model.dart';
 
-part '../database/adapters/sale/sale_model.g.dart';
+ part '../database/adapters/sale/sale_model.g.dart';
 
 @HiveType(typeId: 15)
 enum SaleStatus {
-  @HiveField(0)
+  @HiveField(0) 
   open,   
 
   @HiveField(1)

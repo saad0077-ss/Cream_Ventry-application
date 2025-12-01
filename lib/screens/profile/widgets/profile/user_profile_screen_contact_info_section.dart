@@ -1,7 +1,7 @@
 // lib/screens/profile/widgets/contact_info_section.dart
 import 'package:cream_ventory/models/user_model.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_detail_field.dart';
-import 'package:cream_ventory/screens/profile/widgets/user_profile_screen/user_profile_screen_section_card.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_detail_field.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_section_card.dart';
 import 'package:flutter/material.dart';
 
 class ContactInfoSection extends StatelessWidget {
