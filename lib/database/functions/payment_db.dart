@@ -36,7 +36,7 @@ class PaymentInDb {
 
   // Save a PaymentInModel to Hive
   static Future<void> savePayment(PaymentInModel payment) async {
-    if (_box == null) await init();
+    if (_box == null) await init();  
     try {
       if (payment.id.isEmpty) { 
         payment.id = _generateUniqueId();
