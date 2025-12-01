@@ -108,8 +108,7 @@ class SalesDataProcessor {
 
   for (var sale in sales) {
     try {
-      // Parse the date using the correct format (DD/MM/YYYY)
-      final saleDate = DateFormat('dd/MM/yyyy').parse(sale.date);
+      final saleDate = DateFormat('dd MMM yyyy').parse(sale.date);
       final expenseDate = DateTime(saleDate.year, saleDate.month, saleDate.day);
       if (expenseDate.isAtSameMomentAs(normalizedStartDate) ||
           (expenseDate.isAfter(normalizedStartDate) &&

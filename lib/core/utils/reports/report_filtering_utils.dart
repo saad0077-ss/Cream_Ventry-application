@@ -55,7 +55,7 @@ class ReportDataManager {
               return payment.userId == userId;
             }
  
-            final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+            final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
             final normalizedPaymentDate = DateTime.utc(
               paymentDate.year,
               paymentDate.month,
@@ -105,7 +105,7 @@ class ReportDataManager {
               return sale.userId == userId;
             }
 
-            final saleDate = DateFormat('dd/MM/yyyy').parse(sale.date);
+            final saleDate = DateFormat('dd MMM yyyy').parse(sale.date);
             final normalizedSaleDate = DateTime.utc(
               saleDate.year,
               saleDate.month,
@@ -150,7 +150,7 @@ class ReportDataManager {
       final box = Hive.box<SaleModel>(SaleDB.boxName);
       // Filter sales by userId and date range
       final sales = box.values.where((sale) {
-        final saleDate = DateFormat('dd/MM/yyyy').parse(sale.date);
+        final saleDate = DateFormat('dd MMM yyyy').parse(sale.date);
         final normalizedSaleDate = DateTime.utc(
           saleDate.year,
           saleDate.month,
@@ -247,7 +247,7 @@ class ReportDataManager {
       final payments = box.values
           .where((payment) {
             // Assuming date is a string in dd/MM/yyyy format, consistent with other methods
-            final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+            final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
             final normalizedPaymentDate = DateTime.utc(paymentDate.year, paymentDate.month, paymentDate.day);
             final normalizedStart = DateTime.utc(startDate.year, startDate.month, startDate.day);
             final normalizedEnd = DateTime.utc(endDate.year, endDate.month, endDate.day);

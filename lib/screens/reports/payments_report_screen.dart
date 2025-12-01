@@ -38,7 +38,7 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
   String? _errorMessage;
 
   final _utils = PaymentsReportUtils();
-  final _dateFormatter = DateFormat('dd/MM/yyyy');
+  final _dateFormatter = DateFormat('dd MMM yyyy');
 
   // -----------------------------------------------------------------------
   @override

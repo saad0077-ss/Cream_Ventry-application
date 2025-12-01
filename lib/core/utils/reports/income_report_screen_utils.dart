@@ -25,8 +25,8 @@ class IncomeItem {
 }
 
 class IncomeReportUtils {
-  final _dateFormatter = DateFormat('dd/MM/yyyy');
-
+  final _dateFormatter = DateFormat('dd MMM yyyy'); 
+ 
   // ──────────────────────────────────────────────────────────────
   // 1. Load chart data
   // ──────────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ class IncomeReportUtils {
 
     final List<IncomeItem> items = [];
 
-    final dateParser = DateFormat('dd/MM/yyyy');
+    final dateParser = DateFormat('dd MMM yyyy');
 
     // Add Sales
     for (var sale in sales) {
@@ -197,48 +197,61 @@ class IncomeReportUtils {
   // -----------------------------------------------------------------
   // Helper: parse a date string safely
   // -----------------------------------------------------------------
-  DateTime? _safeParseDate(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    try {
-      return _dateFormatter.parseStrict(raw);
-    } on FormatException {
-      // try a more tolerant parser (in case the format is slightly different)
-      try {
-        return DateFormat('d/M/yyyy').parseLoose(raw);
-      } catch (_) {
-        return null;
-      }
-    }
-  }
-
+ DateTime? _safeParseDate(String? raw) { 
+  if (raw == null || raw.isEmpty) return null;
+  try {
+    return _dateFormatter.parseStrict(raw);  // Now uses 'dd MMM yyyy'
+  } on FormatException catch (e) {
+    debugPrint('Date parse error for "$raw": $e');
+    return null;
+  }   
+}
   // ──────────────────────────────────────────────────────────────
   // 4. Export to PDF
   // ──────────────────────────────────────────────────────────────
-  Future<void> exportToPdf({
+   Future<void> exportToPdf({
     required BuildContext context,
     required String period,
     required DateTime? start,
     required DateTime? end,
     required List<IncomeItem> items,
-  }) async {       
+  }) async {
+    // Build professional period info string
+    String periodInfo;
+    if (start != null && end != null) {
+      if (period == 'Weekly') {
+        periodInfo = '${DateFormat('dd MMM').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
+      } else if (period == 'Monthly') {
+        periodInfo = DateFormat('MMMM yyyy').format(start);
+      } else {
+        // Custom date range
+        periodInfo = '${_dateFormatter.format(start)} – ${_dateFormatter.format(end)}';
+      }
+    } else {
+      periodInfo = 'All Time';
+    }
+
     await exportReportToPdf<IncomeItem>(
       context: context,
       title: 'Income Report',
-      periodInfo: ' From: ${_format(start)} – To: ${_format(end)}',
-      headers: ['ID', 'Type' , 'Date', 'Amount'],
-      items: items,               
+      periodInfo: periodInfo,
+      companyName: 'Cream Ventory', // Your company/app name
+      headers: ['Date', 'Type', 'ID', 'Amount'],
+      items: items,
       rowBuilder: (item) => [
-        item.id,
-        item.type,
         _dateFormatter.format(item.date),
-        '₹${item.amount.toStringAsFixed(2)}', 
-      ],
-    ); 
+        item.type,
+        item.id.split('-').last, // Short ID for cleaner look
+        '₹${item.amount.toStringAsFixed(2)}',
+      ],  
+      amountColumnIndex: 3, // Amount column - enables automatic total calculation
+      accentColor: Colors.blue, // Blue theme for income
+    );
   }
 
-  String _format(DateTime? d) => d == null ? '—' : _dateFormatter.format(d);
 }
 
+ 
 class ChartData {
   final List<FlSpot> currentSpots;
   final List<FlSpot> previousSpots;

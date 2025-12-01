@@ -28,7 +28,7 @@ class DatePickerRow extends StatelessWidget {
   }
 
   Widget _buildPicker(String label, DateTime? date, VoidCallback onTap) {
-    final fmt = DateFormat('d/M/y');
+    final fmt = DateFormat('dd MMM yyyy');
     return Row(
       children: [
         Text(label, style: const TextStyle(fontSize: 17)),

@@ -35,7 +35,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
   String? _errorMessage;
 
   final _utils = IncomeReportUtils();
-  final _dateFormatter = DateFormat('dd/MM/yyyy');
+  final _dateFormatter = DateFormat('dd MMM yyyy');
 
   @override
   void initState() {

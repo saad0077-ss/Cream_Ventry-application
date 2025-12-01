@@ -33,7 +33,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   String? _errorMessage;
 
   final _utils = ExpenseReportUtils();
-  final _dateFormatter = DateFormat('dd/MM/yyyy');
+  final _dateFormatter = DateFormat('dd MMM yyyy');
 
   // ──────────────────────────────────────────────────────────────
   @override
@@ -326,7 +326,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                     ),
                   ),
                 ),
-              ),
+              ), 
             ),
              SizedBox(height: 20.h),
 

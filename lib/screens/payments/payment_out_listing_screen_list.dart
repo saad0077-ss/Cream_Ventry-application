@@ -37,7 +37,7 @@ class PaymentOutList extends StatelessWidget {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      mainAxisExtent: 170,
+                      mainAxisExtent: 200,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                     ),
@@ -62,20 +62,6 @@ class PaymentOutList extends StatelessWidget {
                       );
                     },
                   ),
-
-          // OVERLAYS GO HERE
-          // Example: FAB
-          // Positioned(
-          //   bottom: 20,
-          //   right: 20,
-          //   child: FloatingActionButton(
-          //     onPressed: () => Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (_) => const PaymentOutAddScreen()),
-          //     ),
-          //     child: const Icon(Icons.add),
-          //   ),
-          // ),
         ],
       ),
     );

@@ -12,7 +12,7 @@ import '../../constants/time_period.dart';
 ///  SalesReportUtils – thin UI-layer helper
 /// ---------------------------------------------------------------
 class SalesReportUtils {
-  final DateFormat _dateFormatter = DateFormat('dd/MM/yyyy');
+  final DateFormat _dateFormatter = DateFormat('dd MMM yyyy');
   // ──────────────────────────────────────────────────────────────
   // 1. Load chart data (weekly / monthly line chart)
   // ──────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ class SalesReportUtils {
     return sales
         .where(
           (s) {
-              final saleDate = DateFormat('dd/MM/yyyy').parse(s.date);
+              final saleDate = DateFormat('dd MMM yyyy').parse(s.date);
               return saleDate.isAfter(start.subtract(const Duration(days: 1))) &&
               saleDate.isBefore(end.add(const Duration(days: 1)));}
         )
@@ -74,34 +74,48 @@ class SalesReportUtils {
   // 4. PDF export (thin wrapper around the generic PDF helper)
   // ──────────────────────────────────────────────────────────────
   Future<void> exportToPdf({
-    required BuildContext context, 
+    required BuildContext context,
     required String period,
     required DateTime? start,
     required DateTime? end,
     required List<SaleModel> items,
   }) async {
+    // Build professional period info string
+    String periodInfo;
+    if (start != null && end != null) {
+      if (period == 'Weekly') {
+        periodInfo = '${DateFormat('dd MMM').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
+      } else if (period == 'Monthly') {
+        periodInfo = DateFormat('MMMM yyyy').format(start);
+      } else {
+        // Custom date range
+        periodInfo = '${_dateFormatter.format(start)} – ${_dateFormatter.format(end)}';
+      }
+    } else {
+      periodInfo = 'All Time';
+    }
+
     await exportReportToPdf<SaleModel>(
       context: context,
       title: 'Sales Report',
-      periodInfo: 
-          ' From: ${_formatDate(start)} – To: ${_formatDate(end)}',
-      headers: [ 
-        'ID',
-        'Customer',
-        'Date',
-        'Amount',
-      ], // <-- adjust if you want different columns
+      periodInfo: periodInfo,
+      companyName: 'Cream Ventory', // Your company/app name
+      headers: ['Date', 'Customer', 'Invoice No.', 'Amount'],
       items: items,
-      rowBuilder: (s) => [
-        s.id.split('-').last,
-        s.customerName ?? '—', // <-- change to the field you prefer
-        s.date,
-        '₹${s.total.toStringAsFixed(2)}',
+      rowBuilder: (sale) => [
+        // Format date properly if it's a DateTime object
+        sale.date is DateTime 
+            ? _dateFormatter.format(sale.date as DateTime)   
+            : _dateFormatter.format(DateFormat('dd MMM yyyy').parse(sale.date)), // Parse string and format
+        sale.customerName ?? '—',
+        sale.id.split('-').last, // Short ID for invoice number
+        '₹${sale.total.toStringAsFixed(2)}',
       ],
+      amountColumnIndex: 3, // Amount column - enables automatic total calculation
+      accentColor: Colors.purple, // Purple theme for sales
     );
   }
 
-  String _formatDate(DateTime? d) => d == null ? '—' : _dateFormatter.format(d);
 }
 
 /// ---------------------------------------------------------------

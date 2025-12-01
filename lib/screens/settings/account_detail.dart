@@ -1,5 +1,4 @@
 import 'package:cream_ventory/core/theme/theme.dart';
-import 'package:cream_ventory/core/utils/profile/profile_display_logics.dart';
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'dart:io';
@@ -323,23 +322,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             
                           const SizedBox(height: 24),
             
-                          // Logout Section
-                          _buildSectionCard(
-                            icon: Icons.logout_rounded,
-                            iconColor: const Color(0xFF667EEA),
-                            title: 'Account Actions',
-                            child: _buildDangerButton(
-                              icon: Icons.logout_rounded,
-                              label: 'Logout',
-                              subtitle: 'Sign out from your account',
-                              onTap: () => _showLogoutDialog(
-                                context,
-                                ProfileDisplayLogic(currentUser),
-                              ),
-                            ),
-                          ),
-            
-                          const SizedBox(height: 30),
+  
                         ],
                       ),
                     ),
@@ -493,100 +476,4 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
     );
   }
 
-  Widget _buildDangerButton({
-    required IconData icon,
-    required String label,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.grey.shade100,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: Colors.grey.shade700, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF334155),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context, ProfileDisplayLogic logic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.logout_rounded, color: Color(0xFF667EEA)),
-            SizedBox(width: 12),
-            Text('Logout'),
-          ],
-        ),
-        content: const Text(
-          'Are you sure you want to logout from your account?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              logic.logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF667EEA),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
 }

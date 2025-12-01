@@ -38,7 +38,7 @@ class IncomeDataProcessor {
           currentStart: currentStart,
           currentEnd: currentEnd,
           previousStart: previousStart,
-          previousEnd: previousEnd,
+          previousEnd: previousEnd, 
         );
     }
   }
@@ -180,8 +180,7 @@ class IncomeDataProcessor {
     // Process sales
     for (var sale in sales) {
       try {
-        final saleDate = DateFormat('dd/MM/yyyy').parse(sale.date);
-
+       final saleDate = DateFormat('dd MMM yyyy').parse(sale.date);
         final normalizedSaleDate = DateTime(
           saleDate.year,
           saleDate.month, 
@@ -212,9 +211,9 @@ class IncomeDataProcessor {
     }
 
     // Process payments
-    for (var payment in payments) {
+    for (var payment in payments) { 
       try {
-        final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+       final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
         final normalizedPaymentDate = DateTime(
           paymentDate.year,
           paymentDate.month,
@@ -253,7 +252,7 @@ class IncomeDataProcessor {
   }
 
   static double _calculateMaxY(List<FlSpot> allSpots) {
-    if (allSpots.isEmpty) return 100.0;
+    if (allSpots.isEmpty) return 100.0;   
     final maxAmount = allSpots
         .map((spot) => spot.y)
         .reduce((a, b) => a > b ? a : b);

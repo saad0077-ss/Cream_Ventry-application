@@ -54,11 +54,11 @@ class SaleList extends StatelessWidget {
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: gridCrossAxisCount,
-                  mainAxisExtent: 220, // Increased height for status badge
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                ),
-                itemCount: sales.length,
+                  mainAxisExtent: 230, // Increased height for status badge 
+                  mainAxisSpacing: 17, 
+                  crossAxisSpacing: 17,
+                ),   
+                itemCount: sales.length, 
                 itemBuilder: (context, index) {
                   final sale = sales[index];
                   return SaleCard(

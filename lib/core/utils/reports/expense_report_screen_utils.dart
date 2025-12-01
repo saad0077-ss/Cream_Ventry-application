@@ -9,7 +9,7 @@ import '../../constants/time_period.dart';
 
 class ExpenseReportUtils {
   final ExpenseDB _db = ExpenseDB();
-  final DateFormat _dateFormatter = DateFormat('dd/MM/yyyy');
+  final DateFormat _dateFormatter = DateFormat('dd MMM yyyy');
 
   // ──────────────────────────────────────────────────────────────
   // 1. Load chart data
@@ -75,25 +75,40 @@ class ExpenseReportUtils {
     required DateTime? end,
     required List<ExpenseModel> items,
   }) async {
-    await exportReportToPdf<ExpenseModel>( 
+    // Build professional period info string
+    String periodInfo;
+    if (start != null && end != null) {
+      if (period == 'Weekly') {
+        periodInfo = '${DateFormat('dd MMM').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
+      } else if (period == 'Monthly') {
+        periodInfo = DateFormat('MMMM yyyy').format(start);
+      } else {
+        // Custom date range
+        periodInfo = '${_dateFormatter.format(start)} – ${_dateFormatter.format(end)}';
+      }
+    } else {
+      periodInfo = 'All Time';
+    }
+
+    await exportReportToPdf<ExpenseModel>(
       context: context,
-      title: 'Expenses Report',
-      periodInfo: 
-          ' From: ${_formatDate(start)} – To: ${_formatDate(end)}',
-      headers: ['ID', 'Category', 'Date', 'Amount'],
+      title: 'Expense Report',
+      periodInfo: periodInfo,
+      companyName: 'Cream Ventory', // Your company/app name
+      headers: ['Date', 'Category', 'ID', 'Amount'],
       items: items,
-      rowBuilder: (e) => [
-        e.id.split('-').last,
-        e.category,
-        _dateFormatter.format(e.date),
-        '₹${e.totalAmount.toStringAsFixed(2)}',
+      rowBuilder: (expense) => [
+        _dateFormatter.format(expense.date),
+        expense.category, 
+        expense.id.split('-').last, // Short ID for cleaner look
+        '₹${expense.totalAmount.toStringAsFixed(2)}',
       ],
+      amountColumnIndex: 3, // Amount column - enables automatic total calculation
+      accentColor: Colors.red, // Red theme for expenses
     );
   }
 
-  String _formatDate(DateTime? d) => d == null ? '—' : _dateFormatter.format(d);
 }
-
 /// Simple DTO for chart data – makes the UI code readable.
 class ChartData {
   final List<FlSpot> currentSpots;

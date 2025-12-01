@@ -13,7 +13,7 @@ import '../../constants/time_period.dart';
 /// PaymentsReportUtils – thin UI-layer helper
 /// ---------------------------------------------------------------
 class PaymentsReportUtils {
-  final DateFormat _dateFormatter = DateFormat('dd/MM/yyyy');
+  final DateFormat _dateFormatter = DateFormat('dd MMM yyyy');
 
   // ──────────────────────────────────────────────────────────────
   // 1. Load chart data
@@ -27,7 +27,7 @@ class PaymentsReportUtils {
     final List<dynamic> payments = paymentType == 'Payment In'
         ? await PaymentInDb.getAllPayments()
         : await PaymentOutDb.getAllPayments();
-      
+
     final filtered = _filterByDateRange(payments, start, end);
     final timePeriod =
         period == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
@@ -45,9 +45,6 @@ class PaymentsReportUtils {
       maxY: processed.maxY,
     );
   }
-
- 
-
 
   // ──────────────────────────────────────────────────────────────
   // 2. Load list data
@@ -77,24 +74,21 @@ class PaymentsReportUtils {
     final startBound = start.subtract(const Duration(days: 1));
     final endBound = end.add(const Duration(days: 1));
 
-    return payments
-        .where((p) {
-          final paymentDate = _dateFormatter.parse(p.date); // String → DateTime
-          return paymentDate.isAfter(startBound) &&
-                 paymentDate.isBefore(endBound);
-        })
-        .toList()
+    return payments.where((p) {
+      final paymentDate = _dateFormatter.parse(p.date); // String → DateTime
+      return paymentDate.isAfter(startBound) && paymentDate.isBefore(endBound);
+    }).toList()
       ..sort((a, b) {
         final dateA = _dateFormatter.parse(a.date);
         final dateB = _dateFormatter.parse(b.date);
-        return dateB.compareTo(dateA); // newest first  
+        return dateB.compareTo(dateA); // newest first
       });
   }
 
-  // ──────────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────── 
   // 4. PDF export
   // ──────────────────────────────────────────────────────────────
-Future<void> exportToPdf({
+  Future<void> exportToPdf({
     required BuildContext context,
     required String period,
     required String paymentType,
@@ -102,14 +96,16 @@ Future<void> exportToPdf({
     required DateTime? end,
     required List<dynamic> items,
   }) async {
-    final dateFormat = DateFormat('dd/MM/yyyy');
+    final dateFormat = DateFormat('dd MMM yyyy');
 
     await exportReportToPdf<dynamic>(
       context: context,
       title: '$paymentType Report',
       periodInfo: period == 'Weekly'
-          ? '${start != null ? DateFormat('dd/MM').format(start) : ''} – ${end != null ? DateFormat('dd/MM').format(end) : ''}'
-          : '${start != null ? DateFormat('MMM yyyy').format(start) : ''}',
+          ? '${start != null ? DateFormat('dd MMM').format(start) : ''} – ${end != null ? DateFormat('dd MMM').format(end) : ''}'
+          : start != null
+              ? DateFormat('MMM yyyy').format(start)
+              : '',
       headers: ['Date', 'Party', 'Amount'],
       items: items,
       rowBuilder: (item) {
@@ -123,7 +119,7 @@ Future<void> exportToPdf({
           return [
             dateFormat.format(dateFormat.parse(item.date)),
             item.partyName,
-            '₹${item.paidAmount.toStringAsFixed(2) }',
+            '₹${item.paidAmount.toStringAsFixed(2)}',
           ];
         }
         return ['', '', ''];
@@ -131,8 +127,8 @@ Future<void> exportToPdf({
       amountColumnIndex: 2, // Amount is in last column
     );
   }
-
 }
+
 /// ---------------------------------------------------------------
 /// DTO for UI
 /// ---------------------------------------------------------------

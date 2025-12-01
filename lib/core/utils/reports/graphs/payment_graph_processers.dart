@@ -116,7 +116,7 @@ class PaymentsDataProcessor {
 
     for (var payment in payments) {
       try {
-        final paymentDate = DateFormat('dd/MM/yyyy').parse(payment.date);
+        final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
         final expenseDate = DateTime(paymentDate.year, paymentDate.month, paymentDate.day);
         if (expenseDate.isAtSameMomentAs(normalizedStartDate) ||
             (expenseDate.isAfter(normalizedStartDate) &&
