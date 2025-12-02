@@ -1,5 +1,7 @@
 import 'package:cream_ventory/models/expence_model.dart';
 import 'package:cream_ventory/core/constants/time_period.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_custom_total_section.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_transaction_card.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_custom_line_chart.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_date_picker_row.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_list_container.dart';
@@ -33,7 +35,6 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   String? _errorMessage;
 
   final _utils = ExpenseReportUtils();
-  final _dateFormatter = DateFormat('dd MMM yyyy');
 
   // ──────────────────────────────────────────────────────────────
   @override
@@ -43,7 +44,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
     _startDate = _endDate?.subtract(const Duration(days: 30));
     _loadAll();
   }
- 
+
   // ──────────────────────────────────────────────────────────────
   Future<void> _loadAll() async {
     await Future.wait([_loadChart(), _loadList()]);
@@ -60,7 +61,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   Future<void> _loadChart() async {
     try {
       final chart = await _utils.loadChartData(
-        period: _selectedPeriod,   
+        period: _selectedPeriod,
         start: _startDate,
         end: _endDate,
       );
@@ -90,7 +91,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
     }
   }
 
-  void _setPlaceholderChart() { 
+  void _setPlaceholderChart() {
     setState(() {
       _errorMessage = 'Failed to load data. Showing placeholder.';
       if (_selectedPeriod == 'Weekly') {
@@ -118,9 +119,8 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   // Date picker
   // ──────────────────────────────────────────────────────────────
   Future<void> _pickDate(bool isStart) async {
-    final init = isStart
-        ? (_startDate ?? DateTime.now())
-        : (_endDate ?? DateTime.now());
+    final init =
+        isStart ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now());
 
     final picked = await showDatePicker(
       context: context,
@@ -149,85 +149,84 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
   // ──────────────────────────────────────────────────────────────
   // Export modal
   // ──────────────────────────────────────────────────────────────
- void _showExportOptions() {
-  showModalBottomSheet(
-    context: context,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-    ),
-    builder: (_) => SafeArea(
-      child: Padding(
-        padding:  EdgeInsets.all(16.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-             Text(
-              'Export Report',
-              style: TextStyle(fontSize: 18.r, fontWeight: FontWeight.bold),
-            ),
-             SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-              title: const Text('Export as PDF'),
-              onTap: () async {
-                Navigator.pop(context); // Close modal immediately
- 
-                // Show tiny spinner while generating
-                final overlay = OverlayEntry(
-                  builder: (_) => const Center(         
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                );
-                Overlay.of(context).insert(overlay);
+  void _showExportOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Export Report',
+                style: TextStyle(fontSize: 18.r, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                title: const Text('Export as PDF'),
+                onTap: () async {
+                  Navigator.pop(context); // Close modal immediately
 
-                try {
-                  await _utils.exportToPdf(
-                    context: context,
-                    period: _selectedPeriod,
-                    start: _startDate,
-                    end: _endDate,
-                    items: _expenses,
+                  // Show tiny spinner while generating
+                  final overlay = OverlayEntry(
+                    builder: (_) => const Center(
+                      child: SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
                   );
-                } finally {
-                  overlay.remove(); // Always remove spinner
-                }
-              },
-            ),
-          ],
+                  Overlay.of(context).insert(overlay);
+
+                  try {
+                    await _utils.exportToPdf(
+                      context: context,
+                      period: _selectedPeriod,
+                      start: _startDate,
+                      end: _endDate,
+                      items: _expenses,
+                    );
+                  } finally {
+                    overlay.remove(); // Always remove spinner
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ──────────────────────────────────────────────────────────────
   // UI
   // ──────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final period = _selectedPeriod == 'Weekly'
-        ? TimePeriod.weekly
-        : TimePeriod.monthly;
+    final period =
+        _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
 
     return Padding(
-      padding:  EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(16.r),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title
-            Text( 
+            Text(
               'Expense Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black87, 
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-             SizedBox(height: 10.h),
+            SizedBox(height: 10.h),
 
             // Period filter
             PeriodFilter(
@@ -237,12 +236,12 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                 _loadAll();
               },
             ),
-             SizedBox(height: 20.h), 
+            SizedBox(height: 20.h),
 
             // Error
             if (_errorMessage != null)
               Padding(
-                padding:  EdgeInsets.only(bottom: 10.r),
+                padding: EdgeInsets.only(bottom: 10.r),
                 child: Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
@@ -264,7 +263,7 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
                 elevation: 2,
               ),
             ),
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
 
             // Date pickers (re-using the new widget)
             DatePickerRow(
@@ -273,89 +272,35 @@ class _ExpensesReportScreenState extends State<ExpensesReportScreen> {
               onSelectStart: () => _pickDate(true),
               onSelectEnd: () => _pickDate(false),
             ),
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
 
             // List container
             ReportListContainer<ExpenseModel>(
-              title: 'Expense Details',
-              items: _expenses,
-              onExportPressed: _showExportOptions,
-              itemBuilder: (_, e, __) => Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: ListTile(
-                  contentPadding:  EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
-                  ),
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        e.category,
-                        style:  TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20.r,
-                        ),
-                      ),
-                      Text(
-                        _dateFormatter.format(e.date),
-                        style: TextStyle(fontSize: 12.r, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  title: Center(
-                    child: Text(
-                      e.id.split('-').last,
-                      style:  TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12.r,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                  ),
-                  trailing: Text(
-                    '₹${e.totalAmount.toStringAsFixed(2)}',
-                    style:  TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.r,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ), 
-            ),
-             SizedBox(height: 20.h),
+                title: 'Expense Details',
+                items: _expenses,
+                onExportPressed: _showExportOptions,
+                itemBuilder: (_, e, __) => TransactionCard(
+                      title: e.category,
+                      subtitle: DateFormat('dd MMM yyyy').format(e.date),
+                      id: e.id,
+                      amount: e.totalAmount,
+                      icon: Icons.shopping_cart_outlined,
+                      iconColor: Colors.red,
+                      iconBackgroundColor: Colors.red.withOpacity(0.1),
+                      amountColor: Colors.red[700],
+                    )),
+            SizedBox(height: 20.h),
 
-            Container(
-              padding:  EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.blueGrey,width: 2),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [ 
-                   Text(
-                    'Total Expenses',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.r),
-                  ),
-                  Text(
-                    '₹${_getTotalExpenses().toStringAsFixed(2)}',
-                    style:  TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.r,
-                      color: Colors.red, // Red for expense
-                    ),
-                  ),
-                ],
-              ),
+            StatsCard(
+              title: 'Total Expenses',
+              amount: '₹${_getTotalExpenses().toStringAsFixed(2)}',
+              icon: Icons.trending_down_rounded,
+              primaryColor: const Color(0xFFEF4444), // Red for expenses
+              secondaryColor: const Color(0xFFDC2626),
+              count: _expenses.length,
+              countLabel: 'Expenses',
             ),
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
           ],
         ),
       ),

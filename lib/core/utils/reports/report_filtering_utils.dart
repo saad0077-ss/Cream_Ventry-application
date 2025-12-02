@@ -250,7 +250,7 @@ class ReportDataManager {
             final paymentDate = DateFormat('dd MMM yyyy').parse(payment.date);
             final normalizedPaymentDate = DateTime.utc(paymentDate.year, paymentDate.month, paymentDate.day);
             final normalizedStart = DateTime.utc(startDate.year, startDate.month, startDate.day);
-            final normalizedEnd = DateTime.utc(endDate.year, endDate.month, endDate.day);
+            final normalizedEnd = DateTime.utc(endDate.year, endDate.month, endDate.day);    
 
             // Inclusive range check
             return payment.userId == userId &&

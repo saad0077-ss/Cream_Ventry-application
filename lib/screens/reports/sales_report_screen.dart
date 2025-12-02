@@ -1,133 +1,6 @@
-// import 'package:cream_ventory/db/functions/sale/sale_db.dart';
-// import 'package:cream_ventory/screen/reports/screens/widgets/screen_report_custom_line_chart.dart';
-// import 'package:cream_ventory/screen/reports/screens/widgets/screen_report_montly_weekly_tap.dart';
-// import 'package:fl_chart/fl_chart.dart';
-// import 'package:flutter/material.dart';
-// import 'package:cream_ventory/utils/report/graphs/sale_graph_processers.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-// import 'constants/time_period.dart';
-
-// class SalesReportScreen extends StatefulWidget {
-//   const SalesReportScreen({super.key});
-
-//   @override
-//   _SalesReportScreenState createState() => _SalesReportScreenState();
-// }
-
-// class _SalesReportScreenState extends State<SalesReportScreen> {
-//   String _selectedPeriod = 'Weekly';
-//   List<FlSpot> _currentSpots = [];
-//   List<FlSpot> _previousSpots = [];
-//   List<String> _xAxisLabels = [];
-//   double _maxY = 10000;
-//   String? _errorMessage;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _updateChartData();
-//   }
-
-//   Future<void> _updateChartData() async {
-//     try {
-//       final sales = await SaleDB.getSales();
-//       TimePeriod period = _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
-
-//       final processedData = SalesDataProcessor.processSalesData(sales, period);
-
-//       setState(() {
-//         _currentSpots = processedData.currentSpots;
-//         _previousSpots = processedData.previousSpots;
-//         _xAxisLabels = processedData.labels;
-//         _maxY = processedData.maxY;
-//         _errorMessage = processedData.errors.isNotEmpty ? processedData.errors.join('\n') : null;
-//       });
-//     } catch (e) {
-//       debugPrint('Error updating sales chart data: $e');
-//       setState(() {
-//         _errorMessage = 'Failed to load sales data. Showing placeholder data.';
-//         if (_selectedPeriod == 'Weekly') {
-//           _xAxisLabels = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-//           _currentSpots = List.generate(7, (index) => FlSpot((index + 1).toDouble(), 0));
-//           _previousSpots = List.generate(7, (index) => FlSpot((index + 1).toDouble(), 0));
-//           _maxY = 10000;
-//         } else {
-//           final now = DateTime.now();
-//           final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
-//           _xAxisLabels = List.generate(lastDayOfMonth, (index) => (index + 1).toString());
-//           _currentSpots = List.generate(lastDayOfMonth, (index) => FlSpot((index + 1).toDouble(), 0));
-//           _previousSpots = List.generate(lastDayOfMonth, (index) => FlSpot((index + 1).toDouble(), 0));
-//           _maxY = 10000;
-//         }
-//       });
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text(_errorMessage!)),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final period = _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
-
-//     return Container(
-//       padding: const EdgeInsets.all(16.0),
-//       child: SingleChildScrollView(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               'Sales Report',
-//               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                     color: Colors.black87,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//             ),
-//             const SizedBox(height: 10),
-//             PeriodFilter(
-//               selectedPeriod: _selectedPeriod,
-//               onPeriodChanged: (String period) {
-//                 setState(() {
-//                   _selectedPeriod = period;
-//                   _updateChartData();
-//                 });
-//               },
-//             ),
-//             const SizedBox(height: 20),
-//             if (_errorMessage != null)
-//               Padding(
-//                 padding: const EdgeInsets.only(bottom: 10),
-//                 child: Text(
-//                   _errorMessage!,
-//                   style: const TextStyle(color: Colors.red, fontSize: 14),
-//                 ),
-//               ),
-//             SizedBox(
-//               height: 270.h,
-//               child: CustomLineChart(
-//                 currentSpots: _currentSpots,
-//                 previousSpots: _previousSpots,
-//                 xAxisLabels: _xAxisLabels,
-//                 maxY: _maxY,
-//                 period: period,
-//                 cardBackgroundColor: Colors.transparent,
-//               gridLineColor: Colors.black38,
-//               borderColor: Colors.black12,
-//               elevation: 2.0
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:cream_ventory/models/sale_model.dart'; // <-- NEW
 import 'package:cream_ventory/core/constants/time_period.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_transaction_card.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_custom_line_chart.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_date_picker_row.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_list_container.dart';
@@ -180,7 +53,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   }
 
   Future<void> _loadChart() async {
-    try {   
+    try {
       final chart = await _utils.loadChartData(
         period: _selectedPeriod,
         start: _startDate,
@@ -242,9 +115,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   // Date picker
   // ──────────────────────────────────────────────────────────────
   Future<void> _pickDate(bool isStart) async {
-    final init = isStart
-        ? (_startDate ?? DateTime.now())
-        : (_endDate ?? DateTime.now());
+    final init =
+        isStart ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now());
 
     final picked = await showDatePicker(
       context: context,
@@ -316,9 +188,8 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   // ──────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final period = _selectedPeriod == 'Weekly'
-        ? TimePeriod.weekly
-        : TimePeriod.monthly;
+    final period =
+        _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -330,9 +201,9 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
             Text(
               'Sales Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 10),
 
@@ -354,7 +225,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
-              ), 
+              ),
 
             // ── Chart ──
             SizedBox(
@@ -367,7 +238,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 period: period,
                 cardBackgroundColor: Colors.transparent,
                 gridLineColor: Colors.black38,
-                borderColor: Colors.blueGrey, 
+                borderColor: Colors.blueGrey,
                 elevation: 2,
               ),
             ),
@@ -384,82 +255,205 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
 
             // ── Sales list ──
             ReportListContainer<SaleModel>(
-              title: 'Sale Details',
-              items: _sales,
-              onExportPressed: _showExportOptions,
-              itemBuilder: (_, s, __) => Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Replace `customerName` with the field you want to show
-                      Text(
-                        s.customerName ?? '—',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20,
-                        ),
-                      ),
-                      Text(
-                        s.date,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  title: Center(
-                    child: Text(
-                      s.id.split('-').last,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                  ),
-                  trailing: Text(
-                    '₹${s.total.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                title: 'Sale Details',
+                items: _sales,
+                onExportPressed: _showExportOptions,
+                itemBuilder: (_, s, __) => TransactionCard(
+                      title: s.customerName ?? '—',
+                      subtitle: s.date,
+                      id: s.id,
+                      amount: s.total,
+                      icon: Icons.point_of_sale_outlined,
+                      iconColor: Colors.blue,
+                      iconBackgroundColor: Colors.blue.withOpacity(0.1),
+                      amountColor: Colors.blue[700],
+                    )),
             const SizedBox(height: 20),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.blueGrey,width: 2),
-              ),
-              child: Row( 
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Total Sales',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),   
-                  Text(
-                    '₹${_getTotalSales().toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 18,
-                      color: Colors.green,
-                    ),
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF1E293B),
+                    const Color(0xFF0F172A),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                    spreadRadius: -2,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF10B981).withOpacity(0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
                   ),
                 ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  children: [
+                    // Decorative background pattern
+                    Positioned(
+                      right: -30,
+                      top: -30,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              const Color(0xFF10B981).withOpacity(0.15),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: -20,
+                      bottom: -20,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              const Color(0xFF6366F1).withOpacity(0.1),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Content
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      child: Row(
+                        children: [
+                          // Icon section
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF10B981), Color(0xFF059669)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFF10B981).withOpacity(0.4),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.payments_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+
+                          const SizedBox(width: 16),
+
+                          // Text section
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Total Sales',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withOpacity(0.7),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '₹${_getTotalSales().toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 26,
+                                    color: Color(0xFF10B981),
+                                    letterSpacing: 0.5,
+                                    shadows: [
+                                      Shadow(
+                                        color: Color(0xFF10B981),
+                                        blurRadius: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Stats badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.receipt_long_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${_sales.length}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  'Sales',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.6),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),

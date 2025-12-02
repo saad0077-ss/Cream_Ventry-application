@@ -79,7 +79,7 @@ class ExpenseReportUtils {
     String periodInfo;
     if (start != null && end != null) {
       if (period == 'Weekly') {
-        periodInfo = '${DateFormat('dd MMM').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
+        periodInfo = '${DateFormat('dd MMM yyyy').format(start)} – ${DateFormat('dd MMM yyyy').format(end)}';
       } else if (period == 'Monthly') {
         periodInfo = DateFormat('MMMM yyyy').format(start);
       } else {

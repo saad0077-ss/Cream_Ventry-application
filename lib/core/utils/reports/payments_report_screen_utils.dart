@@ -102,10 +102,10 @@ class PaymentsReportUtils {
       context: context,
       title: '$paymentType Report',
       periodInfo: period == 'Weekly'
-          ? '${start != null ? DateFormat('dd MMM').format(start) : ''} – ${end != null ? DateFormat('dd MMM').format(end) : ''}'
+          ? '${start != null ? DateFormat('dd MMM yyyy').format(start) : ''} – ${end != null ? DateFormat('dd MMM yyyy').format(end) : ''}'
           : start != null
               ? DateFormat('MMM yyyy').format(start)
-              : '',
+              : '', 
       headers: ['Date', 'Party', 'Amount'],
       items: items,
       rowBuilder: (item) {

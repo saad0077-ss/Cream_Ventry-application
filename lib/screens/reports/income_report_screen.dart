@@ -1,7 +1,6 @@
-
-
 // lib/screen/reports/screens/income_report_screen.dart
 import 'package:cream_ventory/core/constants/time_period.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_custom_total_section.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_custom_line_chart.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_date_picker_row.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_list_container.dart';
@@ -61,9 +60,8 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
         _previousSpots = chart.previousSpots;
         _xAxisLabels = chart.labels;
         _maxY = chart.maxY;
-        _errorMessage = chart.errors.isNotEmpty
-            ? chart.errors.join(', ')
-            : null;
+        _errorMessage =
+            chart.errors.isNotEmpty ? chart.errors.join(', ') : null;
       });
     } catch (e) {
       _setPlaceholderChart();
@@ -116,9 +114,8 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
 
   // Date Picker
   Future<void> _pickDate(bool isStart) async {
-    final init = isStart
-        ? (_startDate ?? DateTime.now())
-        : (_endDate ?? DateTime.now());
+    final init =
+        isStart ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now());
     final picked = await showDatePicker(
       context: context,
       initialDate: init,
@@ -184,12 +181,11 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final period = _selectedPeriod == 'Weekly'
-        ? TimePeriod.weekly
-        : TimePeriod.monthly;
+    final period =
+        _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
 
     return Padding(
-      padding:  EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(16.r),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,11 +193,11 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
             Text(
               'Income Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-             SizedBox(height: 10.h),
+            SizedBox(height: 10.h),
 
             // Period Filter
             PeriodFilter(
@@ -211,12 +207,12 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                 _loadAll();
               },
             ),
-             SizedBox(height: 20.h),
+            SizedBox(height: 20.h),
 
             // Error
             if (_errorMessage != null)
               Padding(
-                padding:  EdgeInsets.only(bottom: 10.r),
+                padding: EdgeInsets.only(bottom: 10.r),
                 child: Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
@@ -225,7 +221,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
 
             // Chart
             SizedBox(
-              height: 280.h, 
+              height: 280.h,
               child: CustomLineChart(
                 currentSpots: _currentSpots,
                 previousSpots: _previousSpots,
@@ -238,7 +234,7 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
                 elevation: 2,
               ),
             ),
-             SizedBox(height: 10.h),
+            SizedBox(height: 10.h),
             DatePickerRow(
               startDate: _startDate,
               endDate: _endDate,
@@ -249,82 +245,130 @@ class _IncomeReportScreenState extends State<IncomeReportScreen> {
 
             // List Container
             ReportListContainer<IncomeItem>(
-              title: 'Income Details',
-              items: _incomeItems,
-              onExportPressed: _showExportOptions,
-              itemBuilder: (_, item, __) => Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.type,
-                        style:  TextStyle(
-                          fontSize: 18.r,
-                          color: Colors.black87,
+                title: 'Income Details',
+                items: _incomeItems,
+                onExportPressed: _showExportOptions,
+                itemBuilder: (_, item, __) {
+                  if (item.amount <= 0) {
+                    return const SizedBox.shrink();
+                  }
+                  return Card(
+                    elevation: 4,
+                    shadowColor: Colors.black.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.r),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white,
+                            Colors.blue.withOpacity(0.02),
+                          ],
                         ),
                       ),
-                      Text(
-                        _dateFormatter.format(item.date),
-                        style: TextStyle(fontSize: 12.r, color: Colors.grey[600]),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            // Left section with icon and type
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Icon(
+                                Icons.receipt_long_outlined,
+                                color: Colors.blueAccent,
+                                size: 28.r,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Middle section with details
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.type,
+                                    style: TextStyle(
+                                      fontSize: 16.r,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _dateFormatter.format(item.date),
+                                    style: TextStyle(
+                                      fontSize: 12.r,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(6.r),
+                                    ),
+                                    child: Text(
+                                      'ID: ${item.id.split('-').last}',
+                                      style: TextStyle(
+                                        fontSize: 11.r,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Right section with amount
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Text(
+                                '₹${item.amount.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.r,
+                                  color: Colors.green[700],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                  title: Center(
-                    child: Text(
-                      item.id.split('-').last,
-                      style:  TextStyle(
-                        fontSize: 12.r,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent,
-                      ),
                     ),
-                  ),
-                  trailing: Text(
-                    '₹${item.amount.toStringAsFixed(2)}',
-                    style:  TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.r,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-             SizedBox(height: 20.h),
-            Container(
-              padding:  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),  
-                border: Border.all(color: Colors.blueGrey,width: 2),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                   Text(
-                    'Total Income',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.r),
-                  ),
-                  Text(
-                    '₹${_totalIncome.toStringAsFixed(2)}',
-                    style:  TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.r,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
+                  );
+                }),
+            SizedBox(height: 20.h),
+            StatsCard(
+              title: 'Total Income',
+              amount: '₹${_totalIncome.toStringAsFixed(2)}',
+              icon: Icons.trending_up_rounded,
+              primaryColor: const Color(0xFF10B981),
+              secondaryColor: const Color(0xFF059669),
+              count: _incomeItems.where((item) => item.amount > 0).length,
+              countLabel: 'Incomes',
             ),
             const SizedBox(height: 20),
           ],

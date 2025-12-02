@@ -1,7 +1,8 @@
-
 import 'package:cream_ventory/database/functions/payment_db.dart';
 import 'package:cream_ventory/models/payment_in_model.dart';
 import 'package:cream_ventory/core/constants/time_period.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_custom_total_section.dart';
+import 'package:cream_ventory/screens/reports/widgets/report_screen_transaction_card.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_custom_line_chart.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_date_picker_row.dart';
 import 'package:cream_ventory/screens/reports/widgets/screen_report_list_container.dart';
@@ -142,9 +143,8 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
   // Date picker
   // -----------------------------------------------------------------------
   Future<void> _pickDate(bool isStart) async {
-    final init = isStart
-        ? (_startDate ?? DateTime.now())
-        : (_endDate ?? DateTime.now());
+    final init =
+        isStart ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now());
 
     final picked = await showDatePicker(
       context: context,
@@ -217,9 +217,8 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
   // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final period = _selectedPeriod == 'Weekly'
-        ? TimePeriod.weekly
-        : TimePeriod.monthly;
+    final period =
+        _selectedPeriod == 'Weekly' ? TimePeriod.weekly : TimePeriod.monthly;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -231,9 +230,9 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
             Text(
               'Payments Report',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 10),
 
@@ -264,9 +263,9 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
             Text(
               _selectedPaymentType,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 10),
 
@@ -290,7 +289,7 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
                 maxY: _maxY,
                 period: period,
                 cardBackgroundColor: Colors.transparent,
-                gridLineColor: Colors.black38, 
+                gridLineColor: Colors.black38,
                 borderColor: Colors.blueGrey,
                 elevation: 2,
               ),
@@ -311,88 +310,44 @@ class _PaymentsReportScreenState extends State<PaymentsReportScreen> {
               title: 'Payment Details',
               items: _payments,
               onExportPressed: _showExportOptions,
-              itemBuilder: (_, p, __) => Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Use partyName (In) or partyName (Out) – both exist
-                      Text(
-                        p is PaymentInModel
-                            ? (p.partyName ?? '—')
-                            : p.partyName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20,
-                        ),
-                      ),
-                      // Parse date string safely
-                      Text(
-                        _dateFormatter.format(_dateFormatter.parse(p.date)),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  title: Center(
-                    child: Text(
-                      p.id.split('-').last,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                  ),
-                  trailing: Text(
-                    '₹${(p is PaymentInModel ? p.receivedAmount : p.paidAmount).toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
+              itemBuilder: (_, p, __) => TransactionCard(
+                title: p is PaymentInModel ? (p.partyName ?? '—') : p.partyName,
+                subtitle: _dateFormatter.format(_dateFormatter.parse(p.date)),
+                id: p.id,
+                amount: p is PaymentInModel ? p.receivedAmount : p.paidAmount,
+                icon: _selectedPaymentType == 'Payment In'
+                    ? Icons.arrow_downward_rounded
+                    : Icons.arrow_upward_rounded,
+                iconColor: _selectedPaymentType == 'Payment In'
+                    ? Colors.green
+                    : Colors.orange,
+                iconBackgroundColor: _selectedPaymentType == 'Payment In'
+                    ? Colors.green.withOpacity(0.1)
+                    : Colors.orange.withOpacity(0.1),
+                amountColor: _selectedPaymentType == 'Payment In'
+                    ? Colors.green[700]
+                    : Colors.orange[700],
               ),
             ),
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.blueGrey,width: 2),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [  
-                  Text(
-                    _selectedPaymentType == 'Payment In'
-                        ? 'Total Received Amount'
-                        : 'Total Paid Amount',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    '₹${_getTotalAmount().toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
+            StatsCard(
+              title: _selectedPaymentType == 'Payment In'
+                  ? 'Total Received Amount'
+                  : 'Total Paid Amount',
+              amount: '₹${_getTotalAmount().toStringAsFixed(2)}',
+              icon: _selectedPaymentType == 'Payment In'
+                  ? Icons.arrow_downward_rounded
+                  : Icons.arrow_upward_rounded,
+              primaryColor: _selectedPaymentType == 'Payment In'
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFFEF4444),
+              secondaryColor: _selectedPaymentType == 'Payment In'
+                  ? const Color(0xFF059669)
+                  : const Color(0xFFDC2626),
+              count: _payments.length,
+              countLabel: _selectedPaymentType == 'Payment In'
+                  ? 'Payments In'
+                  : 'Payments Out',
             ),
             const SizedBox(height: 20),
           ],

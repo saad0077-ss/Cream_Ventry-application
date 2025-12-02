@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 // COOL PDF EXPORTER with modern design + branding
 // ──────────────────────────────────────────────────────────────
 Future<void> exportReportToPdf<T>({
-  required BuildContext context,
+  required BuildContext context, 
   required String title,
   required String periodInfo,
   required List<String> headers,
@@ -111,17 +111,11 @@ Future<void> exportReportToPdf<T>({
                   width: 60,
                   height: 60,
                   decoration: pw.BoxDecoration(
-                    color: PdfColors.white,
+                    color: PdfColors.white, 
                     borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
-                    boxShadow: [
-                      pw.BoxShadow(
-                        color: PdfColors.black,
-                        offset: const PdfPoint(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
+                    
                   ),
-                  child: pw.ClipRRect(
+                  child: pw.ClipRRect(   
                     horizontalRadius: 12,
                     verticalRadius: 12,
                     child: pw.Image(iconImage, fit: pw.BoxFit.cover),
@@ -175,7 +169,7 @@ Future<void> exportReportToPdf<T>({
                     color: PdfColors.white,
                     borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
                     border: pw.Border.all(color: PdfColors.white, width: 1),
-                  ),
+                  ),   
                   child: pw.Column(
                     children: [
                       pw.Text(
@@ -183,7 +177,7 @@ Future<void> exportReportToPdf<T>({
                         style: pw.TextStyle(
                           font: bold,
                           fontSize: 24,
-                          color: PdfColors.white,
+                          color: PdfColors.black ,
                         ),
                       ),
                       pw.Text(
