@@ -283,11 +283,11 @@ class AboutAppScreen extends StatelessWidget {
                       title: 'App Information',
                       child: Column(
                         children: [
-                          _buildInfoRow('Version', '1.0.0'),
+                          _buildInfoRow('Version', '1.0.1'),
                           _buildInfoRow('Build Number', '1'),
-                          _buildInfoRow('Platform', 'Android & iOS'),
+                          _buildInfoRow('Platform', 'Android & Web'),
                           _buildInfoRow('Framework', 'Flutter'),
-                          _buildInfoRow('Last Updated', 'January 2025'),
+                          _buildInfoRow('Last Updated', 'December 2025'),
                         ],
                       ),
                     ),
@@ -297,7 +297,7 @@ class AboutAppScreen extends StatelessWidget {
                     // Footer
                     Center(
                       child: Column(
-                        children: [
+                        children: [ 
                           Text(
                             'Made with ❤️ in Flutter',
                             style: TextStyle(

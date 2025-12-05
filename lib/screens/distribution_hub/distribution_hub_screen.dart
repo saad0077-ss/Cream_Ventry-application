@@ -89,7 +89,7 @@ class _DistributionHubState extends State<DistributionHub> {
           IconButton(
             icon: const Icon(Icons.home_filled),
             onPressed: () => Navigator.pop(context),
-          )
+          )   
         ],
         isSmallScreen: isSmallScreen,
       ),
