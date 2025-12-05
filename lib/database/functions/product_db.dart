@@ -64,6 +64,24 @@ class ProductDB {
     }
   }
 
+  // In product_db.dart - replace the existing deductStock method
+  static Future<void> deductStock(
+    String productId,
+    int quantity, {
+    String? notes,
+  }) async {
+    if (quantity <= 0) {
+      throw Exception('Deduct quantity must be a positive number');
+    } 
+
+    // Use adjustStock with negative value
+    await adjustStock(
+      productId,
+      -quantity, // Negative for deduction
+      notes: notes ?? 'Stock deducted for sale',
+    );
+  }
+
   // ============================================
   // PRODUCT CRUD OPERATIONS
   // ============================================
@@ -200,9 +218,8 @@ class ProductDB {
       final box = await _openProductBox();
       final user = await UserDB.getCurrentUser();
       final userId = user.id;
-      var products = box.values
-          .where((product) => product.userId == userId)
-          .toList();
+      var products =
+          box.values.where((product) => product.userId == userId).toList();
       debugPrint('Fetched ${products.length} products in userId $userId');
       return products;
     } catch (e) {
@@ -336,9 +353,8 @@ class ProductDB {
 
       await StockTransactionDB.addTransaction(stockTransaction);
 
-      final transactionTypeName = transactionType == TransactionType.sale
-          ? 'Sale'
-          : 'Sale Order';
+      final transactionTypeName =
+          transactionType == TransactionType.sale ? 'Sale' : 'Sale Order';
       debugPrint(
         '$transactionTypeName completed for product $productId: Quantity $quantitySold, New Stock: $newStock',
       );
@@ -548,7 +564,8 @@ class ProductDB {
 
   static Future<void> adjustStock(
     String productId,
-    int quantityChange, { // positive for increase, negative for decrease
+    int quantityChange, {
+    // positive for increase, negative for decrease
     double? pricePerUnit,
     String? notes,
   }) async {
@@ -598,8 +615,7 @@ class ProductDB {
       await productBox.put(productId, updatedProduct);
 
       // Create stock transaction
-      final priceToUse =
-          pricePerUnit ??
+      final priceToUse = pricePerUnit ??
           (quantityChange > 0 ? product.purchasePrice : product.salePrice);
 
       final stockTransaction = StockTransactionModel(
@@ -612,8 +628,7 @@ class ProductDB {
         totalValue: quantityChange.abs() * priceToUse,
         date: DateFormat('dd MMM yyyy').format(DateTime.now()),
         userId: userId,
-        notes:
-            notes ??
+        notes: notes ??
             (quantityChange > 0
                 ? 'Stock adjustment: Added ${quantityChange.abs()} units'
                 : 'Stock adjustment: Removed ${quantityChange.abs()} units'),
@@ -629,7 +644,7 @@ class ProductDB {
 
       await refreshProducts();
     } catch (e) {
-      debugPrint('Error adjusting stock: $e');      
+      debugPrint('Error adjusting stock: $e');
       throw Exception('Failed to adjust stock for product $productId: $e');
     }
   }

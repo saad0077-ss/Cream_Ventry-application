@@ -10,6 +10,8 @@ import 'package:cream_ventory/core/utils/sale/sale_add_screen_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class SaleScreenController {
   // Controllers
@@ -94,7 +96,12 @@ class SaleScreenController {
       }
     } catch (error) {
       if (_isMounted) {
-        SaleAddUtils.showSnackBarInSales(context, 'Failed to initialize form: $error', Colors.red);
+        showTopSnackBar(
+          Overlay.of(context),
+          CustomSnackBar.error(
+            message: 'Failed to initialize form: $error',
+          ),
+        );
       }
     }
   }
@@ -111,7 +118,12 @@ class SaleScreenController {
       }
     } catch (e) {
       if (_isMounted) {
-        SaleAddUtils.showSnackBarInSales(context, 'Failed to load sale items: $e', Colors.red);
+        showTopSnackBar(
+          Overlay.of(context),
+          CustomSnackBar.error(
+            message: 'Failed to load sale items: $e',
+          ),
+        );
       }
     }
   }
@@ -126,13 +138,13 @@ class SaleScreenController {
     }
   }
 
-  Future<void> saveSale({required bool isSaveAndNew}) async {
+  Future<void> saveSale({required bool isSaveAndNew}) async {      
     try {
       final user = await UserDB.getCurrentUser();
       final saleModel = SaleModel(
         id: _isEditMode ? sale!.id : const Uuid().v4(),
         invoiceNumber: _invoiceController.text,
-        date: _dateController.text,
+        date: _dateController.text, 
         customerName: _customerController.text.isEmpty ? null : _customerController.text,
         items: _saleItems,  
         total: _saleItems.fold(0.0, (sum, item) => sum + item.subtotal),
@@ -171,18 +183,33 @@ class SaleScreenController {
           _balanceDue = 0.0;
         }); 
         if (_isMounted) {
-          SaleAddUtils.showSnackBarInSales(context, message, Colors.green);
+          showTopSnackBar(
+            Overlay.of(context),
+            CustomSnackBar.success(
+              message: message,
+            ),
+          );
         }
       } else {
         if (_isMounted) {
           Navigator.pop(context, true);
-          SaleAddUtils.showSnackBarInSales(context, message, Colors.green);
+          showTopSnackBar(
+            Overlay.of(context),
+            CustomSnackBar.success(
+              message: message,
+            ),
+          );
         }
       }
     } catch (e, stackTrace) {
       debugPrint('Error in saveSale: $e\n$stackTrace');
       if (_isMounted) {
-        SaleAddUtils.showSnackBarInSales(context, 'An unexpected error occurred: $e', Colors.red);
+        showTopSnackBar(
+          Overlay.of(context),
+          CustomSnackBar.error(
+            message: 'An unexpected error occurred: $e',
+          ),
+        );
       }
     }
   }

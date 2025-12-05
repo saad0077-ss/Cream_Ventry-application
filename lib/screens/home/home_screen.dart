@@ -37,17 +37,17 @@ class _ScreenHomeState extends State<ScreenHome> {
   void initState() {
     super.initState();
     // Extra safety: refresh when page is shown
-    WidgetsBinding.instance.addPostFrameCallback((_) { 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ProductDB.refreshProducts();
       ProductDB.getLowStockAlert();
       SaleDB.refreshSales();
-    }); 
+    });
   }
- 
+
   @override
   Widget build(BuildContext context) {
     final menuItems = HomeMenuProvider.getMenuItems(context);
-    final String today = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    final String today = DateFormat('dd MMM yyyy').format(DateTime.now());
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 800;
 
@@ -115,7 +115,7 @@ class _ScreenHomeState extends State<ScreenHome> {
                       Expanded(
                         child: ValueListenableBuilder(
                           valueListenable: ProductDB.productNotifier,
-                          builder: (context, products, _) { 
+                          builder: (context, products, _) {
                             return StatCard<List<ProductModel>>(
                               title: "Total Products",
                               valueListenable: ProductDB.productNotifier,
@@ -151,7 +151,11 @@ class _ScreenHomeState extends State<ScreenHome> {
                               title: "Today's Orders",
                               valueListenable: SaleDB.saleNotifier,
                               valueBuilder: (sales) => sales
-                                  .where((sale) => sale.dueDate == today)
+                                  .where((sale) =>
+                                      sale.dueDate == today &&
+                                      sale.transactionType ==
+                                          TransactionType.saleOrder &&
+                                      sale.status == SaleStatus.open)
                                   .length
                                   .toString(),
                               icon: Icons.shopping_cart_outlined,
@@ -171,8 +175,8 @@ class _ScreenHomeState extends State<ScreenHome> {
                                   .where(
                                     (sale) =>
                                         sale.date == today &&
-                                        sale.transactionType !=
-                                            TransactionType.saleOrder,
+                                        sale.status != SaleStatus.cancelled &&
+                                        sale.status != SaleStatus.open,
                                   )
                                   .length
                                   .toString(),
@@ -185,6 +189,8 @@ class _ScreenHomeState extends State<ScreenHome> {
                   )
                 else
                   // Two rows with 2 columns each for smaller screens
+                  // Replace the smaller screen stat cards section (around line 180-260)
+// Two rows with 2 columns each for smaller screens
                   Column(
                     children: [
                       Row(
@@ -193,7 +199,7 @@ class _ScreenHomeState extends State<ScreenHome> {
                             child: ValueListenableBuilder(
                               valueListenable: ProductDB.productNotifier,
                               builder: (context, products, _) {
-                                return StatCard<List<ProductModel>>(    
+                                return StatCard<List<ProductModel>>(
                                   title: "Total Products",
                                   valueListenable: ProductDB.productNotifier,
                                   valueBuilder: (products) =>
@@ -203,7 +209,7 @@ class _ScreenHomeState extends State<ScreenHome> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 10), 
+                          const SizedBox(width: 10),
                           Expanded(
                             child: ValueListenableBuilder<List<ProductModel>>(
                               valueListenable: ProductDB.lowStockNotifier,
@@ -234,7 +240,11 @@ class _ScreenHomeState extends State<ScreenHome> {
                                   title: "Today's Orders",
                                   valueListenable: SaleDB.saleNotifier,
                                   valueBuilder: (sales) => sales
-                                      .where((sale) => sale.dueDate == today)
+                                      .where((sale) =>
+                                          sale.dueDate == today &&
+                                          sale.transactionType ==
+                                              TransactionType.saleOrder &&
+                                          sale.status == SaleStatus.open)
                                       .length
                                       .toString(),
                                   icon: Icons.shopping_cart_outlined,
@@ -254,8 +264,9 @@ class _ScreenHomeState extends State<ScreenHome> {
                                       .where(
                                         (sale) =>
                                             sale.date == today &&
-                                            sale.transactionType !=
-                                                TransactionType.saleOrder,
+                                            sale.status !=
+                                                SaleStatus.cancelled &&
+                                            sale.status != SaleStatus.open,
                                       )
                                       .length
                                       .toString(),

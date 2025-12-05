@@ -18,6 +18,8 @@ class CategoryDialogs {
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -86,12 +88,14 @@ class CategoryDialogs {
                     backgroundColor: Colors.orange.shade600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                   ),
                   child: Text(
                     "Got It",
-                    style: AppTextStyles.w500.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.w500
+                        .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -118,10 +122,12 @@ class CategoryDialogs {
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              begin: Alignment.topLeft,
+              begin: Alignment.topLeft, 
               end: Alignment.bottomRight,
               colors: [Color(0xFFFFEBEE), Color(0xFFFFCDD2)],
             ),
@@ -160,18 +166,21 @@ class CategoryDialogs {
               Text(
                 "Delete Category",
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bold18.copyWith(fontSize: 22, color: Colors.black87),
+                style: AppTextStyles.bold18
+                    .copyWith(fontSize: 22, color: Colors.black87),
               ),
               const SizedBox(height: 12),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: AppTextStyles.w500.copyWith(fontSize: 15, color: Colors.grey[700], height: 1.5),
+                  style: AppTextStyles.w500.copyWith(
+                      fontSize: 15, color: Colors.grey[700], height: 1.5),
                   children: [
                     const TextSpan(text: "Are you sure you want to delete "),
                     TextSpan(
                       text: "'$categoryName'",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
                     const TextSpan(text: "? This action cannot be undone."),
                   ],
@@ -186,10 +195,14 @@ class CategoryDialogs {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.grey[700],
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        side:
+                            BorderSide(color: Colors.grey.shade400, width: 1.5),
                       ),
-                      child: Text("Cancel", style: AppTextStyles.w500.copyWith(fontSize: 16, fontWeight: FontWeight.w600)),
+                      child: Text("Cancel",
+                          style: AppTextStyles.w500.copyWith(
+                              fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -200,10 +213,15 @@ class CategoryDialogs {
                         backgroundColor: Colors.red.shade600,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         elevation: 4,
                       ),
-                      child: Text("Delete", style: AppTextStyles.w500.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                      child: Text("Delete",
+                          style: AppTextStyles.w500.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white)),
                     ),
                   ),
                 ],
@@ -235,6 +253,8 @@ class CategoryDialogs {
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -260,27 +280,40 @@ class CategoryDialogs {
                   color: Colors.orange.shade100,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 15, spreadRadius: 2),
+                    BoxShadow(
+                        color: Colors.orange.withOpacity(0.3),
+                        blurRadius: 15,
+                        spreadRadius: 2),
                   ],
                 ),
-                child: Icon(Icons.inventory_2_outlined, size: 48, color: Colors.orange.shade700),
+                child: Icon(Icons.inventory_2_outlined,
+                    size: 48, color: Colors.orange.shade700),
               ),
               const SizedBox(height: 20),
               Text(
                 "Cannot Delete Category",
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bold18.copyWith(fontSize: 22, color: Colors.black87),
+                style: AppTextStyles.bold18
+                    .copyWith(fontSize: 22, color: Colors.black87),
               ),
               const SizedBox(height: 12),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: AppTextStyles.w500.copyWith(fontSize: 15, color: Colors.grey[700], height: 1.5),
+                  style: AppTextStyles.w500.copyWith(
+                      fontSize: 15, color: Colors.grey[700], height: 1.5),
                   children: [
                     const TextSpan(text: "The category "),
-                    TextSpan(text: "'$categoryName'", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                    const TextSpan(text: " still contains products.\n\nPlease "),
-                    const TextSpan(text: "remove or reassign", style: TextStyle(fontWeight: FontWeight.w600)),
+                    TextSpan(
+                        text: "'$categoryName'",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87)),
+                    const TextSpan(
+                        text: " still contains products.\n\nPlease "),
+                    const TextSpan(
+                        text: "remove or reassign",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const TextSpan(text: " all products before deleting."),
                   ],
                 ),
@@ -294,10 +327,13 @@ class CategoryDialogs {
                     backgroundColor: Colors.orange.shade600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                   ),
-                  child: Text("Understood", style: AppTextStyles.w500.copyWith(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: Text("Understood",
+                      style: AppTextStyles.w500
+                          .copyWith(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],

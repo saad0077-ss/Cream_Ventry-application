@@ -1,9 +1,9 @@
-
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/party_model.dart';
 import 'package:cream_ventory/screens/party/party_detailing_screen.dart';
 import 'package:cream_ventory/screens/party/party_listing_screen_card.dart';
+import 'package:cream_ventory/screens/party/party_listing_screen_card_for_desktop.dart';
 import 'package:flutter/material.dart';
 
 class PartyList extends StatefulWidget {
@@ -33,14 +33,14 @@ class _PartyListState extends State<PartyList> {
       });
       await PartyDb.loadParties();
     } catch (e) {
-      setState(() { 
+      setState(() {
         isLoading = false;
       });
       debugPrint('Error initializing PartyList: $e');
     }
   }
 
-  bool get _isDesktop => MediaQuery.of(context).size.width >= 1000 ;
+  bool get _isDesktop => MediaQuery.of(context).size.width >= 1000;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +54,10 @@ class _PartyListState extends State<PartyList> {
         // ------------------- FILTER -------------------
         final filteredParties = parties.where((party) {
           final matchesUserId = party.userId == userId;
-          final matchesSearch =
-              widget.searchQuery.isEmpty ||
+          final matchesSearch = widget.searchQuery.isEmpty ||
               party.name.toLowerCase().contains(
-                widget.searchQuery.toLowerCase(),
-              );
+                    widget.searchQuery.toLowerCase(),
+                  );
           return matchesUserId && matchesSearch;
         }).toList();
 
@@ -92,28 +91,27 @@ class _PartyListState extends State<PartyList> {
               );
             },
           );
-        }
+        }  
 
         // Desktop → GridView (2 columns)
         return GridView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, 
-            mainAxisExtent: 170,
+            crossAxisCount: 2,
+            mainAxisExtent: 120,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),
           itemCount: filteredParties.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (context, index) { 
             final party = filteredParties[index];
-            return PartyCard(
+            return DesktopPartyCard(
               party: party,
               onTap: () => _navigateToDetail(party.id),
-              isDesktop: _isDesktop,
             );
           },
         );
-      },    
+      },
     );
   }
 

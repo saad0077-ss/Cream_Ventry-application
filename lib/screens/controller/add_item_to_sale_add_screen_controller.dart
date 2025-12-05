@@ -42,13 +42,26 @@ class AddItemToSaleController {
       quantityController: _quantityController,
       rateController: _rateController,
       totalAmountController: _totalAmountController,
-      onFormInitialized: (categoryId) {
-        if (_isMounted) {
-          setState(() {
-            _loadProductsByCategory(categoryId);
-          });
-        }
+      onCategorySelected: (categoryId) {
+        if (!context.mounted) return;
+        setState(() {
+          _selectedCategoryId = categoryId;
+          _loadProductsByCategory(categoryId);
+        });
       },
+      onProductSelected: (productId) { 
+        if (!context.mounted) return;
+        setState(() {   
+          _selectedProductId = productId;
+          // Find product and set rate
+          final product = _products.firstWhere(
+            (p) => p.id == productId,
+            orElse: () => _products.isNotEmpty ? _products[0] : _products[0],
+          );
+          _rateController.text = product.salePrice.toStringAsFixed(2);
+          _calculateTotal();
+        });
+      },   
     );
 
     _rateController.addListener(_calculateTotal);
@@ -127,19 +140,19 @@ class AddItemToSaleController {
 
   void saveSaleItem({required bool saveAndNew}) {
     AddItemToSaleUtils.saveSaleItem(
-      context: context,
-      selectedProductId: _selectedProductId,
-      selectedCategoryName: _selectedCategoryName,
-      quantityController: _quantityController,
-      rateController: _rateController,
-      totalAmountController: _totalAmountController,
-      products: _products,
-      isEditMode: _isEditMode,
-      saleItem: saleItem,
-      saveAndNew: saveAndNew,
-      clearForm: _clearForm,
-      popScreen: () => Navigator.pop(context),
-    );
+        context: context,
+        selectedProductId: _selectedProductId,
+        selectedCategoryName: _selectedCategoryName,
+        quantityController: _quantityController,
+        rateController: _rateController,
+        totalAmountController: _totalAmountController,
+        products: _products,
+        isEditMode: _isEditMode,
+        saleItem: saleItem,
+        saveAndNew: saveAndNew,
+        clearForm: _clearForm,
+        popScreen: () => Navigator.pop(context),
+        editIndex: index);
   }
 
   void _clearForm() {

@@ -9,7 +9,8 @@ class ProductActionsMenu extends StatelessWidget {
   final ProductModel product;
   final String index;
 
-  const ProductActionsMenu({super.key, required this.product, required this.index});
+  const ProductActionsMenu(
+      {super.key, required this.product, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,8 @@ class ProductActionsMenu extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 26),
+        child:
+            const Icon(Icons.more_vert_rounded, color: Colors.white, size: 26),
       ),
       offset: const Offset(0, 60),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -54,12 +56,16 @@ class ProductActionsMenu extends StatelessWidget {
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.edit_outlined, color: Colors.blueAccent, size: 22),
+                child: const Icon(Icons.edit_outlined,
+                    color: Colors.blueAccent, size: 22),
               ),
               const SizedBox(width: 14),
               const Text(
                 'Edit Product',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87),
               ),
             ],
           ),
@@ -76,12 +82,16 @@ class ProductActionsMenu extends StatelessWidget {
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 22),
+                child: const Icon(Icons.delete_outline_rounded,
+                    color: Colors.redAccent, size: 22),
               ),
               const SizedBox(width: 14),
               Text(
                 'Delete Product',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.red.shade700),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red.shade700),
               ),
             ],
           ),
@@ -91,8 +101,10 @@ class ProductActionsMenu extends StatelessWidget {
   }
 
   void _handleAction(BuildContext context, String value) async {
-    if (value == 'edit') {
-      showAddProductBottomSheet(context, existingProduct: product, productKey: index);
+    if (!context.mounted) return;
+    if (value == 'edit') {      
+      showAddProductBottomSheet(context,
+          existingProduct: product, productKey: index);
     } else if (value == 'delete') {
       final confirm = await _showDeleteDialog(context);
       if (confirm == true) await _deleteProduct(context);
@@ -108,6 +120,8 @@ class ProductActionsMenu extends StatelessWidget {
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+           width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -150,18 +164,23 @@ class ProductActionsMenu extends StatelessWidget {
               const Text(
                 "Delete Product",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87),
               ),
               const SizedBox(height: 12),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: TextStyle(fontSize: 15, color: Colors.grey[700], height: 1.5),
+                  style: TextStyle(
+                      fontSize: 15, color: Colors.grey[700], height: 1.5),
                   children: [
                     const TextSpan(text: "Are you sure you want to delete "),
                     TextSpan(
                       text: "'${product.name}'",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
                     const TextSpan(text: "? This action cannot be undone."),
                   ],
@@ -176,10 +195,14 @@ class ProductActionsMenu extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.grey[700],
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        side:
+                            BorderSide(color: Colors.grey.shade400, width: 1.5),
                       ),
-                      child: const Text("Cancel", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      child: const Text("Cancel",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -190,10 +213,15 @@ class ProductActionsMenu extends StatelessWidget {
                         backgroundColor: Colors.red.shade600,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         elevation: 4,
                       ),
-                      child: const Text("Delete", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                      child: const Text("Delete",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white)),
                     ),
                   ),
                 ],
@@ -206,31 +234,33 @@ class ProductActionsMenu extends StatelessWidget {
   }
 
   Future<void> _deleteProduct(BuildContext context) async {
+    if (!context.mounted) return;
+
     try {
       await ProductDB.deleteProduct(index);
       _showSnackBar(context, 'Product deleted successfully!', isSuccess: true);
     } catch (e) {
       final msg = e.toString();
-      if (msg.contains('Cannot delete product because it is part of existing sales')) {
-        _showCannotDeleteDialog(context);
+      if (msg.contains(
+          'Cannot delete product because it is part of existing sales')) {
+        if (context.mounted) _showCannotDeleteDialog(context);
       } else {
         _showSnackBar(context, 'Failed to delete: $msg', isSuccess: false);
       }
     }
   }
 
-  void _showSnackBar(BuildContext context, String message, {required bool isSuccess}) {
+  void _showSnackBar(BuildContext context, String message,
+      {required bool isSuccess}) {
+    if (!context.mounted) return; // Critical check
+
     showTopSnackBar(
-      Overlay.of(context),
+      Overlay.of(context, rootOverlay: true), // This never fails
       isSuccess
           ? CustomSnackBar.success(
-              message: message,
-              backgroundColor: Colors.green.shade600,
-            )
+              message: message, backgroundColor: Colors.green.shade600)
           : CustomSnackBar.error(
-              message: message,
-              backgroundColor: Colors.red.shade600,
-            ),
+              message: message, backgroundColor: Colors.red.shade600),
       displayDuration: const Duration(seconds: 3),
     );
   }
@@ -244,6 +274,8 @@ class ProductActionsMenu extends StatelessWidget {
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+           width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -269,28 +301,44 @@ class ProductActionsMenu extends StatelessWidget {
                   color: Colors.orange.shade100,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 15, spreadRadius: 2),
+                    BoxShadow(
+                        color: Colors.orange.withOpacity(0.3),
+                        blurRadius: 15,
+                        spreadRadius: 2),
                   ],
                 ),
-                child: Icon(Icons.receipt_long_outlined, size: 48, color: Colors.orange.shade700),
+                child: Icon(Icons.receipt_long_outlined,
+                    size: 48, color: Colors.orange.shade700),
               ),
               const SizedBox(height: 20),
               const Text(
                 "Cannot Delete Product",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87),
               ),
               const SizedBox(height: 12),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: TextStyle(fontSize: 15, color: Colors.grey[700], height: 1.5),
+                  style: TextStyle(
+                      fontSize: 15, color: Colors.grey[700], height: 1.5),
                   children: [
                     const TextSpan(text: "The product "),
-                    TextSpan(text: "'${product.name}'", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                    TextSpan(
+                        text: "'${product.name}'",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87)),
                     const TextSpan(text: " is part of existing "),
-                    const TextSpan(text: "sales records", style: TextStyle(fontWeight: FontWeight.w600)),
-                    const TextSpan(text: ".\n\nIt cannot be deleted to maintain data integrity."),
+                    const TextSpan(
+                        text: "sales records",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const TextSpan(
+                        text:
+                            ".\n\nIt cannot be deleted to maintain data integrity."),
                   ],
                 ),
               ),
@@ -303,10 +351,13 @@ class ProductActionsMenu extends StatelessWidget {
                     backgroundColor: Colors.orange.shade600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                   ),
-                  child: const Text("Understood", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: const Text("Understood",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
@@ -314,5 +365,5 @@ class ProductActionsMenu extends StatelessWidget {
         ),
       ),
     );
-  } 
+  }
 }

@@ -19,26 +19,31 @@ class AddItemToSaleUtils {
     required TextEditingController quantityController,
     required TextEditingController rateController,
     required TextEditingController totalAmountController,
-    required Function(String) onFormInitialized,
+    required Function(String) onCategorySelected,
+    required Function(String) onProductSelected,
   }) async {
-    try {
-      await CategoryDB.loadSampleCategories();
-      await ProductDB.initialize();
-      await SaleItemDB.init();
+    if (!isEditMode || saleItem == null) return;
 
-      if (isEditMode && saleItem != null) {
-        quantityController.text = saleItem.quantity.toString();
-        rateController.text = saleItem.rate.toStringAsFixed(2);
-        totalAmountController.text = saleItem.subtotal.toStringAsFixed(2);
+    // Fill text fields
+    quantityController.text = saleItem.quantity.toString();
+    rateController.text = saleItem.rate.toStringAsFixed(2);
+    totalAmountController.text = saleItem.subtotal.toStringAsFixed(2);
 
-        final product = await ProductDB.getProductById(saleItem.id);
-        if (product != null) {
-          onFormInitialized(product.category.id);
-        }
-      }
-    } catch (error) {
-      throw Exception('Failed to initialize form: $error');
-    }
+    final product = await ProductDB.getProductById(saleItem.id);
+    if (product == null) return;
+
+    // Step 1: Select category → triggers product loading
+    onCategorySelected(product.category.id);
+
+    // Step 2: Wait for products to load, THEN select product
+    // This is the magic fix
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Small delay to ensure products are loaded
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Now safely select the product
+      onProductSelected(saleItem.id);
+    });
   }
 
   /// Calculates the total amount based on quantity and rate
@@ -61,7 +66,7 @@ class AddItemToSaleUtils {
   }) async {
     try {
       final productList = await ProductDB.getProductsByCategory(categoryId);
-      final category = await CategoryDB.getCategoryById(categoryId);
+      final category = CategoryDB.getCategoryById(categoryId);
       onProductsLoaded(productList, category?.name ?? '');
       if (!isEditMode) {
         rateController.clear();
@@ -71,7 +76,6 @@ class AddItemToSaleUtils {
     }
   }
 
-  /// Saves or updates a sale item
   static Future<void> saveSaleItem({
     required BuildContext context,
     required String? selectedProductId,
@@ -81,7 +85,8 @@ class AddItemToSaleUtils {
     required TextEditingController totalAmountController,
     required List<ProductModel> products,
     required bool isEditMode,
-    required SaleItemModel? saleItem,
+    required SaleItemModel? saleItem, // ← existing item when editing
+    required int? editIndex, // ← NEW: pass the index from the list
     required bool saveAndNew,
     required VoidCallback clearForm,
     required VoidCallback popScreen,
@@ -89,6 +94,7 @@ class AddItemToSaleUtils {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
 
+    // Validation
     if (selectedProductId == null ||
         selectedCategoryName == null ||
         quantityController.text.isEmpty ||
@@ -105,18 +111,20 @@ class AddItemToSaleUtils {
       return;
     }
 
-    int originalQuantity = isEditMode ? saleItem!.quantity : 0;
-    int quantityDifference = quantity - originalQuantity;
-
-    if (quantityDifference > 0 && product.stock < quantityDifference) {
-      _showError(context, 'Insufficient stock for ${product.name}');
-      return;
-    }
-
     try {
-      // Restore stock if editing
-      if (isEditMode) {
-        await ProductDB.restockProduct(saleItem!.id, originalQuantity);
+      int stockDifference = quantity;
+
+      if (isEditMode && saleItem != null) {
+        // If editing: only check if the ADDITIONAL units are available
+        stockDifference = quantity - saleItem.quantity;
+      }
+
+      if (stockDifference > 0 && product.stock < stockDifference) {
+        _showError(
+          context,
+          'Insufficient stock for ${product.name}. Available: ${product.stock}, Required: $stockDifference more',
+        );
+        return;
       }
 
       final newSaleItem = SaleItemModel(
@@ -134,26 +142,40 @@ class AddItemToSaleUtils {
       );
 
       if (isEditMode) {
-        await SaleItemDB.updateSaleItem(newSaleItem.id, newSaleItem);
+        // Edit mode: adjust stock by the difference
+        if (stockDifference > 0) {
+          // Increasing quantity: deduct more stock
+          await ProductDB.deductStock(selectedProductId, stockDifference);
+          debugPrint('Edit: Deducted $stockDifference from ${product.name}');    
+        } else if (stockDifference < 0) {
+          // Decreasing quantity: restore stock
+          await ProductDB.restockProduct(selectedProductId, -stockDifference);
+          debugPrint('Edit: Restored ${-stockDifference} to ${product.name}');
+        }
+        // If stockDifference == 0, no stock change needed
+
+        await SaleItemDB.updateItemAt(editIndex!, newSaleItem);
       } else {
+
         await SaleItemDB.addSaleItem(newSaleItem);
       }
-
-      _showSuccess(
-        context,
-        isEditMode
-            ? 'Sale item updated successfully'
-            : 'Sale item added successfully',
-      );
+      if (context.mounted) {
+        _showSuccess(
+          context,
+          isEditMode ? 'Item updated successfully' : 'Item added successfully',
+        );
+      }
 
       if (saveAndNew) {
         clearForm();
       } else {
-        if (context.mounted) popScreen();
+        if (context.mounted) {
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
-      debugPrint('Error saving sale item: $e');
-      _showError(context, 'Failed to save item. Please try again.');
+      debugPrint('Save error: $e');
+      _showError(context, 'Failed to save item: $e');
     }
   }
 
@@ -173,7 +195,7 @@ class AddItemToSaleUtils {
   // Error Toast
   static void _showError(BuildContext context, String message) {
     if (!context.mounted) return;
-    showTopSnackBar( 
+    showTopSnackBar(
       Overlay.of(context),
       CustomSnackBar.error(
         message: message,

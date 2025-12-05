@@ -20,16 +20,16 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});       
            
 
-  @override
+  @override 
   Widget build(BuildContext context) {   
-    return ScreenUtilInit( 
+    return ScreenUtilInit(  
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => const MaterialApp(   
+      builder: (context, child) => const MaterialApp(     
         debugShowCheckedModeBanner: false,
         home: ScreenSplash(),
       ),
     ); 
   }
-}      
+}                                                          

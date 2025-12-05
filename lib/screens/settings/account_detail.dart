@@ -1,7 +1,11 @@
 import 'package:cream_ventory/core/theme/theme.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_account_stats_section.dart';
+import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_address_section.dart';
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
   const AccountDetailsScreen({super.key});
@@ -44,6 +48,75 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _buildProfileImage() {
+    if (_profileImagePath == null || _profileImagePath!.isEmpty) {
+      return const Icon(
+        Icons.person_rounded,
+        size: 60,
+        color: Color(0xFF667EEA),
+      );
+    }
+
+    try {
+      ImageProvider imageProvider;
+      
+      if (kIsWeb) {
+        // Web handling
+        if (_profileImagePath!.startsWith('data:')) {
+          imageProvider = MemoryImage(UriData.parse(_profileImagePath!).contentAsBytes());
+        } else if (_profileImagePath!.startsWith('/9j/') || _profileImagePath!.length > 500) {
+          // Base64 without data: prefix
+          final bytes = base64Decode(_profileImagePath!);
+          imageProvider = MemoryImage(bytes);
+        } else {
+          imageProvider = NetworkImage(_profileImagePath!);
+        }
+      } else {
+        // Desktop/Mobile handling
+        if (_profileImagePath!.startsWith('/9j/') || _profileImagePath!.length > 500) {
+          // This is base64 data
+          try {
+            final bytes = base64Decode(_profileImagePath!);
+            imageProvider = MemoryImage(bytes);
+          } catch (e) {
+            print('Failed to decode base64: $e');
+            return const Icon(
+              Icons.broken_image,
+              size: 60,
+              color: Colors.orange,
+            );
+          }
+        } else {
+          // File path
+          final file = File(_profileImagePath!);
+          if (!file.existsSync()) {
+            return const Icon(
+              Icons.broken_image,
+              size: 60,
+              color: Colors.orange,
+            );
+          }
+          imageProvider = FileImage(file);
+        }
+      }
+
+      return CircleAvatar(
+        radius: 52,
+        backgroundImage: imageProvider,
+        onBackgroundImageError: (exception, stackTrace) {
+          print('Error loading profile image: $exception');
+        },
+      );
+    } catch (e) {
+      print('Error in _buildProfileImage: $e');
+      return const Icon(
+        Icons.error,
+        size: 60,
+        color: Colors.red,
+      );
     }
   }
 
@@ -151,18 +224,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                                     child: CircleAvatar(
                                       radius: 55,
                                       backgroundColor: Colors.white,
-                                      child: _profileImagePath != null
-                                          ? CircleAvatar(
-                                              radius: 52,
-                                              backgroundImage: FileImage(
-                                                File(_profileImagePath!),
-                                              ),
-                                            )
-                                          : const Icon(
-                                              Icons.person_rounded,
-                                              size: 60,
-                                              color: Color(0xFF667EEA),
-                                            ),
+                                      child: _buildProfileImage(),
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -267,58 +329,11 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             
                           const SizedBox(height: 16),
             
-                          // Address Section
-                          _buildSectionCard(
-                            icon: Icons.location_on_outlined,
-                            iconColor: const Color(0xFFF59E0B),
-                            title: 'Address',
-                            child: _buildDetailField(
-                              icon: Icons.home_outlined,
-                              label: 'Full Address',
-                              controller: _addressController,
-                              enabled: false,
-                              maxLines: 3,
-                            ),
-                          ),
+                          AddressSection(profile:  currentUser),
             
                           const SizedBox(height: 16),
             
-                          // Account Stats Section
-                          _buildSectionCard(
-                            icon: Icons.analytics_outlined,
-                            iconColor: const Color(0xFF8B5CF6),
-                            title: 'Account Statistics',
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _buildStatCard(
-                                    icon: Icons.inventory_2_outlined,
-                                    value: '0', // Replace with actual data
-                                    label: 'Products',
-                                    color: const Color(0xFF3B82F6),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildStatCard(
-                                    icon: Icons.receipt_long_outlined,
-                                    value: '0', // Replace with actual data
-                                    label: 'Sales',
-                                    color: const Color(0xFF10B981),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildStatCard(
-                                    icon: Icons.groups_outlined,
-                                    value: '0', // Replace with actual data
-                                    label: 'Parties',
-                                    color: const Color(0xFFF59E0B),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                         AccountStatsSection(),
             
                           const SizedBox(height: 24),
             
@@ -326,7 +341,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                         ],
                       ),
                     ),
-                  ),
+                  ), 
                 ],
               ),
           ),
@@ -429,47 +444,13 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                   horizontal: 16,
                   vertical: 14,
                 ),
-                hintText: 'Enter $label',
+                hintText: 'Enter $label', 
                 hintStyle: TextStyle(
                   color: Colors.grey.shade400,
                   fontWeight: FontWeight.normal,
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
         ],
       ),

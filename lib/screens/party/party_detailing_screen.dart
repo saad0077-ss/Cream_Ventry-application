@@ -126,9 +126,11 @@ class _PartyDetailState extends State<PartyDetail>
           elevation: 10,
           backgroundColor: Colors.transparent,
           child: Container(
+            width: MediaQuery.of(context).size.width * 0.9, 
+           constraints: BoxConstraints(maxWidth: 400),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: const LinearGradient( 
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [Color(0xFFFFF3E0), Color(0xFFFFCC80)],
@@ -243,14 +245,16 @@ class _PartyDetailState extends State<PartyDetail>
         elevation: 10,
         backgroundColor: Colors.transparent,
         child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          constraints: BoxConstraints(maxWidth: 400),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              end: Alignment.bottomRight, 
               colors: [Color(0xFFFFEBEE), Color(0xFFFFCDD2)],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(24),    
             boxShadow: [
               BoxShadow(
                 color: Colors.red.withOpacity(0.3),

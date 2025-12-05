@@ -33,23 +33,35 @@ class SaleDB {
       
       final box = Hive.box<SaleModel>(boxName);
       
-      // Validate each item's productId and reduce stock
-      for (var item in sale.items) {
-        final product = await ProductDB.getProduct(item.id);
-        if (product == null) {
-          debugPrint('Product not found for SaleItem ID: ${item.id}');
-          throw Exception('Product ID ${item.id} not found');
+      // ONLY reduce stock for regular SALES or CLOSED sale orders
+      // For OPEN sale orders, stock should NOT be reduced yet
+      bool shouldReduceStock = sale.transactionType == TransactionType.sale || 
+                               (sale.transactionType == TransactionType.saleOrder && 
+                                sale.status == SaleStatus.closed);
+      
+      if (shouldReduceStock) {
+        // Validate each item's productId and reduce stock
+        for (var item in sale.items) {
+          final product = await ProductDB.getProduct(item.id);
+          if (product == null) {
+            debugPrint('Product not found for SaleItem ID: ${item.id}');
+            throw Exception('Product ID ${item.id} not found');
+          }
+          
+          // Reduce stock with the appropriate transaction type
+          await ProductDB.reduceStockForSale(
+            item.id,
+            item.quantity,
+            sale.transactionType!,
+          );
+          
+          debugPrint(
+            'Reduced stock for Product ID: ${item.id}, Quantity: ${item.quantity}, TransactionType: ${sale.transactionType}',
+          );
         }
-        
-        // Reduce stock with the appropriate transaction type
-        await ProductDB.reduceStockForSale(
-          item.id,
-          item.quantity,
-          sale.transactionType!, // Pass the transactionType from SaleModel
-        );
-        
+      } else {
         debugPrint(
-          'Reduced stock for Product ID: ${item.id}, Quantity: ${item.quantity}, TransactionType: ${sale.transactionType}',
+          'Skipped stock reduction for OPEN sale order ID: ${sale.id}',
         );
       }
       
@@ -62,7 +74,7 @@ class SaleDB {
       }
       
       debugPrint(
-        'Sale added successfully with ID: ${sale.id}, TransactionType: ${sale.transactionType}',
+        'Sale added successfully with ID: ${sale.id}, TransactionType: ${sale.transactionType}, Status: ${sale.status}',
       );
     } catch (e) {
       debugPrint('Error adding sale ${sale.id}: $e');
@@ -149,49 +161,83 @@ class SaleDB {
       if (sale.items.isEmpty) {
         throw Exception('Sale must contain at least one item');
       }
-      
+
       final box = Hive.box<SaleModel>(boxName);
       final oldSale = box.get(sale.id);
-      
+
       if (oldSale == null) {
         debugPrint('Sale with ID ${sale.id} not found');
         return false;
       }
+ 
+      bool wasOpen = oldSale.status == SaleStatus.open;
+      bool isNowClosed = sale.status == SaleStatus.closed;
+      bool isNowCancelled = sale.status == SaleStatus.cancelled;
+      bool isRegularSale = sale.transactionType == TransactionType.sale;
+
+      // Stock adjustment logic:
+      // 1. For regular SALES: always adjust stock on edit (if not cancelled)
+      // 2. For SALE ORDERS: only adjust when closing (open → closed)
+      // 3. When CANCELLING: NO stock adjustment (never restock on cancel)
+      bool shouldAdjustStock = false;
       
-      // Step 1: Restore stock for old items
-      for (var oldItem in oldSale.items) {
-        await ProductDB.restockProduct(oldItem.id, oldItem.quantity);
-        debugPrint(
-          'Restored stock for product ${oldItem.id}: ${oldItem.quantity}',
-        );
+      if (isNowCancelled) {
+        // Cancelling: NEVER adjust stock (no restocking)
+        shouldAdjustStock = false;
+        debugPrint('Cancelling sale/order - NO stock changes');
+      } else if (isRegularSale) {
+        // Regular sales: adjust if items changed
+        shouldAdjustStock = oldSale.items.length != sale.items.length || 
+            !oldSale.items.every((oldItem) => 
+                sale.items.any((newItem) => 
+                    newItem.id == oldItem.id && 
+                    newItem.quantity == oldItem.quantity));
+      } else {
+        // Sale orders: only adjust when closing (open → closed)
+        shouldAdjustStock = isNowClosed && wasOpen;
       }
-      
-      // Step 2: Reduce stock for new items
-      for (var item in sale.items) {
-        final product = await ProductDB.getProduct(item.id);
-        if (product == null) {
-          throw Exception('Product ID ${item.id} not found');
+
+      if (shouldAdjustStock) {
+        // Step 1: Restore old stock if it was already deducted
+        if (!wasOpen || isRegularSale) {
+          for (var oldItem in oldSale.items) {
+            await ProductDB.restockProduct(oldItem.id, oldItem.quantity);
+            debugPrint('Restored stock (edit): ${oldItem.id} x${oldItem.quantity}');
+          }
         }
-        
-        await ProductDB.reduceStockForSale(
-          item.id,
-          item.quantity,
-          sale.transactionType!,
-        );
+
+        // Step 2: Deduct stock for current items
+        for (var item in sale.items) {
+          final product = await ProductDB.getProduct(item.id);
+          if (product == null) {
+            throw Exception('Product ID ${item.id} not found');
+          }
+
+          await ProductDB.reduceStockForSale(
+            item.id,  
+            item.quantity,
+            sale.transactionType!,
+          );
+          debugPrint('Deducted stock: ${item.id} x${item.quantity}');
+        }
+      } else {
+        debugPrint('No stock adjustment needed - Status: ${sale.status}, Type: ${sale.transactionType}');
       }
-      
+
+      // Save the updated sale
       await box.put(sale.id, sale);
       _updateNotifier();
-      
+
+      // Update party balance
       if (sale.customerName != null && sale.customerName!.isNotEmpty) {
         await PartyDb.updateBalanceAfterSale(sale);
       }
-      
-      debugPrint('Updated sale with ID: ${sale.id}');
+
+      debugPrint('Updated sale with ID: ${sale.id}, Status: ${sale.status}');
       return true;
     } catch (e) {
       debugPrint('Error updating sale ${sale.id}: $e');
-      throw Exception('Failed to update sale ${sale.id}: $e');
+      rethrow;
     }
   }
 
@@ -230,6 +276,21 @@ class SaleDB {
         return false;
       }
       
+      // Restore stock ONLY if:
+      // 1. It's a regular SALE that was closed, OR
+      // 2. It's a SALE ORDER that was closed
+      // DO NOT restore for: open orders, cancelled orders/sales
+      bool shouldRestock = sale.status == SaleStatus.closed;
+      
+      if (shouldRestock) {
+        for (var item in sale.items) {
+          await ProductDB.restockProduct(item.id, item.quantity);
+          debugPrint('Restocked on delete: ${item.productName} x${item.quantity}');
+        }
+      } else {
+        debugPrint('No restock on delete - sale status: ${sale.status} (${sale.status == SaleStatus.open ? "open" : sale.status == SaleStatus.cancelled ? "cancelled" : "unknown"})');
+      }
+      
       // Delete the sale
       await box.delete(id);
       
@@ -257,44 +318,21 @@ class SaleDB {
     }
   }
 
- static Future<void> refreshSales() async {
-  final user = await UserDB.getCurrentUser();
+  static Future<void> refreshSales() async {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
 
-  final userId = user.id;
-
-  try {
-    final box = Hive.box<SaleModel>(boxName); // Just get the open box
-    final sales = box.values
-        .where((sale) => sale.userId == userId)
-        .toList();
-
-    saleNotifier.value = sales;
-    debugPrint('Refreshed ${sales.length} sales for user $userId');
-  } catch (e) {
-    debugPrint('Error reading sales: $e'); 
-    saleNotifier.value = [];
+    try {
+      final box = Hive.box<SaleModel>(boxName);
+      final sales = box.values
+          .where((sale) => sale.userId == userId)
+          .toList();
+      
+      saleNotifier.value = sales;
+      debugPrint('Refreshed ${sales.length} sales for user $userId');
+    } catch (e) {
+      debugPrint('Error reading sales: $e'); 
+      saleNotifier.value = [];
+    }
   }
-}
-  // static Future<double> getTotalReceivedAmountByDate(DateTime date) async {
-  //   final user = await UserDB.getCurrentUser();
-  //   final userId = user.id;
-  //   try {
-  //     final sales = await getSales();
-  //     final total = sales
-  //         .where((sale) {
-  //           final saleDate = DateFormat('dd/MM/yyyy').parse(sale.date);
-
-  //           return saleDate.year == date.year &&
-  //               saleDate.month == date.month &&
-  //               saleDate.day == date.day &&
-  //               sale.userId == userId;
-  //         })
-  //         .fold(0.0, (sum, sale) => sum + (sale.receivedAmount));
-  //     debugPrint('Total received amount for $date: $total');
-  //     return total;
-  //   } catch (e) {
-  //     debugPrint('Error getting total received amount for $date: $e');
-  //     return 0.0;
-  //   }
-  // }
 }

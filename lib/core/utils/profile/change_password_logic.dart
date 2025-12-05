@@ -118,16 +118,18 @@ class ChangePasswordLogic {
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(maxWidth: 400),
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
+              borderRadius: BorderRadius.circular(28),  
+              boxShadow: [ 
                 BoxShadow(
                   color: const Color(0xFFE74C3C).withOpacity(0.15),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
-                ),
+                ),   
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
                   blurRadius: 20,

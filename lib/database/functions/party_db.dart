@@ -59,9 +59,8 @@ class PartyDb {
     final userId = user.id;
     try {
       final box = await _getPartyBox();
-      final parties = box.values
-          .where((parties) => parties.userId == userId)
-          .toList();
+      final parties =
+          box.values.where((parties) => parties.userId == userId).toList();
       partyNotifier.value = parties;
       _log(
         'Party notifier refreshed with ${partyNotifier.value.length} parties',
@@ -78,9 +77,8 @@ class PartyDb {
     final user = await UserDB.getCurrentUser();
     final userId = user.id;
     final box = await _getPartyBox();
-    final parties = box.values
-        .where((parties) => parties.userId == userId)
-        .toList();
+    final parties =
+        box.values.where((parties) => parties.userId == userId).toList();
     if (partyNotifier.value != parties) {
       partyNotifier.value = parties;
       _log('Notifier updated with ${partyNotifier.value.length} parties');
@@ -267,23 +265,32 @@ class PartyDb {
       await PaymentOutDb.refreshPayments();
       final partyNameLower = party.name.toLowerCase();
       double balance = party.openingBalance;
+
+      // Filter sales: exclude canceled sale orders
       final sales = SaleDB.saleNotifier.value.where(
         (s) =>
             s.customerName?.toLowerCase() == partyNameLower &&
             (s.transactionType == TransactionType.saleOrder ||
-                s.transactionType == TransactionType.sale),
+                s.transactionType == TransactionType.sale) &&
+            // Exclude canceled sale orders using the SaleStatus enum
+            !(s.transactionType == TransactionType.saleOrder &&
+                s.status == SaleStatus.cancelled),
       );
+
       final paymentsIn = PaymentInDb.paymentInNotifier.value.where(
-        (p) => p.partyName?.toLowerCase() == partyNameLower,  
+        (p) => p.partyName?.toLowerCase() == partyNameLower,
       );
       final paymentsOut = PaymentOutDb.paymentOutNotifier.value.where(
         (p) => p.partyName.toLowerCase() == partyNameLower,
       );
+
       balance += sales.fold(0.0, (sum, s) => sum + (s.balanceDue));
       balance -= paymentsIn.fold(0.0, (sum, p) => sum + p.receivedAmount);
       balance += paymentsOut.fold(0.0, (sum, p) => sum + p.paidAmount);
+
       final double finalBalance = double.parse(balance.toStringAsFixed(2));
       await updatePartyBalance(partyId, finalBalance);
+
       _log(
         'Calculated balance for ${party.name}: ₹$finalBalance '
         '(opening: ₹${party.openingBalance}, '
@@ -375,9 +382,8 @@ class PartyDb {
     final userId = user.id;
     try {
       final box = await _getPartyBox();
-      final parties = box.values
-          .where((parties) => parties.userId == userId)
-          .toList();
+      final parties =
+          box.values.where((parties) => parties.userId == userId).toList();
       double totalBalance = parties.fold(
         0.0,
         (sum, party) => party.partyBalance > 0 ? sum + party.partyBalance : sum,
@@ -395,9 +401,8 @@ class PartyDb {
       final user = await UserDB.getCurrentUser();
       final userId = user.id;
       final box = await _getPartyBox();
-      final parties = box.values
-          .where((parties) => parties.userId == userId)
-          .toList();
+      final parties =
+          box.values.where((parties) => parties.userId == userId).toList();
       double totalBalance = parties.fold(
         0.0,
         (sum, party) =>
@@ -416,9 +421,8 @@ class PartyDb {
       final user = await UserDB.getCurrentUser();
       final userId = user.id;
       final box = await _getPartyBox();
-      final parties = box.values
-          .where((parties) => parties.userId == userId)
-          .toList();
+      final parties =
+          box.values.where((parties) => parties.userId == userId).toList();
       _log('Retrieved ${parties.length} parties');
       return parties;
     } catch (e) {
@@ -449,15 +453,14 @@ class PartyDb {
       final user = await UserDB.getCurrentUser();
       final userId = user.id;
       final box = await _getPartyBox();
-      final parties =
-          box.values
-              .where(
-                (party) => party.userId == userId && party.partyBalance < 0,
-              )
-              .toList()
-            ..sort(
-              (a, b) => b.partyBalance.abs().compareTo(a.partyBalance.abs()),
-            ); // Largest negative to smallest
+      final parties = box.values
+          .where(
+            (party) => party.userId == userId && party.partyBalance < 0,
+          )
+          .toList()
+        ..sort(
+          (a, b) => b.partyBalance.abs().compareTo(a.partyBalance.abs()),
+        ); // Largest negative to smallest
       partyNotifier.value = parties;
       _log('Sorted ${parties.length} parties for You\'ll Give');
     } catch (e) {

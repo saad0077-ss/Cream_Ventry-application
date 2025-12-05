@@ -46,6 +46,49 @@ class SaleItemDB {
     }
   }
 
+static Future<void> updateItemAt(int index, SaleItemModel updatedItem) async {
+  try {
+    final user = await UserDB.getCurrentUser();
+    final userId = user.id;
+
+    final box = Hive.box<SaleItemModel>(boxName);
+    final allUserItems = box.values
+        .where((item) => item.userId == userId)
+        .toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
+
+    if (index < 0 || index >= allUserItems.length) {
+      throw Exception('Invalid index: $index');
+    }
+
+    final oldItem = allUserItems[index];
+    final oldKey = box.keys.firstWhere((k) => box.get(k) == oldItem);
+
+    // Create updated item with SAME index preserved
+    final itemWithSameIndex = SaleItemModel(
+      id: updatedItem.id,
+      productName: updatedItem.productName,
+      quantity: updatedItem.quantity,
+      rate: updatedItem.rate,
+      subtotal: updatedItem.subtotal,
+      categoryName: updatedItem.categoryName,
+      index: oldItem.index,           // ← This is the key line
+      imagePath: updatedItem.imagePath,
+      userId: userId,
+    );
+
+    await box.put(oldKey, itemWithSameIndex);
+    _updateNotifier();
+
+    debugPrint('Updated sale item at index $index');
+  } catch (e) {
+    debugPrint('Error('"Error in updateItemAt: $e"')');
+    rethrow;
+  }
+}
+
+
+
   // Update an existing sale item
   static Future<bool> updateSaleItem(String id, SaleItemModel item) async {
     try {

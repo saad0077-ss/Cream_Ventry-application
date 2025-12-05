@@ -11,11 +11,10 @@ class SaleList extends StatelessWidget {
   const SaleList({super.key, required this.sales});
 
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) { 
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 900;
- 
-    // Responsive values
+
     final horizontalPadding = isDesktop ? 32.0 : 16.0;
     final verticalPadding = isDesktop ? 16.0 : 8.0;
     final bottomPadding = isDesktop ? 100.0 : 60.0;
@@ -23,13 +22,14 @@ class SaleList extends StatelessWidget {
 
     final gridCrossAxisCount = isDesktop ? 2 : 1;
 
-    return Expanded(  
+    return Expanded(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
+        margin:
+            EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
         child: Stack(
           children: [
             // ----- Empty State -----
-            if (sales.isEmpty) 
+            if (sales.isEmpty)
               Center(
                 child: Padding(
                   padding: EdgeInsets.all(isDesktop ? 32 : 16),
@@ -46,28 +46,31 @@ class SaleList extends StatelessWidget {
               )
             else if (isDesktop)
               GridView.builder(
-                padding: EdgeInsets.only(  
+                padding: EdgeInsets.only(
                   left: horizontalPadding,
                   right: horizontalPadding,
-                  top: verticalPadding,
+                  top: verticalPadding, 
                   bottom: bottomPadding,
                 ),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: gridCrossAxisCount,
-                  mainAxisExtent: 230, // Increased height for status badge 
-                  mainAxisSpacing: 17, 
+                  mainAxisExtent: 300, // Increased height for status badge
+                  mainAxisSpacing: 17,
                   crossAxisSpacing: 17,
-                ),   
-                itemCount: sales.length, 
+                ),
+                itemCount: sales.length,
                 itemBuilder: (context, index) {
                   final sale = sales[index];
                   return SaleCard(
+                    balanceDue: sale.balanceDue,
+                    receivedAmount: sale.receivedAmount,
                     onTap: () => _navigateToDetail(context, sale),
                     customerName: sale.customerName ?? 'No Customer',
-                    amount: FormatUtils.formatAmount(sale.total),
+                    total: sale.total,
                     date: FormatUtils.formatDate(sale.date),
                     invoiceNumber: sale.invoiceNumber,
-                    transactionType: sale.transactionType ?? TransactionType.sale,
+                    transactionType:
+                        sale.transactionType ?? TransactionType.sale,
                     status: sale.status,
                   );
                 },
@@ -75,7 +78,7 @@ class SaleList extends StatelessWidget {
             else
               ListView.builder(
                 padding: EdgeInsets.only(
-                  left: horizontalPadding, 
+                  left: horizontalPadding,
                   right: horizontalPadding,
                   top: verticalPadding,
                   bottom: bottomPadding,
@@ -86,25 +89,28 @@ class SaleList extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: SaleCard(
+                      balanceDue: sale.balanceDue,
+                      receivedAmount: sale.receivedAmount,
                       onTap: () => _navigateToDetail(context, sale),
                       customerName: sale.customerName ?? 'No Customer',
-                      amount: FormatUtils.formatAmount(sale.total), 
+                      total: sale.total,
                       date: FormatUtils.formatDate(sale.date),
                       invoiceNumber: sale.invoiceNumber,
-                      transactionType: sale.transactionType ?? TransactionType.sale,
+                      transactionType:
+                          sale.transactionType ?? TransactionType.sale,
                       status: sale.status,
                     ),
                   );
                 },
-              ), 
+              ),
           ],
         ),
       ),
     );
   }
- 
+
   void _navigateToDetail(BuildContext context, SaleModel sale) {
-     final transactionType = sale.transactionType ?? TransactionType.sale;    
+    final transactionType = sale.transactionType ?? TransactionType.sale;
     Navigator.push(
       context,
       MaterialPageRoute(

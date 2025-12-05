@@ -39,7 +39,7 @@ class _AddStockState extends State<AddStock> {
       isAddStockSelected = data.isAdd;
 
       try {
-        selectedDate = DateFormat('dd/MM/yyyy').parse(data.date);
+        selectedDate = DateFormat('dd MMM yyyy').parse(data.date);
       } catch (e) {
         selectedDate = DateTime.now();
       }
@@ -49,7 +49,7 @@ class _AddStockState extends State<AddStock> {
       priceController.text = widget.product.purchasePrice.toStringAsFixed(2);
     }
 
-    dateController.text = DateFormat('dd/MM/yyyy').format(selectedDate);
+    dateController.text = DateFormat('dd MMM yyyy').format(selectedDate);
   }
 
   Future<void> _pickDate() async {
@@ -63,10 +63,10 @@ class _AddStockState extends State<AddStock> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
-        dateController.text = DateFormat('dd/MM/yyyy').format(picked);
+        dateController.text = DateFormat('dd MMM yyyy').format(picked);
       });
     }
-  }
+  } 
 
   Future<void> _saveAdjustment() async {
     if (_isSaving) return;
@@ -105,8 +105,8 @@ class _AddStockState extends State<AddStock> {
       // Apply stock change using ProductDB methods with transaction tracking
       if (isAddStockSelected) {
         // Add stock (Restock)
-        final notes = notesController.text.trim().isEmpty
-            ? 'Stock added on ${DateFormat('dd/MM/yyyy').format(selectedDate)}'
+        final notes = notesController.text.trim().isEmpty 
+            ? 'Stock added on ${DateFormat('dd MMM yyyy').format(selectedDate)}'
             : notesController.text.trim();
 
         await ProductDB.restockProduct(
@@ -211,6 +211,8 @@ class _AddStockState extends State<AddStock> {
         title: widget.editData != null ? 'Edit Adjustment' : 'Adjust Stock',
       ),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(gradient: AppTheme.appGradient),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -451,7 +453,7 @@ class _AddStockState extends State<AddStock> {
                         onPressed: _saveAdjustment,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
-                          horizontal: 40,
+                          horizontal: 18 ,
                         ),
                       ),
               ),

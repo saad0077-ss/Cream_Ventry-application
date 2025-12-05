@@ -1,9 +1,9 @@
+// distribution_hub.dart
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/screens/distribution_hub/distribution_hub_container.dart';
 import 'package:cream_ventory/screens/distribution_hub/widget/distribution_hub_appbar.dart';
-import 'package:cream_ventory/screens/distribution_hub/widget/distribution_hub_dawer.dart';
+import 'package:cream_ventory/screens/distribution_hub/widget/distribution_hub_dawer.dart'; // your dashboard file
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DistributionHub extends StatefulWidget {
   const DistributionHub({super.key});
@@ -13,7 +13,7 @@ class DistributionHub extends StatefulWidget {
 }
 
 class _DistributionHubState extends State<DistributionHub> {
-  bool isPartiesSelected = true;
+  bool _isSidebarCollapsed = false;
   double totalYoullGet = 0.0;
   double totalYoullGive = 0.0;
   String? currentFilter;
@@ -30,37 +30,33 @@ class _DistributionHubState extends State<DistributionHub> {
     super.dispose();
   }
 
-  void _filterYoullGet() async {
-    setState(() {
-      if (currentFilter == 'get') {
-        currentFilter = null;
-        PartyDb.resetPartyFilter();
-      } else {
-        currentFilter = 'get';
-        PartyDb.getSortedYoullGetParties();
-      }
-    });
-  }
-
   Future<void> initializeData() async {
     await PartyDb.init();
     _loadTotalBalance();
     PartyDb.partyNotifier.addListener(_loadTotalBalance);
   }
 
-  void _filterYoullGive() async {
+  void _filterYoullGet() {
     setState(() {
-      if (currentFilter == 'give') {
-        currentFilter = null;
-        PartyDb.resetPartyFilter();
+      currentFilter = currentFilter == 'get' ? null : 'get';
+      if (currentFilter == 'get') {
+        PartyDb.getSortedYoullGetParties();
       } else {
-        currentFilter = 'give';
-        PartyDb.getSortedYoullGiveParties();
+        PartyDb.resetPartyFilter();
       }
     });
   }
 
-  
+  void _filterYoullGive() {
+    setState(() {
+      currentFilter = currentFilter == 'give' ? null : 'give';
+      if (currentFilter == 'give') {
+        PartyDb.getSortedYoullGiveParties();
+      } else {
+        PartyDb.resetPartyFilter();
+      }
+    });
+  }
 
   void _loadTotalBalance() async {
     final totalGet = await PartyDb.calculateTotalYoullGet();
@@ -75,48 +71,62 @@ class _DistributionHubState extends State<DistributionHub> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if the screen is small based on a fixed width threshold
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 1000; 
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 1000;
+
+    final dashboard = DashboardPage(
+      isCollapsed: _isSidebarCollapsed,
+      onCollapseToggle: () {
+        setState(() {
+          _isSidebarCollapsed = !_isSidebarCollapsed;
+        });
+      },
+      isSmallScreen: isSmallScreen,
+    );
 
     return Scaffold(
       appBar: DistributionAppBar(
-        actions: [IconButton(icon:  Icon(Icons.home_filled), onPressed: () {
-          Navigator.pop(context); 
-        })], 
-        isSmallScreen: isSmallScreen,
-      ),        
-      drawer: isSmallScreen ? DashboardPage() : null,
-      body: isSmallScreen ? DistributionHubContainer(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width,
-          maxHeight: MediaQuery.of(context).size.height,
-        ),
-        isSmallScreen: isSmallScreen,
-        totalYoullGet: totalYoullGet,
-        totalYoullGive: totalYoullGive,
-        currentFilter: currentFilter, 
-        onFilterYoullGet: _filterYoullGet,
-        onFilterYoullGive: _filterYoullGive,
-        onLoadTotalBalance: _loadTotalBalance,
-      ) :
-      Row(
-        children: [
-          SizedBox(width: 280.h, child: const DashboardPage()), 
-          Expanded(child: DistributionHubContainer( 
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width,
-          maxHeight: MediaQuery.of(context).size.height,
-        ),      
-        isSmallScreen: isSmallScreen,
-        totalYoullGet: totalYoullGet,
-        totalYoullGive: totalYoullGive,
-        currentFilter: currentFilter, 
-        onFilterYoullGet: _filterYoullGet,
-        onFilterYoullGive: _filterYoullGive, 
-        onLoadTotalBalance: _loadTotalBalance,
-      ) ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home_filled),
+            onPressed: () => Navigator.pop(context),
+          )
         ],
-      )
+        isSmallScreen: isSmallScreen,
+      ),
+      drawer: isSmallScreen ? dashboard : null,
+      body: isSmallScreen
+          ? DistributionHubContainer(
+              constraints: BoxConstraints(maxWidth: double.infinity, maxHeight: double.infinity),
+              isSmallScreen: isSmallScreen,
+              totalYoullGet: totalYoullGet,
+              totalYoullGive: totalYoullGive,
+              currentFilter: currentFilter,
+              onFilterYoullGet: _filterYoullGet,
+              onFilterYoullGive: _filterYoullGive, 
+              onLoadTotalBalance: _loadTotalBalance,
+            )
+          : Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  width: _isSidebarCollapsed ? 80 : 280,
+                  child: dashboard,
+                ),
+                Expanded(
+                  child: DistributionHubContainer(
+                    constraints: BoxConstraints(maxWidth: double.infinity, maxHeight: double.infinity),
+                    isSmallScreen: isSmallScreen,
+                    totalYoullGet: totalYoullGet,
+                    totalYoullGive: totalYoullGive,
+                    currentFilter: currentFilter,
+                    onFilterYoullGet: _filterYoullGet,
+                    onFilterYoullGive: _filterYoullGive,
+                    onLoadTotalBalance: _loadTotalBalance,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

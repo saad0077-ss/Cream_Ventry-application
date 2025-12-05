@@ -1,5 +1,5 @@
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
-import 'package:cream_ventory/models/sale_model.dart' show SaleModel, TransactionType;
+import 'package:cream_ventory/models/sale_model.dart' show SaleModel, TransactionType, SaleStatus;
 import 'package:cream_ventory/screens/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screens/sale/widgets/sale_listing_screen_body.dart';
 import 'package:cream_ventory/core/theme/theme.dart';
@@ -68,7 +68,9 @@ class _SaleReportScreenState extends State<SaleReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final totalSale = sales.fold<double>(0, (sum, sale) => sum + sale.total);
+   final totalSale = sales
+        .where((sale) => sale.status != SaleStatus.cancelled)
+        .fold<double>(0, (sum, sale) => sum + sale.total);
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Sales'),
@@ -76,7 +78,7 @@ class _SaleReportScreenState extends State<SaleReportScreen> {
         decoration: const BoxDecoration(gradient: AppTheme.appGradient),
         child: BodyOfSale( 
           sales: sales,
-          totalSale: totalSale,
+          totalSale: totalSale, 
           onDateRangeChanged: (start, end) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               setState(() {

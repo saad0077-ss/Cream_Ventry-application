@@ -38,6 +38,10 @@ class PartyUIComponents {
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxWidth: 400,
+            ),
             padding: EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -350,7 +354,7 @@ class PartyUIComponents {
                         SizedBox(width: 6),
                         Text(
                           'Opening Balance',
-                          style: TextStyle(
+                          style: TextStyle( 
                             fontSize: 13,
                             color: Colors.black.withOpacity(0.8),
                             fontWeight: FontWeight.w500,

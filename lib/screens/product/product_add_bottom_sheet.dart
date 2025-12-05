@@ -242,6 +242,7 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
             ),
             const SizedBox(height: 20),
             CustomActionButton(
+              padding: EdgeInsets.all(12),
               label: widget.existingProduct == null
                   ? 'Create Product'
                   : 'Update Product',
