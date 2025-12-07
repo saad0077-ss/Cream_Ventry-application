@@ -1,15 +1,5 @@
 {
   "projects": {
-    "default": "creamventory-39cfe"
-  },
-  "targets": {
-    "creamventory-39cfe": {
-      "hosting": {
-        "main": [
-          "creamventory-39cfe"
-        ]
-      }
-    }
-  },
-  "etags": {}
+    "default": "creamventory-07"
+  }
 }

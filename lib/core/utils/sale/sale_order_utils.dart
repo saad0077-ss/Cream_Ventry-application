@@ -1,3 +1,4 @@
+import 'package:cream_ventory/database/functions/product_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/sale_model.dart';
@@ -56,201 +57,220 @@ class SaleUtils {
     return true;
   }
 
-  static void handleCloseSale(
-    BuildContext context,
-    SaleModel sale,
-    VoidCallback refresh,  
-  ) { 
-    if (!validateSaleOrderForClosing(sale)) {
-      showTopSnackBar(
-        Overlay.of(context),
-        const CustomSnackBar.error(
-          message: 'Invalid sale order for closing',
+ static void handleCloseSale(
+  BuildContext context,
+  SaleModel sale,
+  VoidCallback refresh,  
+) { 
+  if (!validateSaleOrderForClosing(sale)) {
+    showTopSnackBar(
+      Overlay.of(context),
+      const CustomSnackBar.error(
+        message: 'Invalid sale order for closing',
+      ),
+    );
+    return;
+  }
+  showDialog(
+    context: context,
+    builder: (dialogContext) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        width: MediaQuery.of(context).size.width * 0.9, 
+        padding: const EdgeInsets.all(24),         
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-      );
-      return;
-    }
-    showDialog(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          width: MediaQuery.of(context).size.width * 0.9, 
-          padding: const EdgeInsets.all(24),         
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle_outline,
-                  size: 48,
-                  color: Colors.green[600],
-                ),
+              child: Icon(
+                Icons.check_circle_outline,
+                size: 48,
+                color: Colors.green[600],
               ),
-              const SizedBox(height: 20),
-              
-              // Title
-              Text(
-                'Close Sale Order',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
-                ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Title
+            Text(
+              'Close Sale Order',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
               ),
-              const SizedBox(height: 12),
-              
-              // Content
-              Text(
-                'Are you sure you want to close this sale order?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.4,
-                ),
+            ),
+            const SizedBox(height: 12),
+            
+            // Content
+            Text(
+              'Are you sure you want to close this sale order? Stock will be deducted.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[600],
+                height: 1.4,    
               ),
-              
-              // Order details
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Order #${sale.invoiceNumber}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            
+            // Order details
+            const SizedBox(height: 16),
+            Container( 
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(height: 24),
-              
-              // Buttons
-              Row(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: Colors.grey[300]!),
-                        ),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        Navigator.pop(dialogContext);
-                        
-                        try {
-                          final user = await UserDB.getCurrentUser();
-                          final userId = user.id;
-                          final updatedSaleOrder = SaleModel(
-                            id: sale.id,
-                            invoiceNumber: sale.invoiceNumber,
-                            date: sale.date,
-                            customerName: sale.customerName,
-                            items: sale.items,
-                            total: sale.total,
-                            receivedAmount: sale.receivedAmount,
-                            balanceDue: sale.balanceDue,
-                            dueDate: sale.dueDate,
-                            transactionType: TransactionType.saleOrder,
-                            status: SaleStatus.closed,
-                            convertedToSaleId: null,
-                            userId: userId,
-                          );
-
-                          await SaleDB.updateSale(updatedSaleOrder);
-                          
-                          if (context.mounted) {
-                            showTopSnackBar(
-                              Overlay.of(context),
-                              CustomSnackBar.success(
-                                message: 'Sale order #${sale.invoiceNumber} closed successfully',
-                              ),
-                            );
-                            refresh();
-                          }
-                        } catch (error) {
-                          if (context.mounted) {
-                            showTopSnackBar(
-                              Overlay.of(context),
-                              CustomSnackBar.error(
-                                message: 'Failed to close sale order: $error',
-                              ),
-                            );
-                          }
-                        } 
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[600],
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Close Order',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  Text(
+                    'Order #${sale.invoiceNumber}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(dialogContext);
+                      
+                      try {
+                        final user = await UserDB.getCurrentUser();
+                        final userId = user.id;
+                        
+                        // Stock validation - check before closing
+                        for (var item in sale.items) {
+                          final product = await ProductDB.getProduct(item.id);
+                          if (product == null || product.stock < item.quantity) {
+                            if (context.mounted) {
+                              showTopSnackBar(
+                                Overlay.of(context),
+                                CustomSnackBar.error(
+                                  message: 'Insufficient stock for ${item.productName}',
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                        }
+                        
+                        // Create updated sale order - SaleDB.updateSale will handle stock deduction
+                        final updatedSaleOrder = SaleModel(
+                          id: sale.id,
+                          invoiceNumber: sale.invoiceNumber,
+                          date: sale.date,
+                          customerName: sale.customerName,
+                          items: sale.items,
+                          total: sale.total,
+                          receivedAmount: sale.receivedAmount,
+                          balanceDue: sale.balanceDue,
+                          dueDate: sale.dueDate,
+                          transactionType: TransactionType.saleOrder,
+                          status: SaleStatus.closed,
+                          convertedToSaleId: null,
+                          userId: userId,
+                        );
+
+                        // This will trigger stock deduction in SaleDB.updateSale
+                        await SaleDB.updateSale(updatedSaleOrder);
+                        
+                        if (context.mounted) {
+                          showTopSnackBar(
+                            Overlay.of(context),
+                            CustomSnackBar.success(
+                              message: 'Sale order #${sale.invoiceNumber} closed successfully',
+                            ),
+                          );
+                          refresh();
+                        }
+                      } catch (error) {
+                        if (context.mounted) {
+                          showTopSnackBar(
+                            Overlay.of(context),
+                            CustomSnackBar.error(
+                              message: 'Failed to close sale order: $error',
+                            ),
+                          );
+                        }
+                      } 
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[600],
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Close Order',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   static void handleCancelSale(
     BuildContext context,

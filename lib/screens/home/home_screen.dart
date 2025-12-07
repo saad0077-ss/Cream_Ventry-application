@@ -175,11 +175,16 @@ class _ScreenHomeState extends State<ScreenHome> {
                                   .where(
                                     (sale) =>
                                         sale.date == today &&
-                                        sale.status != SaleStatus.cancelled &&
-                                        sale.status != SaleStatus.open,
+                                        (sale.transactionType ==
+                                                TransactionType.sale ||
+                                            (sale.transactionType ==
+                                                    TransactionType.saleOrder &&
+                                                sale.status ==
+                                                    SaleStatus.closed)) &&
+                                        sale.status != SaleStatus.cancelled,
                                   )
                                   .length
-                                  .toString(),
+                                  .toString(), 
                               icon: Icons.attach_money_outlined,
                             );
                           },
@@ -264,9 +269,14 @@ class _ScreenHomeState extends State<ScreenHome> {
                                       .where(
                                         (sale) =>
                                             sale.date == today &&
-                                            sale.status !=
-                                                SaleStatus.cancelled &&
-                                            sale.status != SaleStatus.open,
+                                            (sale.transactionType ==
+                                                    TransactionType.sale ||
+                                                (sale.transactionType ==
+                                                        TransactionType
+                                                            .saleOrder &&
+                                                    sale.status ==
+                                                        SaleStatus.closed)) &&
+                                            sale.status != SaleStatus.cancelled,
                                       )
                                       .length
                                       .toString(),
