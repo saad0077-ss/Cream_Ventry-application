@@ -20,8 +20,15 @@ class CustomButton extends StatelessWidget {
     this.fontColor = Colors.black,
   });
 
+     
+
+
   @override
   Widget build(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 420;
+ 
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
@@ -29,9 +36,9 @@ class CustomButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius), 
         ),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 80)
+        padding:  EdgeInsets.symmetric(vertical: isSmallScreen ?9 : 10, horizontal:isSmallScreen ?70 : 80) 
       ), 
-      child: Text(
+      child: Text( 
         label,
         style: TextStyle(
           fontSize: fontSize,

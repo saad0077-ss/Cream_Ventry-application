@@ -38,13 +38,15 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard> {
   @override
   void didUpdateWidget(TransactionDetailsCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.amount != widget.amount) {
-      _amountController.text = widget.amount;
-    }
+    if (oldWidget.amount != widget.amount && 
+      _amountController.text != widget.amount &&
+      !_amountController.selection.isValid) {
+    _amountController.text = widget.amount;
+  }
   }
 
   @override
-  void dispose() {
+  void dispose() {   
     _amountController.dispose();
     super.dispose();
   }

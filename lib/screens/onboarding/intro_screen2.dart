@@ -11,6 +11,7 @@ class ScreenIntro2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 390;
     
     // Use desktop layout if screen width > 1000
     if (screenWidth > 1000) {
@@ -150,9 +151,9 @@ class ScreenIntro2 extends StatelessWidget {
                   ),
                   child: CustomButton(
                     label: "LET'S GET STARTED",
-                    fontSize: 18,
+                    fontSize: isSmallScreen ? 13 : 16,
                     borderRadius: 10.r,
-                    onPressed: () {
+                    onPressed: () { 
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (context) => const ScreenSignIn(),

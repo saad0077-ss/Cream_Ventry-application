@@ -9,6 +9,10 @@ class ScreenIntro2Desktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final isSmallScreen = screenWidth < 1110; 
+    final isMediumScreen = screenWidth < 1410;
 
     return Scaffold(
       body: Container(
@@ -19,7 +23,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
             colors: [
               const Color(0xFFFFF5F7),
               const Color(0xFFFFF9E6),
-              Colors.white,
+              Colors.white, 
             ],
           ),
         ),
@@ -29,14 +33,14 @@ class ScreenIntro2Desktop extends StatelessWidget {
             Expanded(
               flex: 5,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 60),
+                padding:  EdgeInsets.symmetric(horizontal:isMediumScreen?60: 80, vertical:isMediumScreen?50: 60),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: [ 
                     // Decorative element
                     Container(
-                      width: 80,
+                      width: 80, 
                       height: 6,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -132,7 +136,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                       ),
                       child: CustomButton(
                         label: "LET'S GET STARTED",
-                        fontSize: 20,
+                        fontSize: isSmallScreen ? 15 : 20,
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
@@ -146,12 +150,12 @@ class ScreenIntro2Desktop extends StatelessWidget {
 
                     // Feature list
                     Wrap(
-                      spacing: 20,
-                      runSpacing: 16,
+                      spacing:isMediumScreen?10: 20,
+                      runSpacing:isMediumScreen?12: 16,
                       children: [
-                        _buildFeatureBadge('📊 Real-time Analytics'),
-                        _buildFeatureBadge('📱 Cross-platform'),
-                        _buildFeatureBadge('🚀 Lightning Fast'),
+                        _buildFeatureBadge('📊 Real-time Analytics',isMediumScreen),
+                        _buildFeatureBadge('📱 Cross-platform',isMediumScreen),
+                        _buildFeatureBadge('🚀 Lightning Fast',isMediumScreen),
                       ],
                     ),
                   ],
@@ -159,7 +163,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
               ),
             ),
 
-            // Right side - Animation
+            // Right side - Animation 
             Expanded(
               flex: 5,
               child: Container(
@@ -197,14 +201,14 @@ class ScreenIntro2Desktop extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        ), 
       ),
-    );
+    ); 
   }
 
-  Widget _buildFeatureBadge(String label) {
+  Widget _buildFeatureBadge(String label,bool isMediumScreen) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding:  EdgeInsets.symmetric(horizontal:isMediumScreen ?12: 16, vertical:isMediumScreen? 8: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -219,9 +223,9 @@ class ScreenIntro2Desktop extends StatelessWidget {
         ),
       ),
       child: Text(
-        label,
+        label, 
         style: TextStyle(
-          fontSize: 15,
+          fontSize:isMediumScreen?10: 15,
           fontWeight: FontWeight.w600,
           color: Colors.grey[800],
         ),
