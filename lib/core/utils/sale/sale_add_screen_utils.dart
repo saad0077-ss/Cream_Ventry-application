@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cream_ventory/core/constants/sale_add_screen_constant.dart';
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/product_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
@@ -89,7 +88,7 @@ class SaleAddUtils {
     }
   }
 
-  static Future<void> saveSale({
+  static Future<bool> saveSale({
     required SaleModel sale,
     required BuildContext context,
     required bool isEditMode,
@@ -97,40 +96,62 @@ class SaleAddUtils {
   }) async {
     debugPrint('SaleAddUtils.saveSale called for sale: ${sale.id}');
     try {
+      // Fetch items once
       final items = await SaleItemDB.getSaleItems(userId: sale.userId);
       debugPrint('Items fetched: ${items.length}');
-      if (items.isEmpty) {
-        debugPrint('Validation failed: No items');
-        if (context.mounted) {
-          showTopSnackBar(
-            Overlay.of(context),
-            CustomSnackBar.error(
-              message: AppConstants.addItemError,
-            ),
-          );
-        }
-        return;
-      }
+
+      // Validate customer
       if (sale.customerName == null || sale.customerName!.isEmpty) {
-        debugPrint('Validation failed: No customer');
         if (context.mounted) {
           showTopSnackBar(
             Overlay.of(context),
-            CustomSnackBar.error(
-              message: AppConstants.selectCustomerError,
-            ),
+            const CustomSnackBar.error(message: 'Please select a customer'),
           );
         }
-        return;
+        return false;
       }
 
-      // IMPORTANT: Only check and deduct stock for regular SALES, NOT for sale orders
-      // Sale orders will have stock deducted when they are closed
-      if (sale.transactionType == TransactionType.sale) {
-        for (var item in items) {
+      // Validate items exist
+      if (items.isEmpty) {
+        if (context.mounted) {
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(message: 'Please add at least one item'),
+          );
+        }
+        return false;
+      }
+
+      // Validate each item
+      for (var item in items) {
+        if (item.quantity <= 0) {
+          if (context.mounted) {
+            showTopSnackBar(
+              Overlay.of(context),
+              CustomSnackBar.error(
+                message:
+                    'Quantity for ${item.productName} must be greater than 0',
+              ),
+            );
+          }
+          return false;
+        }
+
+        if (item.rate < 0) {
+          if (context.mounted) {
+            showTopSnackBar(
+              Overlay.of(context),
+              CustomSnackBar.error(
+                message: 'Price for ${item.productName} cannot be negative',
+              ),
+            );
+          }
+          return false;
+        }
+
+        // Stock validation for normal sales only
+        if (sale.transactionType == TransactionType.sale) {
           final product = await ProductDB.getProduct(item.id);
-          debugPrint(
-              'Checking stock for ${item.productName}, stock: ${product?.stock}, required: ${item.quantity}');
           if (product == null || product.stock < item.quantity) {
             if (context.mounted) {
               showTopSnackBar(
@@ -140,20 +161,28 @@ class SaleAddUtils {
                 ),
               );
             }
-            return;
+            return false;
           }
+        } else {
+          debugPrint('Sale Order: Skipping stock validation and deduction');
         }
-      } else {
-        // For sale orders, just validate that products exist (no stock check)       
-        debugPrint('Sale Order: Skipping stock validation and deduction');
       }
 
+      // All validations passed, save sale
       debugPrint('All validations passed, saving sale');
-      isEditMode ? await SaleDB.updateSale(sale) : await SaleDB.addSale(sale);
+
+      if (isEditMode) {
+        await SaleDB.updateSale(sale);
+      } else {
+        await SaleDB.addSale(sale);
+      }
+
       await SaleItemDB.clearSaleItems();
       await PartyDb.loadParties();
       await PartyDb.updateBalanceAfterSale(sale);
+
       debugPrint('Sale saved successfully');
+      return true;
     } catch (e) {
       debugPrint('Error in saveSale: $e');
       if (context.mounted) {
@@ -164,7 +193,7 @@ class SaleAddUtils {
           ),
         );
       }
-      rethrow;
+      return false;
     }
   }
 
@@ -510,7 +539,7 @@ class SaleAddUtils {
                                   await SaleItemDB.clearSaleItems();
                                   if (context.mounted) {
                                     Navigator.pop(context, true);
-                                  }          
+                                  }
                                   debugPrint(
                                       'Back navigation confirmed, stock restored');
                                 } catch (error) {

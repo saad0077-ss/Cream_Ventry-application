@@ -19,43 +19,47 @@ class SaleScreenController {
   late final TextEditingController _invoiceController;
   late final TextEditingController _dateController;
   late final TextEditingController _receivedController;
-  late final TextEditingController _dueDateController;    
+  late final TextEditingController _dueDateController;
 
   // State variables
-  bool _isReceivedChecked = false;                                                                         
+  bool _isReceivedChecked = false;
   double _balanceDue = 0.0;
   List<SaleItemModel> _saleItems = [];
 
   // Dependencies
   final SaleModel? sale;
-  final TransactionType transactionType;                             
+  final TransactionType transactionType;
   final BuildContext context;
   final StateSetter setState;
 
-  // Computed properties     
+  // Computed properties
   bool get _isEditMode => sale != null;
   bool get _isEditable {
     if (_isEditMode) {
       // For saleOrder, _isEditable is false if status is closed or cancelled
-      if (transactionType == TransactionType.saleOrder) {   
-        return !(sale!.status == SaleStatus.closed || sale!.status == SaleStatus.cancelled);
-      }                                         
+      if (transactionType == TransactionType.saleOrder) {
+        return !(sale!.status == SaleStatus.closed ||
+            sale!.status == SaleStatus.cancelled);
+      }
       // For sale and edit mode, _isEditable is true
       if (transactionType == TransactionType.sale) {
         return true;
       }
     }
     // Default case: true when not in edit mode or when status is open for sale
-    return !_isEditMode || (sale!.status == SaleStatus.open && transactionType == TransactionType.sale);
+    return !_isEditMode ||
+        (sale!.status == SaleStatus.open &&
+            transactionType == TransactionType.sale);
   }
+
   bool get _isCancelled => _isEditMode && sale!.status == SaleStatus.cancelled;
   bool get _isClosed => _isEditMode && sale!.status == SaleStatus.closed;
 
-  SaleScreenController({     
-    required this.sale,  
+  SaleScreenController({
+    required this.sale,
     required this.transactionType,
     required this.context,
-    required this.setState,   
+    required this.setState,
   });
 
   void initialize() {
@@ -64,7 +68,7 @@ class SaleScreenController {
     _initializeForm();
   }
 
-  void _initializeControllers() {   
+  void _initializeControllers() {
     _customerController = TextEditingController();
     _invoiceController = TextEditingController();
     _dateController = TextEditingController();
@@ -138,51 +142,64 @@ class SaleScreenController {
     }
   }
 
-  Future<void> saveSale({required bool isSaveAndNew}) async {      
+  Future<void> saveSale({required bool isSaveAndNew}) async {
     try {
       final user = await UserDB.getCurrentUser();
       final saleModel = SaleModel(
         id: _isEditMode ? sale!.id : const Uuid().v4(),
         invoiceNumber: _invoiceController.text,
-        date: _dateController.text, 
-        customerName: _customerController.text.isEmpty ? null : _customerController.text,
-        items: _saleItems,  
+        date: _dateController.text,
+        customerName:
+            _customerController.text.isEmpty ? null : _customerController.text,
+        items: _saleItems,
         total: _saleItems.fold(0.0, (sum, item) => sum + item.subtotal),
         receivedAmount: double.tryParse(_receivedController.text) ?? 0.0,
         balanceDue: _balanceDue,
-        dueDate: transactionType == TransactionType.saleOrder && _dueDateController.text.isNotEmpty
+        dueDate: transactionType == TransactionType.saleOrder &&
+                _dueDateController.text.isNotEmpty
             ? _dueDateController.text
             : null,
         transactionType: transactionType,
         status: _isEditMode ? sale!.status : SaleStatus.open,
         convertedToSaleId: _isEditMode ? sale!.convertedToSaleId : null,
         userId: user.id,
-      );  
+      );
 
-      await SaleAddUtils.saveSale(
+      // Call saveSale and check if validation passed
+      final success = await SaleAddUtils.saveSale(
         sale: saleModel,
         context: context,
         isEditMode: _isEditMode,
-        isSaveAndNew: isSaveAndNew,       
+        isSaveAndNew: isSaveAndNew,
       );
+
+      // Only proceed if validation passed
+      if (!success) {
+        debugPrint('Validation failed, not proceeding with save');
+        return;
+      }
 
       final message = _isEditMode
           ? '${transactionType == TransactionType.sale ? "Sale" : "Sale Order"} ${AppConstants.updateSuccess}'
           : '${transactionType == TransactionType.sale ? "Sale" : "Sale Order"} ${AppConstants.saveSuccess}';
 
       if (isSaveAndNew && !_isEditMode) {
-        setState(() {
-          _customerController.clear();
-          _invoiceController.text = (int.parse(_invoiceController.text) + 1).toString();
-          _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
-          _receivedController.clear();
-          _dueDateController.text = transactionType == TransactionType.saleOrder
-              ? DateFormat('dd MMM yyyy').format(DateTime.now())
-              : '';
-          _isReceivedChecked = false;
-          _balanceDue = 0.0;
-        }); 
         if (_isMounted) {
+          setState(() {
+            _customerController.clear();
+            _invoiceController.text =
+                (int.parse(_invoiceController.text) + 1).toString();
+            _dateController.text =
+                DateFormat('dd MMM yyyy').format(DateTime.now());
+            _receivedController.clear();
+            _dueDateController.text =
+                transactionType == TransactionType.saleOrder
+                    ? DateFormat('dd MMM yyyy').format(DateTime.now())
+                    : '';
+            _isReceivedChecked = false;
+            _balanceDue = 0.0;
+            _saleItems = [];
+          });
           showTopSnackBar(
             Overlay.of(context),
             CustomSnackBar.success(
@@ -192,13 +209,18 @@ class SaleScreenController {
         }
       } else {
         if (_isMounted) {
-          Navigator.pop(context, true);
           showTopSnackBar(
             Overlay.of(context),
             CustomSnackBar.success(
               message: message,
             ),
           );
+          // Use Future.microtask to ensure snackbar shows before navigation
+          Future.microtask(() {
+            if (_isMounted) {
+              Navigator.pop(context, true);
+            }
+          });
         }
       }
     } catch (e, stackTrace) {
