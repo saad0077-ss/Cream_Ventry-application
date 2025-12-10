@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:flutter/material.dart';
@@ -22,6 +23,9 @@ class CategoryAddController {
   String? selectedImagePath; // Can be file path (mobile) or base64 (web)
   Uint8List? selectedImageBytes; // For web preview
 
+  // ADD THIS: Callback for UI updates
+  VoidCallback? onImageUpdated;
+
   CategoryAddController({
     CategoryModel? categoryToEdit,
     bool isEditing = false,
@@ -44,6 +48,16 @@ class CategoryAddController {
           debugPrint('Error initializing image file: $e');
         }
       }
+      
+      // For web, if it's a base64 image, extract the bytes for preview
+      if (kIsWeb && selectedImagePath != null && selectedImagePath!.startsWith('data:image')) {
+        try {
+          final base64String = selectedImagePath!.split(',')[1];
+          selectedImageBytes = base64Decode(base64String);
+        } catch (e) {
+          debugPrint('Error decoding base64 image: $e');
+        }
+      }
     }
   }
 
@@ -56,7 +70,8 @@ class CategoryAddController {
   // Check if image is selected (works for both web and mobile)
   bool get hasImage {
     if (kIsWeb) {
-      return selectedImagePath != null && selectedImagePath!.isNotEmpty;
+      return selectedImageBytes != null || 
+             (selectedImagePath != null && selectedImagePath!.isNotEmpty);
     } else {
       return selectedImage != null || 
              (selectedImagePath != null && selectedImagePath!.isNotEmpty);
@@ -114,5 +129,6 @@ class CategoryAddController {
   void dispose() {
     nameController.dispose();
     descriptionController.dispose();
+    onImageUpdated = null; // ADD THIS: Clear callback on dispose
   }
 }

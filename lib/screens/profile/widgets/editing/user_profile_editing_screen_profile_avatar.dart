@@ -2,13 +2,29 @@ import 'package:cream_ventory/core/utils/profile/edit_profile_logics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class ProfileAvatar extends StatelessWidget {
+class ProfileAvatar extends StatefulWidget {
   final EditProfileLogic logic;
 
   const ProfileAvatar({super.key, required this.logic});
 
   @override
-  Widget build(BuildContext context) { 
+  State<ProfileAvatar> createState() => _ProfileAvatarState();
+}
+
+class _ProfileAvatarState extends State<ProfileAvatar> {
+  @override
+  void initState() {
+    super.initState();
+    // Set the callback to rebuild this widget when image changes
+    widget.logic.onImageLoaded = () {
+      if (mounted) {
+        setState(() {});
+      }
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
@@ -28,11 +44,11 @@ class ProfileAvatar extends StatelessWidget {
             child: CircleAvatar(
               radius: 62,
               backgroundImage: kIsWeb
-                  ? (logic.imageBytes != null
-                      ? MemoryImage(logic.imageBytes!)
+                  ? (widget.logic.imageBytes != null
+                      ? MemoryImage(widget.logic.imageBytes!)
                       : const AssetImage('assets/image/account.png'))
-                  : (logic.profileImage != null
-                      ? FileImage(logic.profileImage!)
+                  : (widget.logic.profileImage != null
+                      ? FileImage(widget.logic.profileImage!)
                       : const AssetImage('assets/image/account.png')) as ImageProvider,
             ),
           ),
@@ -42,7 +58,7 @@ class ProfileAvatar extends StatelessWidget {
           right: 0,
           child: GestureDetector(
             onTap: () async {
-              await logic.pickImage(context);
+              await widget.logic.pickImage(context);
             },
             child: Container(
               decoration: BoxDecoration(
@@ -64,7 +80,7 @@ class ProfileAvatar extends StatelessWidget {
               child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
             ),
           ),
-        ),
+        ), 
       ],
     );
   }

@@ -71,6 +71,7 @@ class EditProfileLogic {
           imageBytes = result.files.single.bytes;
           profileImage = null;
           pickedFile = XFile.fromData(imageBytes!);
+          onImageLoaded?.call(); // ADD THIS LINE
         }
       } else {
         pickedFile = await picker.pickImage(
@@ -78,15 +79,12 @@ class EditProfileLogic {
           imageQuality: 80,
         );
         if (pickedFile != null) {
-          profileImage = File(pickedFile.path);
+          final permanentPath =
+              await _saveImagePermanently(File(pickedFile.path));
+          profileImage = File(permanentPath);
           imageBytes = null;
-          onImageLoaded?.call();
+          onImageLoaded?.call(); // This line already exists, keep it
         }
-      }
-
-      if (pickedFile != null && !kIsWeb) {
-        final permanentPath = await _saveImagePermanently(File(pickedFile.path));
-        profileImage = File(permanentPath);
       }
 
       // Optional: Show small success feedback
@@ -138,7 +136,8 @@ class EditProfileLogic {
       if (newUsername.length < 3) {
         showTopSnackBar(
           Overlay.of(context),
-          const CustomSnackBar.error(message: "Username must be at least 3 characters"),
+          const CustomSnackBar.error(
+              message: "Username must be at least 3 characters"),
         );
         return false;
       }
@@ -147,13 +146,15 @@ class EditProfileLogic {
         showTopSnackBar(
           Overlay.of(context),
           const CustomSnackBar.error(
-            message: "Username can only contain lowercase letters, numbers, and _",
+            message:
+                "Username can only contain lowercase letters, numbers, and _",
           ),
         );
         return false;
       }
 
-      if (!RegExp(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$').hasMatch(newEmail)) {
+      if (!RegExp(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$')
+          .hasMatch(newEmail)) {
         showTopSnackBar(
           Overlay.of(context),
           const CustomSnackBar.error(message: "Please enter a valid email"),
@@ -178,8 +179,12 @@ class EditProfileLogic {
         distributionName: distributionController.text.trim().isEmpty
             ? null
             : distributionController.text.trim(),
-        phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
-        address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
+        phone: phoneController.text.trim().isEmpty
+            ? null
+            : phoneController.text.trim(),
+        address: addressController.text.trim().isEmpty
+            ? null
+            : addressController.text.trim(),
         profileImagePath: imagePath,
       );
 

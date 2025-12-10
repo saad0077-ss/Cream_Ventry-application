@@ -1,9 +1,9 @@
 import 'package:cream_ventory/screens/controller/category_add_controller.dart';
 import 'package:cream_ventory/widgets/text_field.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-
-class CategoryImagePicker extends StatelessWidget {
+class CategoryImagePicker extends StatefulWidget {
   final CategoryAddController controller;
   final Function onImagePicked;
 
@@ -14,19 +14,41 @@ class CategoryImagePicker extends StatelessWidget {
   });
 
   @override
+  State<CategoryImagePicker> createState() => _CategoryImagePickerState();
+}
+ 
+class _CategoryImagePickerState extends State<CategoryImagePicker> {
+  @override
+  void initState() {
+    super.initState();
+    // Set up callback to rebuild when image changes
+    widget.controller.onImageUpdated = () {
+      if (mounted) {
+        setState(() {});
+      }
+    };
+  }  
+
+  @override
   Widget build(BuildContext context) {
-    
+    // Check if there's an image (web or mobile)
+    final hasImage = kIsWeb    
+        ? widget.controller.selectedImageBytes != null
+        : widget.controller.selectedImage != null;
+
     return GestureDetector(
-      onTap: controller.isPickingImage ? null : () => onImagePicked(),
-      child: CircleAvatar( 
-        radius:48,
-        backgroundImage: controller.selectedImage != null
-            ? FileImage(controller.selectedImage!)
+      onTap: widget.controller.isPickingImage 
+          ? null 
+          : () => widget.onImagePicked(),
+      child: CircleAvatar(
+        radius: 48,
+        backgroundColor: hasImage ? null : Colors.grey[200],
+        backgroundImage: hasImage
+            ? (kIsWeb
+                ? MemoryImage(widget.controller.selectedImageBytes!)
+                : FileImage(widget.controller.selectedImage!)) as ImageProvider
             : null,
-        backgroundColor: controller.selectedImage == null
-            ? Colors.grey[200]
-            : null,
-        child: controller.selectedImage == null
+        child: !hasImage
             ? Icon(
                 Icons.add_a_photo,
                 size: 32,
@@ -53,7 +75,7 @@ class CategoryErrorText extends StatelessWidget {
     if (errorText == null) return const SizedBox.shrink();
     
     return Padding(
-      padding: EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(top: 8),
       child: Text(
         errorText!,
         style: const TextStyle(
@@ -84,7 +106,7 @@ class CategoryFormFields extends StatelessWidget {
           errorText: controller.nameError,
           controller: controller.nameController,
         ),
-        SizedBox(height: 20), 
+        const SizedBox(height: 20), 
         CustomTextField(
           labelText: 'Category Description',
           errorText: controller.descriptionError,

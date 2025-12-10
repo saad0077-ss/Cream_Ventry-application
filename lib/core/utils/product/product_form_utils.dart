@@ -38,28 +38,30 @@ class ProductFormUtils {
       await CategoryDB.loadSampleCategories();
       final categories = CategoryDB.categoryNotifier.value;
 
-      if (existingProduct != null) {
-        _populateExistingProductFields(
-          existingProduct,
-          categories,
-          nameController,
-          stockController,
-          salePriceController,
-          purchasePriceController,
-          creationDateCallback,
-          selectedCategoryCallback,
-          selectedImageCallback,
-          selectedImageBytesCallback,
-          categoryErrorCallback,
-        );
-      } else {
-        _initializeNewProductFields(
-          categories,
-          creationDateCallback,
-          selectedCategoryCallback,
-          categoryErrorCallback,
-        );
-      }
+      setStateCallback(() {
+        if (existingProduct != null) {
+          _populateExistingProductFields(
+            existingProduct,
+            categories,
+            nameController,
+            stockController,
+            salePriceController,
+            purchasePriceController,
+            creationDateCallback,
+            selectedCategoryCallback,
+            selectedImageCallback,
+            selectedImageBytesCallback,
+            categoryErrorCallback,
+          );
+        } else {
+          _initializeNewProductFields(
+            categories,
+            creationDateCallback,
+            selectedCategoryCallback,
+            categoryErrorCallback,
+          );
+        }
+      });
     } catch (e) {
       _handleError(context, 'Error initializing fields: $e');
     } finally {
@@ -86,16 +88,51 @@ class ProductFormUtils {
     purchasePriceController.text = existingProduct.purchasePrice.toString();
     creationDateCallback(existingProduct.creationDate);
 
+    debugPrint('🖼️ Loading image for product: ${existingProduct.name}');
+    debugPrint('🖼️ Image path: ${existingProduct.imagePath}');
+    debugPrint('🖼️ Is asset: ${existingProduct.isAsset}');
+    debugPrint('🖼️ Is web: $kIsWeb');
+
+    // Handle image loading
     if (kIsWeb) {
-      selectedImageCallback(null);
       try {
-        selectedImageBytesCallback(base64Decode(existingProduct.imagePath));
+        final imageBytes = base64Decode(existingProduct.imagePath);
+        debugPrint(
+            '✅ Web: Successfully decoded image, bytes length: ${imageBytes.length}');
+        selectedImageBytesCallback(imageBytes);
+        selectedImageCallback(null);
       } catch (e) {
+        debugPrint('❌ Error decoding image for web: $e');
         selectedImageBytesCallback(null);
+        selectedImageCallback(null);
       }
     } else {
-      selectedImageCallback(existingProduct.isAsset ? null : File(existingProduct.imagePath));
-      selectedImageBytesCallback(null);
+      try {
+        if (existingProduct.isAsset) {
+          debugPrint('⚠️ Product is marked as asset, skipping file load');
+          selectedImageCallback(null);
+          selectedImageBytesCallback(null);
+        } else {
+          final imageFile = File(existingProduct.imagePath);
+          final exists = imageFile.existsSync();
+          debugPrint('📁 Image file exists: $exists');
+
+          if (exists) {
+            debugPrint('✅ Mobile: Successfully loaded image file');
+            selectedImageCallback(imageFile);
+            selectedImageBytesCallback(null);
+          } else {
+            debugPrint(
+                '❌ Image file does not exist: ${existingProduct.imagePath}');
+            selectedImageCallback(null);
+            selectedImageBytesCallback(null);
+          }
+        }
+      } catch (e) {    
+        debugPrint('❌ Error loading image for mobile: $e');
+        selectedImageCallback(null);
+        selectedImageBytesCallback(null);
+      }
     }
 
     if (categories.isNotEmpty) {
@@ -104,7 +141,8 @@ class ProductFormUtils {
         orElse: () => categories.first,
       ));
     } else {
-      categoryErrorCallback('No categories available. Please add a category first.');
+      categoryErrorCallback(
+          'No categories available. Please add a category first.');
     }
   }
 
@@ -114,11 +152,13 @@ class ProductFormUtils {
     void Function(CategoryModel?) selectedCategoryCallback,
     void Function(String?) categoryErrorCallback,
   ) {
-    creationDateCallback(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()));
+    creationDateCallback(
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()));
     if (categories.isNotEmpty) {
       selectedCategoryCallback(categories.first);
     } else {
-      categoryErrorCallback('No categories available. Please add a category first.');
+      categoryErrorCallback(
+          'No categories available. Please add a category first.');
     }
   }
 
@@ -272,5 +312,5 @@ class ProductFormUtils {
         ),
       );
     }
-  } 
+  }
 }
