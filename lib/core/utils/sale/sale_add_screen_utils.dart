@@ -506,13 +506,11 @@ class SaleAddUtils {
                                     debugPrint(
                                       'Canceling sale - Product: ${item.productName}, ID: ${item.id}, Quantity Restored: ${item.quantity}',
                                     );
-                                    await ProductDB.restockProduct(
-                                        item.id, item.quantity);
                                   }
                                   await SaleItemDB.clearSaleItems();
                                   if (context.mounted) {
                                     Navigator.pop(context, true);
-                                  }
+                                  }          
                                   debugPrint(
                                       'Back navigation confirmed, stock restored');
                                 } catch (error) {
