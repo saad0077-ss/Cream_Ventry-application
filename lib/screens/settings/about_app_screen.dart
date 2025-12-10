@@ -97,7 +97,7 @@ class AboutAppScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
-                                'Version 1.0.5',
+                                'Version 1.0.6',
                                 style: TextStyle(
                                   color: Colors.white, 
                                   fontSize: 14,
@@ -283,12 +283,12 @@ class AboutAppScreen extends StatelessWidget {
                       title: 'App Information',
                       child: Column(
                         children: [
-                          _buildInfoRow('Version', '1.0.5'), 
-                          _buildInfoRow('Build Number', '5'),
+                          _buildInfoRow('Version', '1.0.6'), 
+                          _buildInfoRow('Build Number', '6'),
                           _buildInfoRow('Platform', 'Android & Web'),
                           _buildInfoRow('Framework', 'Flutter'), 
                           _buildInfoRow('Last Updated', 'December 2025'),
-                        ],
+                        ], 
                       ),
                     ),
         
