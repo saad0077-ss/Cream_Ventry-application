@@ -29,24 +29,67 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
   bool isPasswordVisible = false;
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Detect small screens and split-screen mode
+    final bool isSmallScreen = screenWidth < 420;
+    final bool isSplitScreen = screenHeight < 600;
+    
+    // Responsive spacing
+    final double topSpacing = () {
+      if (isSplitScreen) return 12.0;
+      if (isSmallScreen) return 15.0;
+      return 20.0;
+    }();
+    
+    final double fieldSpacing = () {
+      if (isSplitScreen) return 16.0;
+      if (isSmallScreen) return 20.0;
+      return 25.0;
+    }();
+    
+    final double afterPasswordSpacing = () {
+      if (isSplitScreen) return 12.0;
+      if (isSmallScreen) return 15.0;
+      return 19.0;
+    }();
+    
+    final double buttonTopSpacing = () {
+      if (isSplitScreen) return 12.0;
+      if (isSmallScreen) return 15.0;
+      return 19.0;
+    }();
+    
+    final double afterButtonSpacing = () {
+      if (isSplitScreen) return 14.0;
+      if (isSmallScreen) return 16.0;
+      return 20.0;
+    }();
+
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              height: 20,
-            ), // Responsive height (~2.5% of 812px design height)
+            SizedBox(height: topSpacing),
             CustomTextFormField(
-              labelText: 'Username or Email' ,
+              labelText: 'Username or Email',
               controller: _usernameController,
               hintText: 'Username or Email',
               validator: LoginFunctions.validateUsernameOrEmail, 
             ),
-            SizedBox(
-              height: 25,
-            ), 
+            SizedBox(height: fieldSpacing), 
             CustomTextFormField(
               labelText: 'Password',
               controller: _passwordController,
@@ -57,24 +100,20 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
               togglePasswordVisibility: () {
                 setState(() {
                   isPasswordVisible = !isPasswordVisible;
-                });
-              }, 
+                }); 
+              },  
             ),
-            SizedBox(
-              height: 19,
-            ), // Responsive height (~2.3% of 812px design height)
-            SizedBox(
-              height: 19,
-            ), 
+            SizedBox(height: afterPasswordSpacing),
+            SizedBox(height: buttonTopSpacing), 
             AuthButton(
               onPressed: _handleLogin,
               primaryText: 'SIGN',
               secondaryText: 'IN',
             ),
-            SizedBox(
-              height: 20,
-            ), // Responsive height (~2.5% of 812px design height)
+            SizedBox(height: afterButtonSpacing),
             CreateAccount(),
+            // Add bottom padding for better scrolling in split-screen
+            if (isSplitScreen) SizedBox(height: 8),
           ],
         ),
       ),

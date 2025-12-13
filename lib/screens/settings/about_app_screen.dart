@@ -97,12 +97,12 @@ class AboutAppScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
-                                'Version 1.0.6',
+                                'Version 1.0.7',
                                 style: TextStyle(
                                   color: Colors.white, 
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                ),
+                                ), 
                               ),
                             ),
                           ],
@@ -116,7 +116,7 @@ class AboutAppScreen extends StatelessWidget {
         
             // Content
             SliverToBoxAdapter(
-              child: Padding(
+              child: Padding( 
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,8 +283,8 @@ class AboutAppScreen extends StatelessWidget {
                       title: 'App Information',
                       child: Column(
                         children: [
-                          _buildInfoRow('Version', '1.0.6'), 
-                          _buildInfoRow('Build Number', '6'),
+                          _buildInfoRow('Version', '1.0.7'), 
+                          _buildInfoRow('Build Number', '7'),
                           _buildInfoRow('Platform', 'Android & Web'),
                           _buildInfoRow('Framework', 'Flutter'), 
                           _buildInfoRow('Last Updated', 'December 2025'),

@@ -10,10 +10,15 @@ import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_scree
 import 'package:cream_ventory/screens/profile/widgets/profile/user_profile_screen_header.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDisplayPage extends StatelessWidget {
   const ProfileDisplayPage({super.key});
+
+  Future<bool> _isDemoUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isDemoUser') ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,47 +48,94 @@ class ProfileDisplayPage extends StatelessWidget {
                 }
 
                 final user = userSnapshot.data!;
-                return ValueListenableBuilder<Box<UserModel>>(
-                  valueListenable: UserDB.getUserProfileListenable(user.id),
-                  builder: (context, box, _) {
-                    final currentUser = box.get(user.id);
-                    if (currentUser == null) {
-                      return const Center(child: Text('User data not found'));
+                
+                // Check if it's a demo user
+                return FutureBuilder<bool>(       
+                  future: _isDemoUser(),
+                  builder: (context, demoSnapshot) {
+                    if (demoSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Color(0xFF667EEA)),
+                      );
                     }
 
-                    return Container(
-                      decoration: const BoxDecoration(gradient: AppTheme.appGradient),
-                      child: CustomScrollView(
-                        slivers: [
-                          ProfileHeader(profile: currentUser, logic: logic),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                children: [
-                                  FinancialSummarySection(logic: logic),
-                                  const SizedBox(height: 16),
-                                  ContactInfoSection(profile: currentUser),
-                                  const SizedBox(height: 16),
-                                  const AccountStatsSection(),
-                                  const SizedBox(height: 16),
-                                  AddressSection(profile: currentUser),
-                                  const SizedBox(height: 24),
-                                  AccountActionsSection(logic: logic),
-                                  const SizedBox(height: 30),
-                                ],
+                    final isDemoUser = demoSnapshot.data ?? false;
+
+                    // For demo user, don't use ValueListenableBuilder
+                    if (isDemoUser) {
+                      return Container(
+                        decoration: const BoxDecoration(gradient: AppTheme.appGradient),
+                        child: CustomScrollView(
+                          slivers: [
+                            ProfileHeader(profile: user, logic: logic),
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  children: [
+                                    FinancialSummarySection(logic: logic),
+                                    const SizedBox(height: 16),
+                                    ContactInfoSection(profile: user),
+                                    const SizedBox(height: 16),
+                                    const AccountStatsSection(),
+                                    const SizedBox(height: 16),
+                                    AddressSection(profile: user),
+                                    const SizedBox(height: 24),
+                                    AccountActionsSection(logic: logic),
+                                    const SizedBox(height: 30),
+                                  ],
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    // For regular users, use ValueListenableBuilder
+                    return ValueListenableBuilder<Box<UserModel>>(
+                      valueListenable: UserDB.getUserProfileListenable(user.id),
+                      builder: (context, box, _) {
+                        final currentUser = box.get(user.id);
+                        if (currentUser == null) {
+                          return const Center(child: Text('User data not found'));
+                        }
+
+                        return Container(
+                          decoration: const BoxDecoration(gradient: AppTheme.appGradient),
+                          child: CustomScrollView(
+                            slivers: [
+                              ProfileHeader(profile: currentUser, logic: logic),
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    children: [
+                                      FinancialSummarySection(logic: logic),
+                                      const SizedBox(height: 16),
+                                      ContactInfoSection(profile: currentUser),
+                                      const SizedBox(height: 16),
+                                      const AccountStatsSection(),
+                                      const SizedBox(height: 16),
+                                      AddressSection(profile: currentUser),
+                                      const SizedBox(height: 24),
+                                      AccountActionsSection(logic: logic),
+                                      const SizedBox(height: 30),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
                 );
               },
             );
           }
-
+  
           return const Center(
             child: Text('Please log in to view your profile'),
           );

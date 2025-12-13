@@ -107,22 +107,43 @@ class _TextContainerState extends State<TextContainer>
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final bool isDesktop = screenWidth > 600;
-    final bool isSmallScreen = screenWidth < 375;
+    final bool isSmallScreen = screenWidth < 425;   
     final bool isSplitScreen = screenHeight < 600;
-
-    // Responsive sizing
+ 
+    // Responsive sizing with more aggressive scaling for small screens
     final double containerHeight = isSplitScreen 
-        ? screenHeight * 0.30 
-        : (isSmallScreen ? 190.0 : 219.24.h);
-    final double fontSize = isDesktop ? 20 : (isSmallScreen ? 14 : 16);
-    final double padding = isDesktop ? 7 : (isSmallScreen ? 12 : 15);
-    final double borderRadius = isDesktop ? 6.w : (isSmallScreen ? 12.w : 15.w);
+        ? screenHeight * 0.20
+        : isSmallScreen 
+            ? 190.0 
+            : 219.24.h;
+    
+    final double fontSize = isDesktop 
+        ? 20 
+        : isSmallScreen 
+            ? 10 
+            : 16;   
+    
+    final double padding = isDesktop 
+        ? 7 
+        : isSmallScreen 
+            ? 8 
+            : 15;
+    
+    final double borderRadius = isDesktop 
+        ? 6.w 
+        : isSmallScreen 
+            ? 10.w 
+            : 15.w;
+    
+    final double borderWidth = isSmallScreen ? 1.0 : 1.5;
+    
+    final double blurAmount = isSmallScreen ? 10.0 : 15.0;
 
     return CustomPositioned(
       type: PositionedType.basic,
       bottom: isSplitScreen ? screenHeight * 0.60 : 539.h,
-      left: isSmallScreen ? 14.w : 18.75.w,
-      right: isSmallScreen ? 14.w : 18.75.w,
+      left: isSmallScreen ? 10.w : 18.75.w,
+      right: isSmallScreen ? 10.w : 18.75.w,
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: SlideTransition(
@@ -144,27 +165,27 @@ class _TextContainerState extends State<TextContainer>
                 ),
                 border: Border.all(
                   color: Colors.white.withOpacity(0.3),
-                  width: 1.5,
+                  width: borderWidth,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.25),
-                    blurRadius: isSmallScreen ? 20 : 25,
-                    spreadRadius: -5,
-                    offset: Offset(0, isSmallScreen ? 10 : 12),
+                    blurRadius: isSmallScreen ? 15 : 25,
+                    spreadRadius: isSmallScreen ? -3 : -5,
+                    offset: Offset(0, isSmallScreen ? 8 : 12),
                   ),
                   BoxShadow(
                     color: Colors.white.withOpacity(0.1),
-                    blurRadius: 15,
-                    spreadRadius: -8,
+                    blurRadius: isSmallScreen ? 12 : 15,
+                    spreadRadius: isSmallScreen ? -6 : -8,
                     offset: const Offset(0, -4),
                   ),
                   // Colored glow effect
                   BoxShadow(
-                    color: const Color(0xFF764ba2).withOpacity(0.2),
-                    blurRadius: 30,
-                    spreadRadius: -10,
-                    offset: const Offset(0, 8),
+                    color: const Color(0xFF764ba2).withOpacity(isSmallScreen ? 0.15 : 0.2),
+                    blurRadius: isSmallScreen ? 20 : 30,
+                    spreadRadius: isSmallScreen ? -8 : -10,
+                    offset: Offset(0, isSmallScreen ? 6 : 8),
                   ),
                 ],
               ),
@@ -172,8 +193,8 @@ class _TextContainerState extends State<TextContainer>
                 borderRadius: BorderRadius.circular(borderRadius),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(
-                    sigmaX: isSmallScreen ? 12 : 15,
-                    sigmaY: isSmallScreen ? 12 : 15,
+                    sigmaX: blurAmount,
+                    sigmaY: blurAmount,
                   ),
                   child: Container(
                     padding: EdgeInsets.all(padding),
@@ -206,25 +227,29 @@ class _TextContainerState extends State<TextContainer>
                             fontFamily: 'holtwood',
                             color: Colors.white,
                             fontSize: fontSize,
-                            letterSpacing: isSmallScreen ? 0.8 : 1,
-                            height: isSplitScreen ? 1.5 : 1.7,
+                            letterSpacing: isSmallScreen ? 0.5 : 1,
+                            height: isSplitScreen 
+                                ? 1.5 
+                                : isSmallScreen 
+                                    ? 1.55 
+                                    : 1.7,
                             fontWeight: FontWeight.w500,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.4),
-                                offset: const Offset(0, 3),
-                                blurRadius: 8,
+                                offset: Offset(0, isSmallScreen ? 2 : 3),
+                                blurRadius: isSmallScreen ? 6 : 8,
                               ),
                               Shadow(
                                 color: const Color(0xFF764ba2).withOpacity(0.3),
                                 offset: const Offset(0, 0),
-                                blurRadius: 15,
+                                blurRadius: isSmallScreen ? 12 : 15,
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
+                    ),   
                   ),
                 ),
               ),

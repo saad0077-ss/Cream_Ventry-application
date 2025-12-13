@@ -6,7 +6,6 @@ import 'package:cream_ventory/widgets/container.dart';
 import 'package:cream_ventory/widgets/positioned.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
  
 class ScreenSignUp extends StatefulWidget {
   const ScreenSignUp({super.key});
@@ -60,6 +59,7 @@ class _ScreenSignUpState extends State<ScreenSignUp>
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     // Use desktop layout for screens >= 1000px
     if (screenWidth >= 1000) {
@@ -71,16 +71,31 @@ class _ScreenSignUpState extends State<ScreenSignUp>
       );
     }
 
-    // Mobile/Tablet layout
-    // Define responsive sizes using ScreenUtil
-    final double bottomPadding = 21.3.h; // ~3% of 812px design height
-    final double horizontalPadding = 22.w; // ~6% of 375px design width
-    // Adjust container height for web/desktop to avoid overflow
-    final double containerHeight = kIsWeb
-        ? MediaQuery.of(context).size.height * 0.48  // Larger height for web
-        : 395.h; // ~49% of 812px design height
-    final double containerPaddingHorizontal = 22.5.w; // ~6% of 375px design width
-    final double containerPaddingVertical = 20.h; // ~3% of 812px design height
+    // Mobile/Tablet layout with responsive height
+    final bool isSmallScreen = screenWidth < 420;
+    final bool isSplitScreen = screenHeight < 600;
+    
+    final double bottomPadding = isSmallScreen ? 18.0 : 21.3;
+    final double horizontalPadding = isSmallScreen ? 16.0 : 22.0;
+    
+    // Responsive container height (48-52% of screen, with min/max constraints)
+    final double containerHeight = () {
+      if (kIsWeb) {
+        return (screenHeight * 0.48).clamp(350.0, 480.0);
+      } else if (isSplitScreen) {
+        // Split screen mode - use more vertical space
+        return (screenHeight * 0.55).clamp(300.0, 400.0);
+      } else if (isSmallScreen) {
+        // Small screens
+        return (screenHeight * 0.46).clamp(340.0, 390.0);
+      } else {
+        // Regular screens
+        return (screenHeight * 0.48).clamp(360.0, 450.0);
+      }
+    }();
+    
+    final double containerPaddingHorizontal = isSmallScreen ? 16.0 : 22.5;
+    final double containerPaddingVertical = isSmallScreen ? 14.0 : 20.0;
 
     return Scaffold( 
       body: Stack(
@@ -106,9 +121,9 @@ class _ScreenSignUpState extends State<ScreenSignUp>
           ),
           // Semi-transparent overlay for better contrast
           Container(color: const Color.fromARGB(49, 0, 0, 0)),
-          // Text container, assumed to handle its own responsiveness
+          // Text container
           TextContainer(),
-          // Center text for sign-up, assumed to handle its own responsiveness
+          // Center text for sign-up
           CenterTextSignUp(),
           // Positioned container for form fields with breathing animation
           CustomPositioned(
@@ -127,15 +142,18 @@ class _ScreenSignUpState extends State<ScreenSignUp>
                       vertical: containerPaddingVertical,
                     ),
                     height: containerHeight,
-                    width: MediaQuery.of(context).size.width - (2 * horizontalPadding),
+                    width: screenWidth - (2 * horizontalPadding),
                     color: Colors.black26,
-                    child: SingleChildScrollView(child: FormFeild()),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),   
+                      child: FormFeild(),
+                    ),
                   ),
                 );
               },
             ),
           ),
-        ],
+        ], 
       ),
     );
   }

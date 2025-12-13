@@ -15,7 +15,7 @@ class UserDB {
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(UserModelAdapter());
       }
-      await Hive.openBox<UserModel>(_userBoxName); 
+      await Hive.openBox<UserModel>(_userBoxName);
       _isInitialized = true;
     }
   }
@@ -139,67 +139,70 @@ class UserDB {
 
   /// Update user profile information
   static Future<bool> updateProfile({
-  required String userId,
-  String? name,
-  String? username,
-  String? email,
-  String? distributionName,
-  String? phone,
-  String? address,
-  String? profileImagePath,
-}) async {
-  try {
-    await initializeHive();
-    final box = Hive.box<UserModel>(_userBoxName);
-    final user = box.get(userId);
+    required String userId,
+    String? name,
+    String? username,
+    String? email,
+    String? distributionName,
+    String? phone,
+    String? address,
+    String? profileImagePath,
+  }) async {
+    try {
+      await initializeHive();
+      final box = Hive.box<UserModel>(_userBoxName);
+      final user = box.get(userId);
 
-    if (user == null) return false;
+      if (user == null) return false;
 
-    // Normalize
-    final normalizedUsername = username?.toLowerCase().trim();
-    final normalizedEmail = email?.toLowerCase().trim(); 
+      // Normalize
+      final normalizedUsername = username?.toLowerCase().trim();
+      final normalizedEmail = email?.toLowerCase().trim();
 
-    // Skip if no change
-    final usernameChanged = normalizedUsername != null && normalizedUsername != user.username;
-    final emailChanged = normalizedEmail != null && normalizedEmail != user.email;
+      // Skip if no change
+      final usernameChanged =
+          normalizedUsername != null && normalizedUsername != user.username;
+      final emailChanged =
+          normalizedEmail != null && normalizedEmail != user.email;
 
-    // === CHECK UNIQUENESS ===
-    if (usernameChanged || emailChanged) {
-      for (final u in box.values) {
-        if (u.id == userId) continue;
+      // === CHECK UNIQUENESS ===
+      if (usernameChanged || emailChanged) {
+        for (final u in box.values) {
+          if (u.id == userId) continue;
 
-        if (usernameChanged && u.username == normalizedUsername) {
-          debugPrint('Username already exists: $normalizedUsername');
-          return false;
-        }
-        if (emailChanged && u.email == normalizedEmail) {
-          debugPrint('Email already exists: $normalizedEmail');
-          return false;
+          if (usernameChanged && u.username == normalizedUsername) {
+            debugPrint('Username already exists: $normalizedUsername');
+            return false;
+          }
+          if (emailChanged && u.email == normalizedEmail) {
+            debugPrint('Email already exists: $normalizedEmail');
+            return false;
+          }
         }
       }
+
+      // === SAVE ===
+      final updatedUser = UserModel(
+        id: user.id,
+        email: normalizedEmail ?? user.email,
+        username: normalizedUsername ?? user.username,
+        password: user.password,
+        name: name?.trim(),
+        distributionName: distributionName?.trim(),
+        phone: phone?.trim(),
+        address: address?.trim(),
+        profileImagePath: profileImagePath,
+      );
+
+      await box.put(userId, updatedUser);
+      debugPrint(
+          'Profile updated: ${updatedUser.username} (${updatedUser.email})');
+      return true;
+    } catch (e) {
+      debugPrint('Update error: $e');
+      return false;
     }
-
-    // === SAVE ===
-    final updatedUser = UserModel(
-      id: user.id,
-      email: normalizedEmail ?? user.email,
-      username: normalizedUsername ?? user.username,
-      password: user.password,
-      name: name?.trim(),
-      distributionName: distributionName?.trim(),
-      phone: phone?.trim(),
-      address: address?.trim(),
-      profileImagePath: profileImagePath,
-    );
-
-    await box.put(userId, updatedUser);
-    debugPrint('Profile updated: ${updatedUser.username} (${updatedUser.email})');
-    return true;
-  } catch (e) {
-    debugPrint('Update error: $e');
-    return false;
   }
-}
 
   /// Update user password
   static Future<bool> updatePassword({
@@ -241,22 +244,31 @@ class UserDB {
   }
 
   /// Get current logged-in user
+  /// Get current logged-in user
   static Future<UserModel> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('currentUserId');
+    final isDemoUser = prefs.getBool('isDemoUser') ?? false;
+
     if (userId == null) {
       throw Exception('No current user found');
     }
 
+    // If it's a demo user, return the demo user model
+    if (isDemoUser && userId == 'demo_0') {
+      return LoginFunctions.createDemoUser();
+    }
+
+    // Otherwise get from Hive database
     final box = Hive.box<UserModel>(_userBoxName);
-    final user = box.get(userId);      
+    final user = box.get(userId);
     if (user == null) {
       throw Exception('User not found in database');
     }
     return user;
-  }
+  } 
 
-  /// Logout user (clears session) 
+  /// Logout user (clears session)
   static Future<void> logoutUser() async {
     await setLoggedInStatus(false, '');
   }
@@ -287,8 +299,6 @@ class UserDB {
       return false;
     }
   }
-
-
 
   /// Get user profile data only
   static Future<Map<String, dynamic>?> getUserProfile(String userId) async {
@@ -348,7 +358,7 @@ class UserDB {
       } else {
         await prefs.remove('isLoggedIn');
         await prefs.remove('currentUserId');
-        debugPrint('Cleared logged-in status'); 
+        debugPrint('Cleared logged-in status');
         return false;
       }
     } catch (e) {

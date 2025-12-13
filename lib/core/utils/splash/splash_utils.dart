@@ -52,7 +52,7 @@ class NavigationUtils {
         ),
       );
     },
-    transitionDuration: Duration(milliseconds: 1200), 
+    transitionDuration: Duration(milliseconds: 1200),  
   ),
 );
 

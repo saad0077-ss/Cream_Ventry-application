@@ -72,7 +72,7 @@
 //       bottom: 440.h, // ~50% of 812px design height 
 //       child: Center(
 //         child: CustomTextSpan(
-//           spans: [
+//           spans: [ 
 //             TextSpanConfig(
 //               text: 'SIGN ',
 //               style: TextStyle(
@@ -150,7 +150,27 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = MediaQuery.of(context).size.width >= 700;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isDesktop = screenWidth >= 700;
+    final bool isMediumScreen = screenWidth >= 425 && screenWidth < 730; 
+    final bool isSmallScreen = screenWidth < 425;
+    
+    // Responsive font size
+    final double fontSize = isDesktop 
+        ? 60 
+        : isSmallScreen  
+            ? 19 
+            : isMediumScreen  
+                ? 30 
+                : 40;
+                   
+    // Responsive padding
+    final EdgeInsets padding = isSmallScreen
+        ? const EdgeInsets.symmetric(horizontal: 15, vertical: 8)
+        : isMediumScreen
+            ? const EdgeInsets.symmetric(horizontal: 18, vertical: 10)
+            : const EdgeInsets.symmetric(horizontal: 28, vertical: 14);          
+    
     return CustomPositioned(
       type: PositionedType.basic,
       left: 0,
@@ -162,9 +182,9 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
           position: _slideAnimation,
           child: Center(               
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: padding,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 12 : 16),
                 gradient: LinearGradient(
                   colors: [
                     Colors.white.withOpacity(0.15),
@@ -174,7 +194,7 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
+                    blurRadius: isSmallScreen ? 15 : 20,
                     spreadRadius: -5,
                   ),
                 ],
@@ -193,15 +213,15 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
                     TextSpanConfig(
                       text: 'CREATE',
                       style: TextStyle(
-                        fontSize: isDesktop ? 60 : 30,
+                        fontSize: fontSize,
                         fontFamily: 'holtwood',
                         color: Colors.white,
-                        letterSpacing: 2,
+                        letterSpacing: isSmallScreen ? 1.5 : 2,
                         shadows: [
                           Shadow(
                             color: Colors.black.withOpacity(0.3),
                             offset: const Offset(0, 4),
-                            blurRadius: 8,
+                            blurRadius: isSmallScreen ? 6 : 8,
                           ),
                         ],
                       ),
@@ -209,15 +229,15 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
                     TextSpanConfig(
                       text: ' ACCOUNT',
                       style: TextStyle(
-                        fontSize: isDesktop ? 60 : 30,
+                        fontSize: fontSize,
                         fontFamily: 'holtwood',
                         color: Colors.white,
-                        letterSpacing: 2,
+                        letterSpacing: isSmallScreen ? 1.5 : 2,
                         shadows: [
                           Shadow(
                             color: Colors.black.withOpacity(0.3),
                             offset: const Offset(0, 4),
-                            blurRadius: 8,
+                            blurRadius: isSmallScreen ? 6 : 8,
                           ),
                         ],
                       ),
@@ -285,7 +305,9 @@ class _WelcomeTextState extends State<WelcomeText>
 
   @override
   Widget build(BuildContext context) {
-    return CustomPositioned(
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 425;
+    
+    return CustomPositioned( 
       type: PositionedType.basic,
       bottom: 600.5.h,
       left: 30.5.w,
@@ -297,9 +319,11 @@ class _WelcomeTextState extends State<WelcomeText>
             scale: _scaleAnimation,
             alignment: Alignment.centerLeft,
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: isSmallScreen 
+                  ? const EdgeInsets.all(8)
+                  : const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
                 gradient: LinearGradient(
                   colors: [
                     Colors.white.withOpacity(0.2),
@@ -309,7 +333,7 @@ class _WelcomeTextState extends State<WelcomeText>
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.15),
-                    blurRadius: 15,
+                    blurRadius: isSmallScreen ? 12 : 15,
                     spreadRadius: -3,
                   ),
                 ],
@@ -317,6 +341,7 @@ class _WelcomeTextState extends State<WelcomeText>
               child: Text(
                 'WELCOME BACK 😊 \nHappy to see you again!',
                 style: AppTextStyles.welcomeTitle.copyWith(
+                  fontSize: isSmallScreen ? 14 : null,
                   shadows: [
                     Shadow(
                       color: Colors.black.withOpacity(0.4),
@@ -390,7 +415,21 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = MediaQuery.of(context).size.width >= 700;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isDesktop = screenWidth >= 700;
+    final bool isSmallScreen = screenWidth < 425; 
+    
+    // Responsive font size
+    final double fontSize = isDesktop 
+        ? 60 
+        : isSmallScreen 
+            ? 28 
+            : 35;
+    
+    // Responsive padding
+    final EdgeInsets padding = isSmallScreen
+        ? const EdgeInsets.symmetric(horizontal: 20, vertical: 10)
+        : const EdgeInsets.symmetric(horizontal: 28, vertical: 14);
     
     return CustomPositioned(
       type: PositionedType.basic,
@@ -403,9 +442,9 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
           position: _slideAnimation,
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+              padding: padding,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
                 gradient: LinearGradient(
                   colors: [
                     Colors.white.withOpacity(0.2),
@@ -416,18 +455,18 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
                 ),
                 border: Border.all(
                   color: Colors.white.withOpacity(0.3),
-                  width: 1.5,
+                  width: isSmallScreen ? 1 : 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.25),
-                    blurRadius: 20,
+                    blurRadius: isSmallScreen ? 15 : 20,
                     spreadRadius: -5,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
                     color: Colors.white.withOpacity(0.1),
-                    blurRadius: 15,
+                    blurRadius: isSmallScreen ? 12 : 15,
                     spreadRadius: -8,
                     offset: const Offset(0, -4),
                   ),
@@ -457,21 +496,21 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
                         TextSpanConfig(
                           text: 'SIGN ',
                           style: TextStyle(
-                            fontSize: isDesktop ? 60 : 35,
+                            fontSize: fontSize,
                             fontFamily: 'holtwood',
                             color: Colors.white,
-                            letterSpacing: 2.5,
+                            letterSpacing: isSmallScreen ? 2 : 2.5,
                             fontWeight: FontWeight.bold,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.4),
                                 offset: const Offset(0, 4),
-                                blurRadius: 10,
+                                blurRadius: isSmallScreen ? 8 : 10,
                               ),
                               Shadow(
                                 color: Colors.purple.withOpacity(0.3),
                                 offset: const Offset(0, 0),
-                                blurRadius: 20,
+                                blurRadius: isSmallScreen ? 15 : 20,
                               ),
                             ],
                           ),
@@ -479,21 +518,21 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
                         TextSpanConfig(
                           text: 'IN',
                           style: TextStyle(
-                            fontSize: isDesktop ? 60 : 35,
+                            fontSize: fontSize,
                             fontFamily: 'holtwood',
                             color: Colors.white,
-                            letterSpacing: 2.5,
+                            letterSpacing: isSmallScreen ? 2 : 2.5,
                             fontWeight: FontWeight.bold,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.4),
                                 offset: const Offset(0, 4),
-                                blurRadius: 10,
+                                blurRadius: isSmallScreen ? 8 : 10,
                               ),
                               Shadow(
                                 color: Colors.blue.withOpacity(0.3),
                                 offset: const Offset(0, 0),
-                                blurRadius: 20,
+                                blurRadius: isSmallScreen ? 15 : 20,
                               ),
                             ],
                           ),
@@ -501,21 +540,21 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
                         TextSpanConfig(
                           text: ' NOW',
                           style: TextStyle(
-                            fontSize: isDesktop ? 60 : 35,
+                            fontSize: fontSize,
                             fontFamily: 'holtwood',
                             color: Colors.white,
-                            letterSpacing: 2.5,
+                            letterSpacing: isSmallScreen ? 2 : 2.5,
                             fontWeight: FontWeight.bold,
                             shadows: [
                               Shadow(
                                 color: Colors.black.withOpacity(0.4),
                                 offset: const Offset(0, 4),
-                                blurRadius: 10,
+                                blurRadius: isSmallScreen ? 8 : 10,
                               ),
                               Shadow(
                                 color: Colors.pink.withOpacity(0.3),
                                 offset: const Offset(0, 0),
-                                blurRadius: 20,
+                                blurRadius: isSmallScreen ? 15 : 20,
                               ),
                             ],
                           ),

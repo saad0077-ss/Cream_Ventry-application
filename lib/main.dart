@@ -8,16 +8,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); 
-  await HiveInitialization.initialize();
-
+  await HiveInitialization.initialize(); 
+ 
   // await Firebase.initializeApp( 
   //   options: DefaultFirebaseOptions.currentPlatform,
-  // );  
+  // );     
   runApp(const MyApp());                
 }   
             
 class MyApp extends StatelessWidget { 
-  const MyApp({super.key});       
+  const MyApp({super.key});        
             
 
   @override

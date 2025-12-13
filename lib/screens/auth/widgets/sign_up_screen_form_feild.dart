@@ -3,7 +3,6 @@ import 'package:cream_ventory/screens/auth/widgets/auth_screen_text_form_feild.d
 import 'package:cream_ventory/core/utils/authentication/authentication_sign_up.dart';
 import 'package:flutter/material.dart';
 
-
 class FormFeild extends StatefulWidget {
   const FormFeild({super.key});
 
@@ -28,18 +27,45 @@ class _FormFeildState extends State<FormFeild> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Detect small screens and split-screen mode
+    final bool isSmallScreen = screenWidth < 420;
+    final bool isSplitScreen = screenHeight < 600;
+    
+    // Responsive spacing
+    final double topSpacing = () {
+      if (isSplitScreen) return 15.0;
+      if (isSmallScreen) return 20.0;
+      return 30.0;
+    }();
+    
+    final double fieldSpacing = () {
+      if (isSplitScreen) return 14.0;
+      if (isSmallScreen) return 18.0;
+      return 25.0;
+    }();
+    
+    final double buttonTopSpacing = () {
+      if (isSplitScreen) return 20.0;
+      if (isSmallScreen) return 28.0;
+      return 40.0;
+    }();
+
     return Form(
       key: _formKey,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 30), 
+          SizedBox(height: topSpacing), 
           CustomTextFormField(
             labelText: 'Username',
             controller: _usernameController,
             hintText: 'Enter your Username', 
             validator: SignInFunctions.validateUsername,
           ),
-          SizedBox(height: 25), 
+          SizedBox(height: fieldSpacing), 
           CustomTextFormField(
             labelText: 'Email',
             controller: _emailController,
@@ -47,7 +73,7 @@ class _FormFeildState extends State<FormFeild> {
             validator: SignInFunctions.validateEmail,
             type: TextInputType.emailAddress,        
           ),
-          SizedBox(height: 25), 
+          SizedBox(height: fieldSpacing), 
           CustomTextFormField(
             labelText: 'Password',
             controller: _passwordController,
@@ -61,7 +87,7 @@ class _FormFeildState extends State<FormFeild> {
               }); 
             },
           ),
-          SizedBox(height: 40),
+          SizedBox(height: buttonTopSpacing),
           AuthButton(
             onPressed: () {
               SignInFunctions.navigateToHome(
@@ -72,9 +98,11 @@ class _FormFeildState extends State<FormFeild> {
                 usernameController: _usernameController,
               );
             },
-            primaryText: 'SIGN',
-            secondaryText: 'IN',
+            primaryText: 'SIGN', 
+            secondaryText: 'UP',
           ),
+          // Add bottom spacing for better scrolling experience
+          if (isSplitScreen) SizedBox(height: 10),
         ],
       ),
     );

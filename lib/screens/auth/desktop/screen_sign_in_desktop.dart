@@ -20,7 +20,7 @@ class ScreenSignInDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     // Desktop-specific responsive values
     final double maxContentWidth = 1200.0;
-    final double formWidth = 480.0;
+    final double formWidth = 480.0; 
     final double formHeight = 520.0;
     final double horizontalSpacing = 80.0;
 
@@ -61,7 +61,7 @@ class ScreenSignInDesktop extends StatelessWidget {
                   Expanded(
                     flex: 5,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,       
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Large welcome text for desktop
