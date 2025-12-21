@@ -303,23 +303,22 @@ class PaymentOutDb {
     }
   }
 
-  // Update notifier with current box values
-  static void _updateNotifier() async {
-    final user = await UserDB.getCurrentUser();
-    final userId = user.id;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_box == null) {
-        paymentOutNotifier.value = [];
-        return;
-      }
-      var payments =
-          _box!.values.where((payments) => payments.userId == userId).toList();
-      paymentOutNotifier.value = payments;
-      debugPrint(
-        'Notifier updated with ${paymentOutNotifier.value.length} payments',
-      );
-    });
+  static Future<void> _updateNotifier() async {
+  final user = await UserDB.getCurrentUser();
+  final userId = user.id;
+  
+  if (_box == null) {
+    paymentOutNotifier.value = [];
+    return;
   }
+  
+  var payments =
+      _box!.values.where((payments) => payments.userId == userId).toList();
+  paymentOutNotifier.value = payments;
+  debugPrint(
+    'Notifier updated with ${paymentOutNotifier.value.length} payments', 
+  );
+}
 
   // Clear all payment items
   static Future<void> clearPaymentOut() async {

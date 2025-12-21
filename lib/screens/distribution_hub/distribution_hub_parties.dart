@@ -28,39 +28,36 @@ class _PartiesTapState extends State<PartiesTap> {
     super.dispose();
   }
 
-  @override  
+  @override   
   Widget build(BuildContext context) {
-    return Container(
-       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Column(
-        children: [
-          PartySearchBar(
-            controller: _searchController,
-            onChanged: (value) {
-              setState(() {});
-            },
-            onAddParty: () {
-              Navigator.of(context) 
-                  .push(
-                    MaterialPageRoute(
-                      builder: (context) => const AddPartyPage(),
-                    ),
-                  )
-                  .then((result) {
-                    if (result != null) {
-                      PartyDb.refreshParties();
-                    }
-                  });
-            },
+    return Column(
+      children: [
+        PartySearchBar(
+          controller: _searchController,
+          onChanged: (value) {
+            setState(() {});
+          },
+          onAddParty: () {
+            Navigator.of(context) 
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => const AddPartyPage(),
+                  ),
+                )
+                .then((result) {
+                  if (result != null) {
+                    PartyDb.refreshParties();
+                  }
+                });
+          },
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: PartyList(
+            searchQuery: _searchController.text,
           ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: PartyList(
-              searchQuery: _searchController.text,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }   
 }

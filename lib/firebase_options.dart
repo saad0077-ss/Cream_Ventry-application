@@ -36,10 +36,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -61,4 +58,15 @@ class DefaultFirebaseOptions {
     storageBucket: 'creamventory-07.firebasestorage.app',
     measurementId: 'G-WHEJ1HW80J',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAs0kt9wg5Q4M-HswCVKlXc0YSHSBOnpfg',
+    appId: '1:911902605854:web:75db6468188b8541d5a40f',
+    messagingSenderId: '911902605854',
+    projectId: 'creamventory-07',
+    authDomain: 'creamventory-07.firebaseapp.com',
+    storageBucket: 'creamventory-07.firebasestorage.app',
+    measurementId: 'G-TDM6ZEY65X',
+  );
+
 }

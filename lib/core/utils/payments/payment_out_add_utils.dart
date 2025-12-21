@@ -185,12 +185,14 @@ class PaymentOutUtils {
       return;
     }
 
+    
+
     final user = await UserDB.getCurrentUser();
     final double parsedAmount = double.parse(paidAmount);
     final formattedAmount = parsedAmount.toStringAsFixed(2);
 
     final payment = PaymentOutModel(
-      id: isEditMode ? existingPayment!.id.toString() : '0',
+      id: isEditMode ? existingPayment!.id : '', 
       receiptNo: receiptController.text,
       date: dateController.text,
       partyName: selectedParty.name,
