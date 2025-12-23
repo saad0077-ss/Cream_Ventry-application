@@ -30,7 +30,7 @@ class _ScreenHomeState extends State<ScreenHome> {
       await prefs.setBool(key, true);
       return true; // First time user
     }
-    return false; // Returning user
+    return false; // Returning user      
   }
 
   @override

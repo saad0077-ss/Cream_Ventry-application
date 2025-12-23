@@ -5,6 +5,7 @@ import 'package:cream_ventory/screens/sale/widgets/sale_order_listing_screen_car
 import 'package:cream_ventory/core/theme/theme.dart';
 import 'package:cream_ventory/core/utils/sale/sale_order_utils.dart';
 import 'package:cream_ventory/widgets/app_bar.dart';
+import 'package:cream_ventory/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 
 class SaleOrder extends StatefulWidget {
@@ -20,11 +21,6 @@ class _SaleOrderState extends State<SaleOrder> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override   
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -40,75 +36,75 @@ class _SaleOrderState extends State<SaleOrder> {
               builder: (context) => SaleScreen(transactionType: TransactionType.saleOrder),
             ))
             .then((_) => setState(() {})),
-        backgroundColor: Colors.blueGrey ,
+        backgroundColor: Colors.blueGrey,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: AppTheme.appGradient,
-        ), 
+        ),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
+              // Filter Chips (horizontal scrollable)
               SingleChildScrollView(
-                scrollDirection: Axis.horizontal,       
-                child: SizedBox(
-                  child: Row(
-                    children: filters.map((filter) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedFilter = filter;
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.blueGrey,width: 2),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          backgroundColor: selectedFilter == filter ? Colors.blueGrey: Colors.transparent,
-                          foregroundColor: selectedFilter == filter ? Colors.red[700] : Colors.black87,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                        child: Text(
-                          filter,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            color: selectedFilter == filter ? Colors.white : Colors.black,
-                          ),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: filters.map((filter) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedFilter = filter;
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.blueGrey, width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: selectedFilter == filter ? Colors.blueGrey : Colors.transparent,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      child: Text( 
+                        filter,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: selectedFilter == filter ? Colors.white : Colors.black,
                         ),
                       ),
-                    )).toList(),
-                  ),
+                    ),
+                  )).toList(),
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
+              const SizedBox(height: 16), 
+
+              // New Custom Search Bar 
+              CustomSearchBar(
                 controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: 'Search Order',
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.red[300]!)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.blueGrey, width: 2)),
-                  prefixIcon: Icon(Icons.search, color: Colors.blue),
-                ),
+                hintText: 'Search Order',
                 onChanged: (_) => setState(() {}),
+                // onFilterPressed: null (not used since filters are separate)
               ),
+
               const SizedBox(height: 16),
+
               Expanded(
                 child: ValueListenableBuilder<List<SaleModel>>(
                   valueListenable: SaleDB.saleNotifier,
-                  builder: (context, sales, _) { 
+                  builder: (context, sales, _) {
                     final filteredOrders = SaleUtils.filterSaleOrders(
                       sales,
                       _searchController.text,
                       selectedFilter,
                     );
                     if (filteredOrders.isEmpty) {
-                      return const Center(child: Text('No sale orders found.', style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)));
+                      return const Center(
+                        child: Text(
+                          'No sale orders found.',
+                          style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500),
+                        ),
+                      );
                     }
                     return ListView.builder(
                       itemCount: filteredOrders.length,
@@ -130,9 +126,9 @@ class _SaleOrderState extends State<SaleOrder> {
                           onCloseButtonPressed: () => SaleUtils.handleCloseSale(context, sale, () => setState(() {})),
                           onCancelButtonPressed: () => SaleUtils.handleCancelSale(context, sale, () => setState(() {})),
                           sale: sale,
-                        );       
+                        );
                       },
-                    );   
+                    );
                   },
                 ),
               ),
@@ -142,4 +138,4 @@ class _SaleOrderState extends State<SaleOrder> {
       ),
     );
   }
-}     
+}

@@ -23,7 +23,7 @@ class PaymentInModelAdapter extends TypeAdapter<PaymentInModel> {
       partyName: fields[3] as String?,
       phoneNumber: fields[4] as String?,
       receivedAmount: fields[5] as double,
-      paymentType: fields[6] as String,
+      paymentType: fields[6] as String, 
       note: fields[7] as String?,
       imagePath: fields[8] as String?,
       userId: fields[9] as String,

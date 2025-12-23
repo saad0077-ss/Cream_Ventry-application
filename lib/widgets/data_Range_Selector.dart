@@ -124,9 +124,11 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth <= 350;
+    final isTablet = screenWidth > 600;
 
-    // Return simple container if animation not ready
+    // Return simple container if animation not ready 
     if (_fadeAnimation == null) {
       return const SizedBox.shrink();
     }
@@ -134,7 +136,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     return FadeTransition(
       opacity: _fadeAnimation!,
       child: Container(
-        margin: EdgeInsets.all(isTablet ? 16 : 10),
+        margin: EdgeInsets.all(isTablet ? 16 : isSmallScreen ? 8 : 10),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -144,7 +146,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
               Colors.blue.shade50.withOpacity(0.9),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(isSmallScreen ? 12 : 20),
           border: Border.all(
             color: Colors.blue.shade100,
             width: 1.5,
@@ -152,12 +154,12 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: isTablet ? 24 : 35,
-            vertical: isTablet ? 20 : 20,
+            horizontal: isTablet ? 24 : isSmallScreen ? 8 : 16,
+            vertical: isTablet ? 20 : isSmallScreen ? 12 : 16,
           ),
           child: isTablet
               ? _buildTabletLayout()
-              : _buildMobileLayout(),
+              : _buildMobileLayout(isSmallScreen),
         ),
       ),
     );
@@ -167,29 +169,32 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildDropdownSection(),
+        _buildDropdownSection(false),
         _buildDivider(),
-        _buildDateRangeSection(),
+        _buildDateRangeSection(false),
       ],
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(bool isSmallScreen) {
     return Column(
       children: [
-        _buildDropdownSection(),
-        const SizedBox(height: 16),
-        _buildDateRangeSection(),
+        _buildDropdownSection(isSmallScreen),
+        SizedBox(height: isSmallScreen ? 12 : 16),
+        _buildDateRangeSection(isSmallScreen),
       ],
     );
   }
 
-  Widget _buildDropdownSection() {
+  Widget _buildDropdownSection(bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 4 : 8,
+        vertical: isSmallScreen ? 4 : 6,
+      ),
       decoration: BoxDecoration(
         color: Colors.blue.shade50.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
         border: Border.all(color: Colors.blue.shade100, width: 1),
       ),
       child: DropdownButton2<String>(
@@ -198,13 +203,14 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
         style: AppTextStyles.dateRange.copyWith(
           color: Colors.blue.shade900,
           fontWeight: FontWeight.w600,
+          fontSize: isSmallScreen ? 11 : 14,
         ),
         iconStyleData: IconStyleData(
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
             color: Colors.blue.shade700,
           ),
-          iconSize: 28,
+          iconSize: isSmallScreen ? 20 : 28,
         ),
         items: [
           "Today",
@@ -221,11 +227,14 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                   children: [
                     Icon(
                       _getIconForOption(e),
-                      size: 18,
+                      size: isSmallScreen ? 14 : 18,
                       color: Colors.blue.shade700,
                     ),
-                    const SizedBox(width: 8),
-                    Text(e),
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Text(
+                      e,
+                      style: TextStyle(fontSize: isSmallScreen ? 11 : 14),
+                    ),
                   ],
                 ),
               ),
@@ -236,11 +245,15 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
             _setDateRange(value);
           }
         },
-        buttonStyleData: const ButtonStyleData(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        buttonStyleData: ButtonStyleData(
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 8 : 16,
+            vertical: isSmallScreen ? 4 : 8,
+          ),
         ),
         dropdownStyleData: DropdownStyleData(
           maxHeight: 300,
+          width: isSmallScreen ? 160 : 200,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color: Colors.white,
@@ -255,7 +268,10 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
           offset: const Offset(0, -5),
         ),
         menuItemStyleData: MenuItemStyleData(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 12 : 16,
+            vertical: isSmallScreen ? 8 : 12,
+          ),
           overlayColor: MaterialStateProperty.all(
             Colors.blue.shade50.withOpacity(0.5),
           ),
@@ -282,27 +298,33 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     );
   }
 
-  Widget _buildDateRangeSection() {
+  Widget _buildDateRangeSection(bool isSmallScreen) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildDateButton(
-          date: selectedStartDate,
-          isStart: true,
-          icon: Icons.event_outlined,
+        Flexible(
+          child: _buildDateButton(
+            date: selectedStartDate,
+            isStart: true,
+            icon: Icons.event_outlined,
+            isSmallScreen: isSmallScreen,
+          ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 4 : 12),
           child: Icon(
             Icons.arrow_forward_rounded,
             color: Colors.blue.shade400,
-            size: 20,
+            size: isSmallScreen ? 14 : 20,
           ),
         ),
-        _buildDateButton(
-          date: selectedEndDate,
-          isStart: false,
-          icon: Icons.event_available_outlined,
+        Flexible(
+          child: _buildDateButton(
+            date: selectedEndDate,
+            isStart: false,
+            icon: Icons.event_available_outlined,
+            isSmallScreen: isSmallScreen,
+          ),
         ),
       ],
     );
@@ -312,12 +334,16 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     required DateTime date,
     required bool isStart,
     required IconData icon,
+    required bool isSmallScreen,
   }) {
     return InkWell(
       onTap: () => _pickDate(context, isStart),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 6 : 16,
+          vertical: isSmallScreen ? 8 : 12,
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -327,12 +353,12 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
               Colors.blue.shade700,
             ],
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
           boxShadow: [
             BoxShadow(
               color: Colors.blue.shade300.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              blurRadius: isSmallScreen ? 4 : 8,
+              offset: Offset(0, isSmallScreen ? 2 : 4),
             ),
           ],
         ),
@@ -342,30 +368,33 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
             Icon(
               icon,
               color: Colors.white,
-              size: 18,
+              size: isSmallScreen ? 14 : 18,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: isSmallScreen ? 4 : 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isStart ? 'Start Date' : 'End Date',
+                  isStart ? 'Start' : 'End',
                   style: AppTextStyles.dateRange.copyWith(
                     color: Colors.white.withOpacity(0.85),
-                    fontSize: 10,
+                    fontSize: isSmallScreen ? 8 : 10,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: isSmallScreen ? 1 : 2),
                 Text(
-                  DateFormat('dd MMM yyyy').format(date),
+                  isSmallScreen
+                      ? DateFormat('dd/MM/yy').format(date)
+                      : DateFormat('dd MMM yyyy').format(date), 
                   style: AppTextStyles.dateRange.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: isSmallScreen ? 8 : 10
                   ),
                 ),
-              ],
+              ], 
             ),
           ],
         ),
@@ -381,8 +410,8 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
         return Icons.history_rounded;
       case "This Month":
         return Icons.calendar_month_rounded;
-      case "Last Month": 
-        return Icons.calendar_today_rounded; 
+      case "Last Month":
+        return Icons.calendar_today_rounded;
       case "All":
         return Icons.all_inclusive_rounded;
       case "Custom":
@@ -391,4 +420,4 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
         return Icons.calendar_month_rounded;
     }
   }
-}
+} 

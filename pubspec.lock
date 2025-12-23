@@ -73,6 +73,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  awesome_notifications:
+    dependency: "direct main"
+    description:
+      name: awesome_notifications
+      sha256: "0d5fa4457f2ba4e536adc3ef6af709cdcecf4a05a1f3035981e9afa2f899b2a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1"
   barcode:
     dependency: transitive
     description:
@@ -1318,7 +1326,7 @@ packages:
     source: hosted
     version: "1.1.4"
   web:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: web
       sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"

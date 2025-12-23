@@ -35,6 +35,7 @@ class DistributionHubContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isVerySmallScreen = MediaQuery.of(context).size.width < 350;
     return Container(
       decoration: BoxDecoration(gradient: AppTheme.appGradient),
       height: constraints.maxHeight,
@@ -49,7 +50,7 @@ class DistributionHubContainer extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     SizedBox(width: isSmallScreen ? 30.w : 50 ),
+                     SizedBox(width: isSmallScreen ? 30.w : isVerySmallScreen ? 20 : 50.w),
                     Expanded(
                       child: buildSummaryCard(
                         onTap: onFilterYoullGet,
@@ -64,6 +65,7 @@ class DistributionHubContainer extends StatelessWidget {
                         valueColor: Colors.green.shade400,
                         isSmallScreen: isSmallScreen,
                         currentFilter: currentFilter,
+                        isVerySmallScreen: isVerySmallScreen,
                       ),
                     ),
                      SizedBox(width:  isSmallScreen ? 35.w : 60  ),
@@ -81,6 +83,7 @@ class DistributionHubContainer extends StatelessWidget {
                         valueColor: Colors.red.shade400,
                         isSmallScreen: isSmallScreen,
                         currentFilter: currentFilter,
+                        isVerySmallScreen:isVerySmallScreen,
                       ),
                     ),
                      SizedBox(width:  isSmallScreen ? 30.w : 50 ),

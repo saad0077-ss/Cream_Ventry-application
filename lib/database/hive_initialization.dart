@@ -1,3 +1,5 @@
+import 'package:cream_ventory/core/notification/notification_setup.dart';
+import 'package:cream_ventory/core/notification/app_notification_service.dart';
 import 'package:cream_ventory/database/functions/category_db.dart';
 import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/payment_db.dart';
@@ -17,15 +19,20 @@ import 'package:cream_ventory/models/payment_out_model.dart';
 import 'package:cream_ventory/models/sale_item_model.dart';
 import 'package:cream_ventory/models/sale_model.dart';
 import 'package:cream_ventory/models/user_model.dart';
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:async';
 
 class HiveInitialization {
-  /// Initialize Hive, register adapters, open boxes, and initialize databases
+  /// Initialize Hive, register adapters, open boxes, initialize databases, and set up notifications
   static Future<void> initialize() async {
     await Hive.initFlutter();
     await _registerAdapters();
-    await _openBoxes(); 
-    _initializeDatabases();
+    await _openBoxes();
+    await _initializeDatabases();
+    await _initializeNotifications();
+    await _performInitialChecks();
+    _setupPeriodicChecks();
   }
 
   /// Register all Hive adapters
@@ -93,7 +100,7 @@ class HiveInitialization {
   }
 
   /// Initialize all database instances
-  static void _initializeDatabases() {
+  static Future<void> _initializeDatabases() async {
     CategoryDB.initialize();
     ProductDB.initialize();
     PartyDb.init();
@@ -103,5 +110,51 @@ class HiveInitialization {
     PaymentInDb.init();
     PaymentOutDb.init();
     StockTransactionDB.initialize();
+  }
+
+  /// Initialize notification services
+  static Future<void> _initializeNotifications() async {
+    try {
+      await NotificationSetup.initialize();
+      debugPrint('✅ Notifications initialized successfully');
+    } catch (e) {
+      debugPrint('❌ Error initializing notifications: $e');
+    }
+  }
+
+  /// Perform initial checks on app startup
+  static Future<void> _performInitialChecks() async {
+    try {
+      // Debug: Print all products
+      await ProductDB.debugPrintAllProducts();
+      
+      // Check low stock products immediately
+      await ProductDB.forceCheckLowStock();
+      debugPrint('✅ Low stock check completed');
+      
+      // Check due dates immediately on app start
+      await SaleDB.checkDueDatesToday();
+      debugPrint('✅ Due date check completed');
+    } catch (e) {
+      debugPrint('❌ Error performing initial checks: $e');
+    }
+  }
+
+  /// Set up periodic checks (runs every 24 hours)
+  static void _setupPeriodicChecks() {
+    // Reset notified sales and check due dates every 24 hours
+    Timer.periodic(const Duration(hours: 24), (timer) async {
+      try {
+        debugPrint('⏰ Running periodic check (24h interval)');
+        InventoryNotificationService.resetNotifiedSales();
+        await SaleDB.checkDueDatesToday();
+        await ProductDB.forceCheckLowStock(); // Also recheck low stock
+        debugPrint('✅ Periodic check completed');
+      } catch (e) {
+        debugPrint('❌ Error in periodic check: $e');
+      }
+    });
+
+    debugPrint('✅ Periodic checks scheduled (every 24 hours)');
   }
 }

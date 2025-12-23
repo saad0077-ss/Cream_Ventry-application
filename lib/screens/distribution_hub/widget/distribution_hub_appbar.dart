@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DistributionAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
@@ -18,14 +19,16 @@ class DistributionAppBar extends StatelessWidget implements PreferredSizeWidget 
 
   @override
   Widget build(BuildContext context) {
+
+    final double effectiveFontSize = (ScreenUtil().screenWidth < 360) ? 18   : fontSize; 
     return AppBar(   
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
-      elevation: 0,
+      backgroundColor: Colors.white, 
+      elevation: 0, 
       title: Text( 
         'DISTRIBUTION HUB',
         style: TextStyle(
-          fontSize: fontSize,
+          fontSize: effectiveFontSize,
           color: Colors.black,
           fontFamily: 'Audiowide',
         ),

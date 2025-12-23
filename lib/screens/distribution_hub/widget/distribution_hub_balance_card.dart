@@ -11,6 +11,7 @@ Widget buildSummaryCard({
   required bool isSmallScreen,
   required VoidCallback onTap,
   String? currentFilter,
+  required bool isVerySmallScreen,
 }) {
   final isGetCard = title == "You'll Get";
   final isGiveCard = title == "You'll Give";
@@ -20,13 +21,13 @@ Widget buildSummaryCard({
 
   return GestureDetector(
     onTap: onTap,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
+    child: AnimatedContainer(  
+      duration: const Duration(milliseconds: 400), 
       curve: Curves.easeOutCubic,
       transform: Matrix4.identity()..scale(isSelected ? 1.08 : 1.0),
       child: Container(
-        width: isSmallScreen ? 170 : 250,
-        height: isSmallScreen ? 110 : 160,
+        width: isSmallScreen ? 170 : isVerySmallScreen ? 150 : 250,
+        height: isSmallScreen ? 110 : isVerySmallScreen ? 90 : 160, 
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -92,7 +93,7 @@ Widget buildSummaryCard({
             ),
             // Main content
             Padding(
-              padding: EdgeInsets.all(isSmallScreen ? 14 : 18),
+              padding: EdgeInsets.all(isSmallScreen ? 14 : isVerySmallScreen ? 12 : 18),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +131,7 @@ Widget buildSummaryCard({
                         child: Icon(
                           icon,
                           color: isSelected ? Colors.white : iconColor,
-                          size: isSmallScreen ? 18 : 24,
+                          size: isSmallScreen ? 18 : isVerySmallScreen ? 16 : 24,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -138,7 +139,7 @@ Widget buildSummaryCard({
                         child: Text(
                           title,
                           style: TextStyle(
-                            fontSize: isSmallScreen ? 14 : 16,
+                            fontSize: isSmallScreen ? 14 : isVerySmallScreen ? 10 : 16,
                             fontFamily: 'ABeeZee',
                             fontWeight: FontWeight.w600,
                             color: isSelected
@@ -163,11 +164,11 @@ Widget buildSummaryCard({
                         child: Text(
                           value,
                           style: TextStyle(
-                            fontSize: isSmallScreen ? 20 : 24,
+                            fontSize: isSmallScreen ? 20 : isVerySmallScreen ? 15 : 24,
                             fontFamily: 'ABeeZee',
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
-                            letterSpacing: -0.5, 
+                            letterSpacing: -0.5,  
                           ),
                         ),
                       ),

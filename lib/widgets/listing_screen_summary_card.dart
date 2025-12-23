@@ -45,11 +45,13 @@ class _SummaryCardState extends State<SummaryCard>
 
   @override
   Widget build(BuildContext context) {
+
+    final isSmallScreen = MediaQuery.of(context).size.width < 360;
     final isTablet = MediaQuery.of(context).size.width > 600;
     final gradientColors = widget.gradientColors ??
         [
           Colors.blue.shade400,
-          Colors.blue.shade600,
+          Colors.blue.shade600, 
         ];
 
     return Expanded(
@@ -113,9 +115,9 @@ class _SummaryCardState extends State<SummaryCard>
                       ),
                     ),
                   ),
-                  // Content
+                  // Content 
                   Padding(
-                    padding: EdgeInsets.all(isTablet ? 28.0 : 20.0),
+                    padding: EdgeInsets.all(isTablet ? 28.0 : isSmallScreen ? 15.0 : 20.0), 
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,15 +133,15 @@ class _SummaryCardState extends State<SummaryCard>
                             child: Icon(
                               widget.icon,
                               color: Colors.white,
-                              size: isTablet ? 28 : 24,
+                              size: isTablet ? 28 : isSmallScreen ? 15 : 20,
                             ),
                           ),
                         SizedBox(height: widget.icon != null ? 16 : 8),
                         // Title
-                        Text(
+                        Text( 
                           widget.title,
                           style: AppTextStyles.summaryCard.copyWith(
-                            fontSize: isTablet ? 18 : 14,
+                            fontSize: isTablet ? 18 :isSmallScreen?12: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.white.withOpacity(0.95),
                             letterSpacing: 0.5,
@@ -150,7 +152,7 @@ class _SummaryCardState extends State<SummaryCard>
                         Text(
                           widget.value,
                           style: AppTextStyles.summaryCard.copyWith(
-                            fontSize: isTablet ? 32 : 28,
+                            fontSize: isTablet ? 32 :isSmallScreen?20: 28, 
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             letterSpacing: 0.5,

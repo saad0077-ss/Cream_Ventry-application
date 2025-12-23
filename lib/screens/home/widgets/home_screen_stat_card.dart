@@ -35,6 +35,7 @@ class StatCard<T> extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final islargeScreen = MediaQuery.of(context).size.width > 600;
+    final isSmallScreen = MediaQuery.of(context).size.width <= 350;
     
     final defaultGradient = [
       Colors.white.withOpacity(0.95),
@@ -94,7 +95,7 @@ class StatCard<T> extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding:  EdgeInsets.all(isSmallScreen ? 6 : 8),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -115,17 +116,17 @@ class StatCard<T> extends StatelessWidget {
                           ),
                           child: Icon(
                             icon,
-                            size: 20.r,
+                            size: isSmallScreen ? 10 : 20.r, 
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(width: 12.w),
-                        Expanded(
+                        SizedBox(width: isSmallScreen ? 8: 12.w), 
+                        Expanded( 
                           child: Text(
                             title,
                             style: titleStyle ??
                                 TextStyle(
-                                  fontSize: 12.r,
+                                  fontSize: isSmallScreen ? 10  : 12.r,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
                                   letterSpacing: 0.2,

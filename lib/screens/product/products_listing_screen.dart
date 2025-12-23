@@ -158,22 +158,22 @@ class _ProductsTabState extends State<ProductsTab> {
       children: [
         // ---- SEARCH + FILTER BAR ----
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 12),
           child: ValueListenableBuilder<List<ProductModel>>(
             valueListenable: ProductDB.productNotifier,
             builder: (context, products, _) {
               final categories = products
-                  .map((e) => e.category)
+                  .map((e) => e.category) 
                   .toSet()
                   .toList()
                 ..sort((a, b) =>
                     a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-              return CustomSearchBar(
+              return CustomSearchBar(  
                 controller: _searchController,
                 hintText: 'Search Products',
                 onChanged: (v) =>
-                    setState(() => _searchQuery = v.toLowerCase()),
+                    setState(() => _searchQuery = v.toLowerCase()), 
                 onFilterPressed: () =>
                     _showFilterBottomSheet(context, categories),
               );

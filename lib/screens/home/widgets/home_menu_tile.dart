@@ -8,6 +8,9 @@ class HomeMenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final isSmallScreen = MediaQuery.of(context).size.width <= 350;
+
     return InkWell(
       onTap: item.onTap,
       borderRadius: BorderRadius.circular(10),
@@ -30,8 +33,8 @@ class HomeMenuTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: isSmallScreen ? 30 : 40,
+                height: isSmallScreen ? 30 : 40,
                 decoration: BoxDecoration(
                   gradient: item.gradient,
                   borderRadius: BorderRadius.circular(8),
@@ -49,24 +52,24 @@ class HomeMenuTile extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 item.title,
-                style: const TextStyle(
-                  fontSize: 18,
+                style:  TextStyle(
+                  fontSize: isSmallScreen ? 14 : 18,
                   color: Colors.black87,
                   fontFamily: 'holtwood',
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 1, 
+                overflow: TextOverflow.ellipsis, 
               ),
               const SizedBox(height: 4),
               Text(
                 item.subtitle ?? '',
-                style: const TextStyle(
-                  fontSize: 14,
+                style:  TextStyle(
+                  fontSize: isSmallScreen ? 5 : 14,
                   color: Colors.black87,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.bold,  
                   fontFamily: 'ABeeZee',
                 ),
-                maxLines: 2,
+                maxLines: isSmallScreen ? 1 : 2,
                 overflow: TextOverflow.ellipsis, // 👈 avoids overflow
               ),
             ],

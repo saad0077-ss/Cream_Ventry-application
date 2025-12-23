@@ -1,3 +1,4 @@
+import 'package:cream_ventory/core/notification/app_notification_service.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
 import 'package:cream_ventory/database/functions/stock_transaction_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
@@ -61,6 +62,32 @@ class ProductDB {
       debugPrint(
         'Low stock notifier updated with ${lowStockProducts.length} products',
       );
+
+      // 🔔 Send notifications
+      if (lowStockProducts.isNotEmpty) {
+        await InventoryNotificationService.checkAndNotifyLowStock(
+          lowStockProducts,
+        );
+      }
+    }
+  }
+
+// Add these new methods at the end
+  static Future<void> checkAndNotifyLowStock() async {
+    final lowStockProducts = lowStockNotifier.value;
+    if (lowStockProducts.isNotEmpty) {
+      await InventoryNotificationService.checkAndNotifyLowStock(
+        lowStockProducts,
+      );
+    }
+  }
+
+  static Future<void> showInventorySummary() async {
+    final lowStockProducts = lowStockNotifier.value;
+    if (lowStockProducts.isNotEmpty) {
+      await InventoryNotificationService.showLowStockSummary(
+        lowStockProducts,
+      );
     }
   }
 
@@ -72,7 +99,7 @@ class ProductDB {
   }) async {
     if (quantity <= 0) {
       throw Exception('Deduct quantity must be a positive number');
-    } 
+    }
 
     // Use adjustStock with negative value
     await adjustStock(
@@ -427,6 +454,12 @@ class ProductDB {
 
       await StockTransactionDB.addTransaction(stockTransaction);
 
+      if (newStock >= 5) {
+        await InventoryNotificationService.clearProductNotification(productId);
+        debugPrint(
+            '🔔 Notification cleared for ${product.name} (stock now: $newStock)');
+      }
+
       debugPrint(
         'Restock completed for product $productId: Quantity $quantity, New Stock: $newStock',
       );
@@ -661,4 +694,58 @@ class ProductDB {
     lowStockNotifier.dispose();
     debugPrint('ProductDB disposed');
   }
+
+  static Future<void> forceCheckLowStock() async {
+  final user = await UserDB.getCurrentUser();
+  final userId = user.id;
+  final productBox = await _openProductBox();
+
+  final lowStockProducts = productBox.values
+      .where((product) => product.userId == userId && product.stock < 5)
+      .toList();
+
+  debugPrint('🔍 Force check - Low stock products: ${lowStockProducts.length}');
+  
+  for (var product in lowStockProducts) {
+    debugPrint('  - ${product.name}: ${product.stock} units');
+  }
+
+  lowStockNotifier.value = lowStockProducts;
+  
+  return;
+}
+
+/// Get low stock count without triggering notifications
+static int getLowStockCount() {
+  final count = lowStockNotifier.value.length;
+  debugPrint('📊 Current low stock count: $count');
+  return count;
+}
+
+/// Print all products with their stock levels
+static Future<void> debugPrintAllProducts() async {
+  final user = await UserDB.getCurrentUser();
+  final userId = user.id;
+  final productBox = await _openProductBox();
+  
+  final products = productBox.values
+      .where((product) => product.userId == userId)
+      .toList();
+
+  debugPrint('📦 All Products (Total: ${products.length}):');
+  for (var product in products) {
+    final status = product.stock == 0 
+        ? '🚨 OUT OF STOCK' 
+        : product.stock < 5 
+            ? '⚠️ LOW STOCK' 
+            : '✅ OK';
+    debugPrint('  $status ${product.name}: ${product.stock} units');
+  }
+}
+
+/// Reset notification tracking (useful for testing)
+static void resetNotificationTracking() {
+  InventoryNotificationService.resetNotifiedProducts();
+  debugPrint('🔄 Notification tracking reset');
+}
 }
