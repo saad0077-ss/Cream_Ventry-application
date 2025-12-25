@@ -5,7 +5,9 @@ import 'package:cream_ventory/database/functions/product_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_item_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
+import 'package:cream_ventory/models/product_model.dart';
 import 'package:cream_ventory/models/sale_model.dart';
+import 'package:cream_ventory/core/notification/app_notification_service.dart'; // ✅ Import notification service
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -85,6 +87,42 @@ class SaleAddUtils {
     if (picked != null) {
       dueDateController.text = DateFormat('dd MMM yyyy').format(picked);
       debugPrint('Due date selected: ${dueDateController.text}');
+    }
+  }
+
+  // ✅ NEW: Helper method to check and notify low/out of stock after sale
+  static Future<void> _checkAndNotifyStockAfterSale(List<dynamic> items) async {
+    try {
+      debugPrint('🔍 Checking stock levels after sale...');
+      List<ProductModel> lowStockProducts = []; // ✅ Fixed: Use ProductModel list
+
+      for (var item in items) {
+        final product = await ProductDB.getProduct(item.id);
+         
+        if (product != null) {
+          // Check if product is now low stock or out of stock
+          if (product.stock == 0) {
+            debugPrint('🚨 OUT OF STOCK: ${product.name}');
+            lowStockProducts.add(product); // ✅ Add ProductModel object
+          } else if (product.stock <= 5) { // Assuming threshold is 5
+            debugPrint('⚠️ LOW STOCK: ${product.name} (${product.stock} units)');
+            lowStockProducts.add(product); // ✅ Add ProductModel object
+          }
+        }
+      }
+
+      // Send notifications if any products are low/out of stock
+      if (lowStockProducts.isNotEmpty) {
+        await InventoryNotificationService.checkAndNotifyLowStock(
+          lowStockProducts, // ✅ Now passing List<ProductModel>
+          lowStockThreshold: 5,
+        );
+        debugPrint('✅ Stock notifications sent for ${lowStockProducts.length} products');
+      } else {
+        debugPrint('✅ All products have sufficient stock');
+      }
+    } catch (e) {
+      debugPrint('❌ Error checking stock after sale: $e');
     }
   }
 
@@ -180,6 +218,12 @@ class SaleAddUtils {
       await SaleItemDB.clearSaleItems();
       await PartyDb.loadParties();
       await PartyDb.updateBalanceAfterSale(sale);
+
+      // ✅ NEW: Check and notify for low/out of stock after successful sale
+      // Only for normal sales (not sale orders) since they deduct stock
+      if (sale.transactionType == TransactionType.sale) {
+        await _checkAndNotifyStockAfterSale(items);
+      }
 
       debugPrint('Sale saved successfully');
       return true;
@@ -358,6 +402,9 @@ class SaleAddUtils {
             await ProductDB.restockProduct(item.id, item.quantity);
             debugPrint(
                 'Restocked on delete: ${item.productName} x${item.quantity}');
+            
+            // ✅ NEW: Clear notification after restocking
+            await InventoryNotificationService.clearProductNotification(item.id);
           }
         } else {
           debugPrint('No restock needed — sale status: ${sale.status}');
@@ -632,7 +679,7 @@ class SaleAddUtils {
       try {
         final file = File(trimmedPath);
         if (file.existsSync()) {
-          debugPrint('Mobile image loaded from file: $trimmedPath');
+          debugPrint('Mobile image loaded from file: $trimmedPath');  
           return FileImage(file);
         } else {
           debugPrint('File does not exist: $trimmedPath');

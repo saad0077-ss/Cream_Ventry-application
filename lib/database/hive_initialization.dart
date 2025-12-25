@@ -24,15 +24,21 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:async';
 
 class HiveInitialization {
+  static DateTime? _lastCheckDate;
+  static Timer? _midnightTimer;
+
   /// Initialize Hive, register adapters, open boxes, initialize databases, and set up notifications
   static Future<void> initialize() async {
     await Hive.initFlutter();
     await _registerAdapters();
     await _openBoxes();
     await _initializeDatabases();
+    
+    // Initialize notifications (includes startup checks)
     await _initializeNotifications();
-    await _performInitialChecks();
-    _setupPeriodicChecks();
+    
+    // ✅ Set up midnight check for new day
+    _setupMidnightCheck();
   }
 
   /// Register all Hive adapters
@@ -101,8 +107,8 @@ class HiveInitialization {
 
   /// Initialize all database instances
   static Future<void> _initializeDatabases() async {
-    CategoryDB.initialize();
-    ProductDB.initialize();
+    CategoryDB.initAndLoad();
+    ProductDB.initialize(); 
     PartyDb.init();
     UserDB.initializeHive();
     SaleItemDB.init();
@@ -112,49 +118,109 @@ class HiveInitialization {
     StockTransactionDB.initialize();
   }
 
-  /// Initialize notification services
+  /// Initialize notification services (includes startup checks)
   static Future<void> _initializeNotifications() async {
     try {
-      await NotificationSetup.initialize();
-      debugPrint('✅ Notifications initialized successfully');
+      // This function:
+      // 1. Initializes notification service
+      // 2. Checks low stock products
+      // 3. Checks due dates
+      // 4. Schedules daily notifications at 9 AM
+      await NotificationSetup.initialize(); 
+      
+      // Store current date for midnight check
+      _lastCheckDate = DateTime.now();
+      
+      debugPrint('✅ Notifications initialized with startup checks completed'); 
     } catch (e) {
       debugPrint('❌ Error initializing notifications: $e');
     }
   }
 
-  /// Perform initial checks on app startup
-  static Future<void> _performInitialChecks() async {
-    try {
-      // Debug: Print all products
-      await ProductDB.debugPrintAllProducts();
+  /// ✅ NEW: Set up midnight check to detect new day
+  static void _setupMidnightCheck() {
+    // Cancel existing timer if any
+    _midnightTimer?.cancel();
+
+    // Calculate time until next midnight
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final durationUntilMidnight = tomorrow.difference(now);
+
+    debugPrint('⏰ Next midnight check scheduled in ${durationUntilMidnight.inHours}h ${durationUntilMidnight.inMinutes % 60}m');
+
+    // Schedule first check at midnight
+    _midnightTimer = Timer(durationUntilMidnight, () {
+      _onNewDay();
       
-      // Check low stock products immediately
-      await ProductDB.forceCheckLowStock();
-      debugPrint('✅ Low stock check completed');
-      
-      // Check due dates immediately on app start
-      await SaleDB.checkDueDatesToday();
-      debugPrint('✅ Due date check completed');
-    } catch (e) {
-      debugPrint('❌ Error performing initial checks: $e');
+      // After first midnight, check every 1 minute to detect day change
+      // (More reliable than calculating next midnight each time)
+      _midnightTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+        _checkIfNewDay();
+      });
+    });
+
+    debugPrint('✅ Midnight check system initialized');
+  }
+
+  /// ✅ Check if a new day has started
+  static void _checkIfNewDay() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    if (_lastCheckDate == null) {
+      _lastCheckDate = today;
+      return;
+    }
+
+    final lastCheck = DateTime(
+      _lastCheckDate!.year,
+      _lastCheckDate!.month,
+      _lastCheckDate!.day,
+    );
+
+    // If date changed, trigger new day actions
+    if (today.isAfter(lastCheck)) {
+      debugPrint('📅 New day detected: $today (previous: $lastCheck)');
+      _onNewDay();
+      _lastCheckDate = today;
     }
   }
 
-  /// Set up periodic checks (runs every 24 hours)
-  static void _setupPeriodicChecks() {
-    // Reset notified sales and check due dates every 24 hours
-    Timer.periodic(const Duration(hours: 24), (timer) async {
-      try {
-        debugPrint('⏰ Running periodic check (24h interval)');
-        InventoryNotificationService.resetNotifiedSales();
-        await SaleDB.checkDueDatesToday();
-        await ProductDB.forceCheckLowStock(); // Also recheck low stock
-        debugPrint('✅ Periodic check completed');
-      } catch (e) {
-        debugPrint('❌ Error in periodic check: $e');
+  /// ✅ Actions to perform when a new day starts
+  static Future<void> _onNewDay() async {
+    try {
+      debugPrint('🌅 NEW DAY STARTED - Running checks...');
+      
+      // Reset notification tracking   
+      InventoryNotificationService.resetNotifiedSales(); 
+      InventoryNotificationService.resetNotifiedProducts();
+      debugPrint('✅ Notification tracking reset');
+      
+      // Check due dates for new day
+      final sales = await SaleDB.getSales();
+      await InventoryNotificationService.checkAndNotifyDueSales(sales);
+      debugPrint('✅ Due date check completed for new day');
+      
+      // Recheck low stock (in case stock was updated overnight)
+      final lowStockProducts = ProductDB.lowStockNotifier.value;
+      if (lowStockProducts.isNotEmpty) {
+        await InventoryNotificationService.checkAndNotifyLowStock(
+          lowStockProducts,
+          lowStockThreshold: 5,
+        );
+        debugPrint('✅ Low stock check completed for new day');
       }
-    });
+      
+      debugPrint('🎉 NEW DAY CHECKS COMPLETED');
+    } catch (e) {
+      debugPrint('❌ Error in new day checks: $e');
+    }
+  }
 
-    debugPrint('✅ Periodic checks scheduled (every 24 hours)');
+  /// Cancel timers on app dispose
+  static void dispose() {
+    _midnightTimer?.cancel();
+    debugPrint('🗑️ Midnight check timer cancelled');
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cream_ventory/screens/auth/widgets/auth_screen_center_text.dart';
 import 'package:cream_ventory/screens/auth/widgets/sign_in_screen_account_create.dart';
 import 'package:cream_ventory/screens/auth/widgets/auth_screens_button.dart';
 import 'package:cream_ventory/screens/auth/widgets/auth_screen_text_form_feild.dart';
@@ -24,7 +25,7 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
       formKey: _formKey,
     );
   }
-
+ 
   bool rememberMe = false;
   bool isPasswordVisible = false;
 
@@ -47,14 +48,14 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
     // Responsive spacing
     final double topSpacing = () {
       if (isSplitScreen) return 12.0;
-      if (isSmallScreen) return 15.0;
-      return 20.0;
-    }();
+      if (isSmallScreen) return 40.0;
+      return 30.0;  
+    }(); 
     
     final double fieldSpacing = () {
       if (isSplitScreen) return 16.0;
       if (isSmallScreen) return 20.0;
-      return 25.0;
+      return 25.0; 
     }();
     
     final double afterPasswordSpacing = () {
@@ -71,7 +72,7 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
     
     final double afterButtonSpacing = () {
       if (isSplitScreen) return 14.0;
-      if (isSmallScreen) return 16.0;
+      if (isSmallScreen) return 16.0; 
       return 20.0;
     }();
 
@@ -83,8 +84,10 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: topSpacing),
+            CenterTextSignIn(),
+            SizedBox(height: 40),
             CustomTextFormField(
-              labelText: 'Username or Email',
+              labelText: 'Username or Email', 
               controller: _usernameController,
               hintText: 'Username or Email',
               validator: LoginFunctions.validateUsernameOrEmail, 

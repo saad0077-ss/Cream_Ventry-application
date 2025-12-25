@@ -1,3 +1,4 @@
+import 'package:cream_ventory/screens/auth/widgets/auth_screen_center_text.dart';
 import 'package:cream_ventory/screens/auth/widgets/auth_screens_button.dart';
 import 'package:cream_ventory/screens/auth/widgets/auth_screen_text_form_feild.dart';
 import 'package:cream_ventory/core/utils/authentication/authentication_sign_up.dart';
@@ -37,21 +38,21 @@ class _FormFeildState extends State<FormFeild> {
     // Responsive spacing
     final double topSpacing = () {
       if (isSplitScreen) return 15.0;
-      if (isSmallScreen) return 20.0;
-      return 30.0;
+      if (isSmallScreen) return 35.0;
+      return 35.0;
     }();
-    
+      
     final double fieldSpacing = () {
       if (isSplitScreen) return 14.0;
-      if (isSmallScreen) return 18.0;
-      return 25.0;
-    }();
-    
-    final double buttonTopSpacing = () {
+      if (isSmallScreen) return 22.0;  
+      return 30.0;
+    }(); 
+     
+    final double buttonTopSpacing = () { 
       if (isSplitScreen) return 20.0;
-      if (isSmallScreen) return 28.0;
-      return 40.0;
-    }();
+      if (isSmallScreen) return 25.0;
+      return 30.0;
+    }(); 
 
     return Form(
       key: _formKey,
@@ -59,6 +60,8 @@ class _FormFeildState extends State<FormFeild> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: topSpacing), 
+          CenterTextSignUp(),
+          SizedBox(height: 40), 
           CustomTextFormField(
             labelText: 'Username',
             controller: _usernameController,

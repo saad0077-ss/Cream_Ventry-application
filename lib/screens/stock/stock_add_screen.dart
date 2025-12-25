@@ -217,7 +217,7 @@ class _AddStockState extends State<AddStock> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start, 
             children: [
               // Product Info Card
               Card(

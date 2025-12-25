@@ -177,7 +177,7 @@ class _ScreenSplashState extends State<ScreenSplash>
               SlideTransition(
                 position: _textAnimation,
                 child: Text(
-                  'CreamVentry',
+                  'CreamVentory', 
                   style: TextStyle(
                     fontFamily: 'ABeeZee',
                     fontSize: 28,    

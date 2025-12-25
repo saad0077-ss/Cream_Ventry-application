@@ -22,6 +22,13 @@ class CategoryDB {
     }
   }
 
+  // In CategoryDB class
+  static Future<void> initAndLoad() async {
+    await initialize();
+    await loadSampleCategories();
+    await refreshCategories();
+  }
+
   // ====== ONLY ONE REFRESH METHOD ======
   static Future<void> refreshCategories() async {
     try {
@@ -44,38 +51,37 @@ class CategoryDB {
   }
   // ======================================
 
- // In category_db.dart
-static Future<String?> addCategory(CategoryModel category) async {
-  try {
-    final user = await UserDB.getCurrentUser();
-    final userId = user.id;
+  // In category_db.dart
+  static Future<String?> addCategory(CategoryModel category) async {
+    try {
+      final user = await UserDB.getCurrentUser();
+      final userId = user.id;
 
-    // Prevent duplicate by ID
-    if (_box.containsKey(category.id)) {
-      return "Category already exists with this ID!";
+      // Prevent duplicate by ID
+      if (_box.containsKey(category.id)) {
+        return "Category already exists with this ID!";
+      }
+
+      // Prevent duplicate by NAME (case-insensitive, includes sample categories)
+      final newNameLower = category.name.trim().toLowerCase();
+
+      final bool nameExists = _box.values.any((cat) =>
+          cat.name.trim().toLowerCase() == newNameLower &&
+          (cat.userId == null || cat.userId == userId));
+
+      if (nameExists) {
+        return "Category '${category.name.trim()}' already exists!";
+      }
+
+      // All good → Add it
+      await _box.put(category.id, category);
+      await refreshCategories();
+      return null; // Success = null
+    } catch (e) {
+      debugPrint('Add category error: $e');
+      return "Failed to add category. Please try again.";
     }
-
-    // Prevent duplicate by NAME (case-insensitive, includes sample categories)
-    final newNameLower = category.name.trim().toLowerCase();
-
-    final bool nameExists = _box.values.any((cat) =>
-        cat.name.trim().toLowerCase() == newNameLower &&
-        (cat.userId == null || cat.userId == userId));
-
-    if (nameExists) {
-      return "Category '${category.name.trim()}' already exists!";
-    }
-
-    // All good → Add it
-    await _box.put(category.id, category);
-    await refreshCategories();
-    return null; // Success = null
-
-  } catch (e) {
-    debugPrint('Add category error: $e');
-    return "Failed to add category. Please try again.";
   }
-}
 
   static Future<bool> deleteCategory(String id) async {
     try {

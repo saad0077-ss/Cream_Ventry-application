@@ -72,7 +72,7 @@ class ProductDB {
     }
   }
 
-// Add these new methods at the end
+// Add these new methods at the end 
   static Future<void> checkAndNotifyLowStock() async {
     final lowStockProducts = lowStockNotifier.value;
     if (lowStockProducts.isNotEmpty) {

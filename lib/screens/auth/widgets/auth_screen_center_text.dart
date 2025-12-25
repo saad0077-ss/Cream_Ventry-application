@@ -1,113 +1,6 @@
 // import 'package:cream_ventory/core/constants/font_helper.dart';
-// import 'package:cream_ventory/widgets/positioned.dart';
-// import 'package:cream_ventory/widgets/text_span.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-// class CenterTextSignUp extends StatelessWidget {
-//   const CenterTextSignUp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isDesktop = MediaQuery.of(context).size.width >= 700;
-//     return CustomPositioned(
-//       type: PositionedType.basic,
-//       left: 0,
-//       right: 0,
-//       bottom: 450.h, // ~57% of 812px design height 
-//       child: Center(
-//         child: CustomTextSpan(
-//           spans: [
-//             TextSpanConfig(
-//               text: 'CREATE',
-//               style: TextStyle(
-//                 fontSize: isDesktop ? 60 : 30,
-//                 fontFamily: 'holtwood',
-//                 color: Colors.white,
-//               ),
-//             ),
-//             TextSpanConfig(
-//               text: ' ACCOUNT',
-//               style: TextStyle(
-//                 fontSize: isDesktop ? 60 : 30,
-//                 fontFamily: 'holtwood',
-//                 color: Colors.white,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class WelcomeText extends StatelessWidget {
-//   const WelcomeText({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomPositioned( 
-//       type: PositionedType.basic,
-//       bottom: 600.5.h, // ~12.5% of 812px design height
-//       left: 30.5.w, // ~10% of 375px design width
-//       child: Text(
-//         'WELCOME BACK 😊 \nHappy to see you again!',
-//         style: AppTextStyles.welcomeTitle, 
-//       ),
-//     );
-//   }
-// }
-
-// class CenterTextSignIn extends StatelessWidget {
-//   const CenterTextSignIn({super.key}); 
-
-//   @override
-//   Widget build(BuildContext context) {
-
-//     final bool isDesktop = MediaQuery.of(context).size.width >= 700;
-//     return CustomPositioned(
-//       type: PositionedType.basic,
-//       left: 0,
-//       right: 0,
-//       bottom: 440.h, // ~50% of 812px design height 
-//       child: Center(
-//         child: CustomTextSpan(
-//           spans: [ 
-//             TextSpanConfig(
-//               text: 'SIGN ',
-//               style: TextStyle(
-//                 fontSize: isDesktop? 60 : 35,
-//                 fontFamily: 'holtwood',
-//                 color: Colors.white,
-//               ),
-//             ),
-//             TextSpanConfig(
-//               text: 'IN',
-//               style: TextStyle(
-//                 fontSize: isDesktop? 60 : 35,
-//                 fontFamily: 'holtwood',
-//                 color: Colors.white,  
-//               ),
-//             ),
-//             TextSpanConfig(
-//               text: ' NOW',
-//               style: TextStyle(
-//                 fontSize:isDesktop? 60 : 35 ,
-//                 fontFamily: 'holtwood',
-//                 color: Colors.white,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-import 'package:cream_ventory/core/constants/font_helper.dart';
-import 'package:cream_ventory/widgets/positioned.dart';
 import 'package:cream_ventory/widgets/text_span.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CenterTextSignUp extends StatefulWidget {
   const CenterTextSignUp({super.key});
@@ -117,14 +10,19 @@ class CenterTextSignUp extends StatefulWidget {
 }
 
 class _CenterTextSignUpState extends State<CenterTextSignUp>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _shimmerController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _shimmerAnimation;
+  bool _isInitialized = false; 
 
   @override
   void initState() {
     super.initState();
+    
+    // Main entrance animation
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -139,17 +37,33 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
+    // Continuous shimmer animation
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 2500),
+      vsync: this,
+    )..repeat();
+
+    _shimmerAnimation = Tween<double>(begin: -2, end: 2).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
+
+    _isInitialized = true;
     _controller.forward();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const SizedBox.shrink();
+    }
+ 
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 700;
     final bool isMediumScreen = screenWidth >= 425 && screenWidth < 730; 
@@ -159,92 +73,123 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
     final double fontSize = isDesktop 
         ? 60 
         : isSmallScreen  
-            ? 19 
-            : isMediumScreen  
-                ? 30 
-                : 40;
+            ? 25    
+            : isMediumScreen   
+                ? 29       
+                : 30;
                    
     // Responsive padding
     final EdgeInsets padding = isSmallScreen
-        ? const EdgeInsets.symmetric(horizontal: 15, vertical: 8)
+        ? const EdgeInsets.symmetric(horizontal: 20, vertical: 10)
         : isMediumScreen
-            ? const EdgeInsets.symmetric(horizontal: 18, vertical: 10)
-            : const EdgeInsets.symmetric(horizontal: 28, vertical: 14);          
+            ? const EdgeInsets.symmetric(horizontal: 15, vertical: 15) 
+            : const EdgeInsets.symmetric(horizontal: 28, vertical: 14);           
     
-    return CustomPositioned(
-      type: PositionedType.basic,
-      left: 0,
-      right: 0,
-      bottom: 450.h,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: Center(               
-            child: Container(
-              padding: padding,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(isSmallScreen ? 12 : 16),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.15),
-                    Colors.white.withOpacity(0.05),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: isSmallScreen ? 15 : 20,
-                    spreadRadius: -5,
-                  ),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Center(               
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.08),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Colors.white,
-                    Colors.white.withOpacity(0.95),
-                    Colors.white,
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
-                ).createShader(bounds),
-                child: CustomTextSpan(
-                  spans: [
-                    TextSpanConfig(
-                      text: 'CREATE',
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        fontFamily: 'holtwood',
-                        color: Colors.white,
-                        letterSpacing: isSmallScreen ? 1.5 : 2,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.3),
-                            offset: const Offset(0, 4),
-                            blurRadius: isSmallScreen ? 6 : 8,
-                          ),
-                        ],
-                      ),
-                    ),
-                    TextSpanConfig(
-                      text: ' ACCOUNT',
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        fontFamily: 'holtwood',
-                        color: Colors.white,
-                        letterSpacing: isSmallScreen ? 1.5 : 2,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.3),
-                            offset: const Offset(0, 4),
-                            blurRadius: isSmallScreen ? 6 : 8,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: isSmallScreen ? 1 : 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: isSmallScreen ? 15 : 20,
+                  spreadRadius: -5,
+                  offset: const Offset(0, 8),
                 ),
-              ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.1),
+                  blurRadius: isSmallScreen ? 12 : 15,
+                  spreadRadius: -8,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: AnimatedBuilder(
+              animation: _shimmerAnimation,
+              builder: (context, child) {
+                return ShaderMask(
+                  blendMode: BlendMode.srcATop,
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.8),
+                        Colors.white,
+                        Colors.white.withOpacity(0.9),
+                        Colors.white,
+                        Colors.white.withOpacity(0.8),
+                      ],
+                      stops: const [0.0, 0.4, 0.5, 0.6, 1.0],
+                      begin: Alignment(_shimmerAnimation.value, 0),
+                      end: Alignment(_shimmerAnimation.value + 1, 0),
+                    ).createShader(bounds);
+                  },
+                  child: CustomTextSpan(
+                    spans: [
+                      TextSpanConfig(
+                        text: 'CREATE',
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontFamily: 'holtwood',
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: const Offset(0, 4),
+                              blurRadius: isSmallScreen ? 8 : 10,
+                            ),
+                            Shadow(
+                              color: Colors.purple.withOpacity(0.3),
+                              offset: const Offset(0, 0),
+                              blurRadius: isSmallScreen ? 15 : 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextSpanConfig(
+                        text: ' ACCOUNT',
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontFamily: 'holtwood',
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: const Offset(0, 4),
+                              blurRadius: isSmallScreen ? 8 : 10,
+                            ),
+                            Shadow(
+                              color: Colors.blue.withOpacity(0.3),
+                              offset: const Offset(0, 0),
+                              blurRadius: isSmallScreen ? 15 : 20,
+                            ),
+                          ], 
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -252,112 +197,106 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
     );
   }
 }
+// class WelcomeText extends StatefulWidget {
+//   const WelcomeText({super.key});
 
-class WelcomeText extends StatefulWidget {
-  const WelcomeText({super.key});
+//   @override
+//   State<WelcomeText> createState() => _WelcomeTextState();
+// }
 
-  @override
-  State<WelcomeText> createState() => _WelcomeTextState();
-}
+// class _WelcomeTextState extends State<WelcomeText>
+//     with SingleTickerProviderStateMixin {
+//   late AnimationController _controller;
+//   late Animation<double> _fadeAnimation;
+//   late Animation<Offset> _slideAnimation;
+//   late Animation<double> _scaleAnimation;
 
-class _WelcomeTextState extends State<WelcomeText>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = AnimationController(
+//       duration: const Duration(milliseconds: 1000),
+//       vsync: this,
+//     );
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
+//     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+//       CurvedAnimation(
+//         parent: _controller,
+//         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+//       ),
+//     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
+//     _slideAnimation = Tween<Offset>(
+//       begin: const Offset(-0.3, 0),
+//       end: Offset.zero,
+//     ).animate(CurvedAnimation(
+//       parent: _controller,
+//       curve: Curves.easeOutCubic,
+//     ));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(-0.3, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+//     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+//       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+//     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+//     _controller.forward();
+//   }
 
-    _controller.forward();
-  }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 425;
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool isSmallScreen = MediaQuery.of(context).size.width < 425;
     
-    return CustomPositioned( 
-      type: PositionedType.basic,
-      bottom: 600.5.h,
-      left: 30.5.w,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: isSmallScreen 
-                  ? const EdgeInsets.all(8)
-                  : const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.2),
-                    Colors.white.withOpacity(0.08),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: isSmallScreen ? 12 : 15,
-                    spreadRadius: -3,
-                  ),
-                ],
-              ),
-              child: Text(
-                'WELCOME BACK 😊 \nHappy to see you again!',
-                style: AppTextStyles.welcomeTitle.copyWith(
-                  fontSize: isSmallScreen ? 14 : null,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.4),
-                      offset: const Offset(0, 2),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//     return FadeTransition(
+//       opacity: _fadeAnimation,
+//       child: SlideTransition(
+//         position: _slideAnimation,
+//         child: ScaleTransition(
+//           scale: _scaleAnimation,
+//           alignment: Alignment.centerLeft,
+//           child: Container(
+//             padding: isSmallScreen 
+//                 ? const EdgeInsets.all(8)
+//                 : const EdgeInsets.all(12),
+//             decoration: BoxDecoration(
+//               borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
+//               gradient: LinearGradient(
+//                 colors: [
+//                   Colors.white.withOpacity(0.2),
+//                   Colors.white.withOpacity(0.08),
+//                 ],
+//               ),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withOpacity(0.15),
+//                   blurRadius: isSmallScreen ? 12 : 15,
+//                   spreadRadius: -3,
+//                 ),
+//               ],
+//             ),
+//             child: Text(
+//               'WELCOME BACK 😊 \nHappy to see you again!',
+//               style: AppTextStyles.welcomeTitle.copyWith(
+//                 fontSize: isSmallScreen ? 14 : null,
+//                 shadows: [
+//                   Shadow(
+//                     color: Colors.black.withOpacity(0.4),
+//                     offset: const Offset(0, 2),
+//                     blurRadius: 6,
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class CenterTextSignIn extends StatefulWidget {
   const CenterTextSignIn({super.key});
@@ -422,152 +361,146 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
     // Responsive font size
     final double fontSize = isDesktop 
         ? 60 
-        : isSmallScreen 
-            ? 28 
-            : 35;
+        : isSmallScreen  
+            ? 30 
+            : 32;
     
     // Responsive padding
     final EdgeInsets padding = isSmallScreen
         ? const EdgeInsets.symmetric(horizontal: 20, vertical: 10)
         : const EdgeInsets.symmetric(horizontal: 28, vertical: 14);
     
-    return CustomPositioned(
-      type: PositionedType.basic,
-      left: 0,
-      right: 0,
-      bottom: 440.h,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: Center(
-            child: Container(
-              padding: padding,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.2),
-                    Colors.white.withOpacity(0.08),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
-                  width: isSmallScreen ? 1 : 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    blurRadius: isSmallScreen ? 15 : 20,
-                    spreadRadius: -5,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.1),
-                    blurRadius: isSmallScreen ? 12 : 15,
-                    spreadRadius: -8,
-                    offset: const Offset(0, -4),
-                  ),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Center(
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.08),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: AnimatedBuilder(
-                animation: _shimmerAnimation,
-                builder: (context, child) {
-                  return ShaderMask(
-                    blendMode: BlendMode.srcATop,
-                    shaderCallback: (bounds) {
-                      return LinearGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.8),
-                          Colors.white,
-                          Colors.white.withOpacity(0.9),
-                          Colors.white,
-                          Colors.white.withOpacity(0.8),
-                        ],
-                        stops: const [0.0, 0.4, 0.5, 0.6, 1.0],
-                        begin: Alignment(_shimmerAnimation.value, 0),
-                        end: Alignment(_shimmerAnimation.value + 1, 0),
-                      ).createShader(bounds);
-                    },
-                    child: CustomTextSpan(
-                      spans: [
-                        TextSpanConfig(
-                          text: 'SIGN ',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontFamily: 'holtwood',
-                            color: Colors.white,
-                            letterSpacing: isSmallScreen ? 2 : 2.5,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.4),
-                                offset: const Offset(0, 4),
-                                blurRadius: isSmallScreen ? 8 : 10,
-                              ),
-                              Shadow(
-                                color: Colors.purple.withOpacity(0.3),
-                                offset: const Offset(0, 0),
-                                blurRadius: isSmallScreen ? 15 : 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                        TextSpanConfig(
-                          text: 'IN',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontFamily: 'holtwood',
-                            color: Colors.white,
-                            letterSpacing: isSmallScreen ? 2 : 2.5,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.4),
-                                offset: const Offset(0, 4),
-                                blurRadius: isSmallScreen ? 8 : 10,
-                              ),
-                              Shadow(
-                                color: Colors.blue.withOpacity(0.3),
-                                offset: const Offset(0, 0),
-                                blurRadius: isSmallScreen ? 15 : 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                        TextSpanConfig(
-                          text: ' NOW',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontFamily: 'holtwood',
-                            color: Colors.white,
-                            letterSpacing: isSmallScreen ? 2 : 2.5,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.4),
-                                offset: const Offset(0, 4),
-                                blurRadius: isSmallScreen ? 8 : 10,
-                              ),
-                              Shadow(
-                                color: Colors.pink.withOpacity(0.3),
-                                offset: const Offset(0, 0),
-                                blurRadius: isSmallScreen ? 15 : 20,
-                              ),
-                            ],
-                          ),
-                        ),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: isSmallScreen ? 1 : 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: isSmallScreen ? 15 : 20,
+                  spreadRadius: -5,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.1),
+                  blurRadius: isSmallScreen ? 12 : 15,
+                  spreadRadius: -8,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: AnimatedBuilder(
+              animation: _shimmerAnimation,
+              builder: (context, child) {
+                return ShaderMask(
+                  blendMode: BlendMode.srcATop,
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.8),
+                        Colors.white,
+                        Colors.white.withOpacity(0.9),
+                        Colors.white,
+                        Colors.white.withOpacity(0.8),
                       ],
-                    ),
-                  );
-                },
-              ),
+                      stops: const [0.0, 0.4, 0.5, 0.6, 1.0],
+                      begin: Alignment(_shimmerAnimation.value, 0),
+                      end: Alignment(_shimmerAnimation.value + 1, 0),
+                    ).createShader(bounds);
+                  },
+                  child: CustomTextSpan(
+                    spans: [
+                      TextSpanConfig(
+                        text: 'SIGN ',
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontFamily: 'holtwood',
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: const Offset(0, 4),
+                              blurRadius: isSmallScreen ? 8 : 10,
+                            ),
+                            Shadow(
+                              color: Colors.purple.withOpacity(0.3),
+                              offset: const Offset(0, 0),
+                              blurRadius: isSmallScreen ? 15 : 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextSpanConfig(
+                        text: 'IN',
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontFamily: 'holtwood',
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: const Offset(0, 4),
+                              blurRadius: isSmallScreen ? 8 : 10,
+                            ),
+                            Shadow(
+                              color: Colors.blue.withOpacity(0.3),
+                              offset: const Offset(0, 0),
+                              blurRadius: isSmallScreen ? 15 : 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextSpanConfig(
+                        text: ' NOW',
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontFamily: 'holtwood',
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: const Offset(0, 4),
+                              blurRadius: isSmallScreen ? 8 : 10,
+                            ),
+                            Shadow(
+                              color: Colors.pink.withOpacity(0.3),
+                              offset: const Offset(0, 0),
+                              blurRadius: isSmallScreen ? 15 : 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
       ),
     );
   }
-}
+}  
