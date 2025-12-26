@@ -44,6 +44,8 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
     // Detect small screens and split-screen mode
     final bool isSmallScreen = screenWidth < 420;
     final bool isSplitScreen = screenHeight < 600;
+
+    final bool isDesktopScreen = screenHeight >= 1000;
     
     // Responsive spacing
     final double topSpacing = () {
@@ -84,8 +86,8 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: topSpacing),
-            CenterTextSignIn(),
-            SizedBox(height: 40),
+            isDesktopScreen ? SizedBox() : CenterTextSignIn(),
+            SizedBox(height: isDesktopScreen ? null : 40),  
             CustomTextFormField(
               labelText: 'Username or Email', 
               controller: _usernameController,

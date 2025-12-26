@@ -17,7 +17,7 @@ class _FormFeildState extends State<FormFeild> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
-  
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -30,64 +30,65 @@ class _FormFeildState extends State<FormFeild> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Detect small screens and split-screen mode
     final bool isSmallScreen = screenWidth < 420;
     final bool isSplitScreen = screenHeight < 600;
-    
+    final bool isdesktopScreen = screenHeight >= 1000;
+
     // Responsive spacing
     final double topSpacing = () {
       if (isSplitScreen) return 15.0;
       if (isSmallScreen) return 35.0;
       return 35.0;
     }();
-      
+
     final double fieldSpacing = () {
       if (isSplitScreen) return 14.0;
-      if (isSmallScreen) return 22.0;  
+      if (isSmallScreen) return 22.0;
       return 30.0;
-    }(); 
-     
-    final double buttonTopSpacing = () { 
+    }();
+
+    final double buttonTopSpacing = () {
       if (isSplitScreen) return 20.0;
       if (isSmallScreen) return 25.0;
       return 30.0;
-    }(); 
+    }();
 
     return Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: topSpacing), 
-          CenterTextSignUp(),
-          SizedBox(height: 40), 
-          CustomTextFormField(
-            labelText: 'Username',
-            controller: _usernameController,
-            hintText: 'Enter your Username', 
+          SizedBox(height: topSpacing),
+          isdesktopScreen ? SizedBox() : CenterTextSignIn(),
+          SizedBox(height: isdesktopScreen ? null : 40),
+          CustomTextFormField( 
+            labelText: 'Username', 
+            controller: _usernameController, 
+            hintText: 'Enter your Username',
             validator: SignInFunctions.validateUsername,
           ),
-          SizedBox(height: fieldSpacing), 
+          SizedBox(height: fieldSpacing),
           CustomTextFormField(
             labelText: 'Email',
             controller: _emailController,
             hintText: 'Enter your Email',
             validator: SignInFunctions.validateEmail,
-            type: TextInputType.emailAddress,        
+            type: TextInputType.emailAddress,
           ),
-          SizedBox(height: fieldSpacing), 
+          SizedBox(height: fieldSpacing),
           CustomTextFormField(
             labelText: 'Password',
             controller: _passwordController,
             hintText: 'Enter your Password',
             validator: SignInFunctions.validatePassword,
-            isPasswordVisible: isPasswordVisible, 
+            isPasswordVisible: isPasswordVisible,
             isPassword: true,
             togglePasswordVisibility: () {
               setState(() {
                 isPasswordVisible = !isPasswordVisible;
-              }); 
+              });
             },
           ),
           SizedBox(height: buttonTopSpacing),
@@ -101,7 +102,7 @@ class _FormFeildState extends State<FormFeild> {
                 usernameController: _usernameController,
               );
             },
-            primaryText: 'SIGN', 
+            primaryText: 'SIGN',
             secondaryText: 'UP',
           ),
           // Add bottom spacing for better scrolling experience
