@@ -222,6 +222,16 @@ class _ScreenSignInState extends State<ScreenSignIn>
     // Responsive container height (55% of screen, min 400, max 520)
     final double containerHeight = (screenHeight * 0.59).clamp(400.0, 520.0);
 
+    // Calculate container width based on screen width
+    final double containerWidth;
+    if (screenWidth >= 546) {
+      // Between 546 and 1000: fixed width of 500px (546 - 2*22.5 padding)
+      containerWidth = 500.0;
+    } else {
+      // Below 546: responsive (full width minus padding)
+      containerWidth = screenWidth - (2 * horizontalPadding);
+    }
+
     // Adjust padding based on screen size
     final double containerPaddingHorizontal =
         screenWidth < 420 ? 17.75 * 0.7 : 17.75;
@@ -252,7 +262,7 @@ class _ScreenSignInState extends State<ScreenSignIn>
           Container(
             color: const Color.fromARGB(49, 0, 0, 0),
           ),
-                 Center(
+          Center(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: AnimatedBuilder(
@@ -264,7 +274,7 @@ class _ScreenSignInState extends State<ScreenSignIn>
                       height: screenWidth < 420
                           ? containerHeight * 0.9
                           : containerHeight,
-                      width: screenWidth - (2 * horizontalPadding),
+                      width: containerWidth,
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(24),

@@ -31,12 +31,12 @@ class _FormFeildState extends State<FormFeild> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Detect small screens and split-screen mode
+    // Detect small screens and split-screen mode 
     final bool isSmallScreen = screenWidth < 420;
     final bool isSplitScreen = screenHeight < 600;
-    final bool isdesktopScreen = screenHeight >= 1000;
-
-    // Responsive spacing
+    final bool isdesktopScreen = screenWidth >= 1000;
+ 
+    // Responsive spacing 
     final double topSpacing = () {
       if (isSplitScreen) return 15.0;
       if (isSmallScreen) return 35.0;
@@ -61,7 +61,7 @@ class _FormFeildState extends State<FormFeild> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: topSpacing),
-          isdesktopScreen ? SizedBox() : CenterTextSignIn(),
+          isdesktopScreen ? SizedBox() : CenterTextSignUp(),
           SizedBox(height: isdesktopScreen ? null : 40),
           CustomTextFormField( 
             labelText: 'Username', 

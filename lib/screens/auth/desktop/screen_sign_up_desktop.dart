@@ -21,8 +21,14 @@ class ScreenSignUpDesktop extends StatelessWidget {
     // Desktop-specific responsive values
     final double maxContentWidth = 1200.0;
     final double formWidth = 520.0; // Slightly wider for sign-up form
-    final double formHeight = 600.0; // Taller for more fields
+    final double formHeight = 629.0; // Taller for more fields
     final double horizontalSpacing = 80.0;
+
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+
+    final bool isSmallScreen = screenWidth < 1160;
 
     return Scaffold(
       body: Stack(
@@ -68,7 +74,7 @@ class ScreenSignUpDesktop extends StatelessWidget {
                         Text(
                           'Join CreamVentory',
                           style: TextStyle(
-                            fontSize: 56,
+                            fontSize: isSmallScreen ? 40 : 56,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             height: 1.2,
@@ -78,7 +84,7 @@ class ScreenSignUpDesktop extends StatelessWidget {
                         Text(
                           'Create your account and start managing your inventory today',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: isSmallScreen ? 16 : 20,  
                             color: Colors.white.withOpacity(0.9),
                             fontWeight: FontWeight.w400,
                           ),
@@ -152,7 +158,7 @@ class ScreenSignUpDesktop extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  SizedBox(height: 32),
+                                  SizedBox(height: 25),
                                   // Form fields
                                   FormFeild(),
                                 ],

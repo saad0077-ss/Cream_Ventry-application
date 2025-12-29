@@ -45,7 +45,7 @@ class _FormFeildContainerState extends State<FormFeildContainer> {
     final bool isSmallScreen = screenWidth < 420;
     final bool isSplitScreen = screenHeight < 600;
 
-    final bool isDesktopScreen = screenHeight >= 1000;
+    final bool isDesktopScreen = screenWidth >= 1000;
     
     // Responsive spacing
     final double topSpacing = () {

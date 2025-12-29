@@ -99,14 +99,16 @@ class _SaleScreenState extends State<SaleScreen> {
           onUpdate: () => _controller.saveSale(isSaveAndNew: false),
           onSaveAndNew: () => _controller.saveSale(isSaveAndNew: true),
           onSave: () => _controller.saveSale(isSaveAndNew: false),
-        ),
+          isMediumScreen: screenSize.width >= 805 && screenSize.width <= 1123,
+          isSmallScreen: screenSize.width <= 805,
+        ), 
       ),
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.dispose(); 
     super.dispose();
   }
 }

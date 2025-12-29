@@ -10,14 +10,18 @@ class ScreenIntro1Desktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
+
+    final bool isSmallScreen = screenHeight <= 650;
+ 
     return Scaffold(
       body: Stack(
         children: [
           // Background with animation
           IntroBackground(
             imagePath: 'assets/animation/united.json',
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             loopAnimation: false,
             animationSpeed: 0.5,
             gradientOverlay: LinearGradient(
@@ -78,7 +82,7 @@ class ScreenIntro1Desktop extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                   SizedBox(height: isSmallScreen ? 20 : 32),
 
                   // Title with gradient
                   ShaderMask(
@@ -88,10 +92,10 @@ class ScreenIntro1Desktop extends StatelessWidget {
                         Color(0xFFFEC163),
                       ],
                     ).createShader(bounds),
-                    child: const Text(
+                    child:  Text(
                       'WELCOME TO\nCREAMVENTORY! 🍦',
                       style: TextStyle(
-                        fontSize: 64,
+                        fontSize: isSmallScreen ? 48 : 64,
                         fontWeight: FontWeight.w900,
                         height: 1.1,
                         color: Colors.white,
@@ -99,7 +103,7 @@ class ScreenIntro1Desktop extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                   SizedBox(height: isSmallScreen ? 20 : 40),
 
                   // Description with better contrast
                   Container(
@@ -118,7 +122,7 @@ class ScreenIntro1Desktop extends StatelessWidget {
                         Text(
                           'Keep your flavors fresh,\nyour stock full, and your\ncustomers happy.',
                           style: TextStyle(
-                            fontSize: 26,
+                            fontSize: isSmallScreen ? 20 : 26,
                             fontWeight: FontWeight.w600,
                             height: 1.5,
                             color: Colors.white,
@@ -131,11 +135,11 @@ class ScreenIntro1Desktop extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: isSmallScreen ? 20 : 24),
                         Text(
                           'Let\'s manage your ice cream\ninventory with a cherry on top!',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: isSmallScreen ? 16 : 20,
                             fontWeight: FontWeight.w400,
                             height: 1.6,
                             color: Colors.white.withOpacity(0.95),
@@ -151,7 +155,7 @@ class ScreenIntro1Desktop extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 56),
+                  SizedBox(height: isSmallScreen ? 20 : 56),
 
                   // Enhanced button with glow effect
                   Container(
@@ -167,7 +171,7 @@ class ScreenIntro1Desktop extends StatelessWidget {
                     ),
                     child: CustomButton(
                       label: 'EXPLORE NOW',
-                      fontSize: 20,
+                      fontSize: isSmallScreen ? 15 : 20,
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
@@ -178,16 +182,16 @@ class ScreenIntro1Desktop extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: isSmallScreen ? 20 : 40),
 
                   // Feature indicators
                   Row(
                     children: [
-                      _buildFeatureIndicator('Easy Setup', Icons.check_circle_outline),
+                      _buildFeatureIndicator('Easy Setup', Icons.check_circle_outline, isSmallScreen),
                       const SizedBox(width: 24),
-                      _buildFeatureIndicator('Real-time Updates', Icons.flash_on_outlined),
+                      _buildFeatureIndicator('Real-time Updates', Icons.flash_on_outlined, isSmallScreen),
                       const SizedBox(width: 24),
-                      _buildFeatureIndicator('Smart Alerts', Icons.notifications_outlined),
+                      _buildFeatureIndicator('Smart Alerts', Icons.notifications_outlined, isSmallScreen),
                     ],
                   ),
                 ],
@@ -199,19 +203,19 @@ class ScreenIntro1Desktop extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureIndicator(String label, IconData icon) {
+  Widget _buildFeatureIndicator(String label, IconData icon,bool isSmallScreen) {
     return Row(
       children: [
         Icon(
           icon,
-          size: 18,
+          size: isSmallScreen ? 16 : 18,
           color: const Color(0xFFFEC163),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 6), 
         Text(
           label,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: isSmallScreen ? 12 : 14,
             fontWeight: FontWeight.w500,
             color: Colors.white.withOpacity(0.9),
             shadows: [

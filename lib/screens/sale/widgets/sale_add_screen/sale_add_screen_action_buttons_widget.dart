@@ -12,53 +12,95 @@ class SaleActionButtonsWidget {
     required VoidCallback? onUpdate,
     required VoidCallback? onSaveAndNew,
     required VoidCallback? onSave,
+    required bool isSmallScreen,
+    required bool isMediumScreen,
   }) {
+    final bool shouldExpand = isSmallScreen || isMediumScreen;
+    
     return Padding(
-      padding:  EdgeInsets.only(top: 16.0.h, bottom: 16.0.h, left: 16.0.w, right: 16.0.w),
+      padding: EdgeInsets.only(top: 16.0.h, bottom: 16.0.h, left: 16.0.w, right: 16.0.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment:shouldExpand? MainAxisAlignment.spaceAround: MainAxisAlignment.center, 
         children: isEditMode
             ? [
-                Expanded(    
-                  child: CustomActionButton( 
+                if (shouldExpand)
+                  Expanded(    
+                    child: CustomActionButton( 
+                      label: 'DELETE',
+                      backgroundColor: Colors.red,
+                      onPressed: onDelete,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ),
+                  )
+                else
+                  CustomActionButton( 
+                    height: 48,
+                    width: 500,
                     label: 'DELETE',
                     backgroundColor: Colors.red,
                     onPressed: onDelete,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
-                ),
                 SizedBox(width: 8.h),
-
-                Expanded(
-                  child: CustomActionButton(
+                if (shouldExpand)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'UPDATE',
+                      backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+                      onPressed: isEditable ? onUpdate : null,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ), 
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'UPDATE',
                     backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                     onPressed: isEditable ? onUpdate : null,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  ), 
-                ),
+                  ),
               ]
             : [
-                Expanded(
-                  child: CustomActionButton(
+                if (shouldExpand)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'SAVE & NEW',
+                      backgroundColor: const Color.fromARGB(255, 80, 82, 84),
+                      onPressed: onSaveAndNew,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'SAVE & NEW',
                     backgroundColor: const Color.fromARGB(255, 80, 82, 84),
                     onPressed: onSaveAndNew,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
-                ),
                 SizedBox(width: 8.h),
-                Expanded(
-                  child: CustomActionButton(
+                if (shouldExpand)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'SAVE',
+                      backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+                      onPressed: onSave,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'SAVE',
                     backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                     onPressed: onSave,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
-                ),
               ],
       ),
     );
   }
 }
- 

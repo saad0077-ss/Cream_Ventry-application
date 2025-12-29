@@ -63,20 +63,31 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
     if (!_isInitialized) {
       return const SizedBox.shrink();
     }
- 
+  
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isDesktop = screenWidth >= 700;
-    final bool isMediumScreen = screenWidth >= 425 && screenWidth < 730; 
-    final bool isSmallScreen = screenWidth < 425;
+    final bool isMediumScreen = screenWidth >= 699 ; 
+    final bool isMMScreen = screenWidth >=508 && screenWidth <=698;  
+    final bool isSmallScreen = screenWidth >= 490 && screenWidth < 507; 
+    final bool isSmallerrrScreen = screenWidth >= 427 && screenWidth < 489;  
+    final bool isSmallerScreen = screenWidth >= 416 && screenWidth < 427;
+    final bool isVerySmallScreen = screenWidth < 416; 
     
     // Responsive font size
-    final double fontSize = isDesktop 
-        ? 60 
+    final double fontSize = isMediumScreen 
+        ? 30 
         : isSmallScreen  
-            ? 25    
-            : isMediumScreen   
-                ? 29       
-                : 30;
+            ? 30   
+            : isSmallerScreen     
+                ? 24       
+                : isVerySmallScreen
+                    ? 18
+                    : isMediumScreen
+                        ? 25
+                        : isSmallerrrScreen
+                            ? 25   
+                            : isMMScreen
+                                ? 30  
+                                : 36;
                    
     // Responsive padding
     final EdgeInsets padding = isSmallScreen
@@ -355,15 +366,26 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isDesktop = screenWidth >= 700;
-    final bool isSmallScreen = screenWidth < 425; 
+    final bool isMediumScreen = screenWidth >= 699 ; 
+    final bool isSmallScreen = screenWidth >= 490 && screenWidth < 507; 
+    final bool isSmallerrrScreen = screenWidth >= 385 && screenWidth < 489;  
+    final bool isSmallerScreen = screenWidth >= 360 && screenWidth < 384 ;
+    final bool isVerySmallScreen = screenWidth < 360;
     
     // Responsive font size
-    final double fontSize = isDesktop 
-        ? 60 
+    final double fontSize = isMediumScreen 
+        ? 40 
         : isSmallScreen  
-            ? 30 
-            : 32;
+            ? 40   
+            : isSmallerScreen     
+                ? 25       
+                : isVerySmallScreen
+                    ? 18
+                    : isMediumScreen
+                        ? 25
+                        : isSmallerrrScreen
+                            ? 28  
+                            : 36;
     
     // Responsive padding
     final EdgeInsets padding = isSmallScreen

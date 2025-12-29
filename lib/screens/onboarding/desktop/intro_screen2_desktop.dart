@@ -14,6 +14,9 @@ class ScreenIntro2Desktop extends StatelessWidget {
     final isSmallScreen = screenWidth < 1110; 
     final isMediumScreen = screenWidth < 1410;
 
+
+    final bool isSmallHeightScreen = screenHeight < 870;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -59,7 +62,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
+                     SizedBox(height: isSmallHeightScreen ? 20 : 32),
 
                     // Title
                     ShaderMask(
@@ -70,10 +73,10 @@ class ScreenIntro2Desktop extends StatelessWidget {
                           Color(0xFFFEC163),
                         ],
                       ).createShader(bounds),
-                      child: const Text(
+                      child:  Text(
                         'READY TO\nSCOOP INTO\nSUCCESS?',
                         style: TextStyle(
-                          fontSize: 68,
+                          fontSize: isSmallHeightScreen ? 48 : 68,
                           fontWeight: FontWeight.w900,
                           height: 1.1,
                           color: Colors.white,
@@ -81,7 +84,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                     SizedBox(height: isSmallHeightScreen ? 20 : 40),
 
                     // Description
                     Container(
@@ -100,17 +103,17 @@ class ScreenIntro2Desktop extends StatelessWidget {
                           Text(
                             'Your journey to effortless\ninventory management\nstarts here.',
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: isSmallHeightScreen ? 20 : 28, 
                               fontWeight: FontWeight.w600,
                               height: 1.5,
                               color: Colors.grey[800],
                             ),
                           ),
-                          const SizedBox(height: 24),
+                           SizedBox(height: isSmallHeightScreen ? 20 : 24),
                           Text(
                             'Track flavors, manage stock levels,\nand keep your ice cream business\nrunning smoothly.',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: isSmallHeightScreen ? 16 : 20,
                               fontWeight: FontWeight.w400,
                               height: 1.6,
                               color: Colors.grey[600],
@@ -119,7 +122,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 56),
+                     SizedBox(height: isSmallHeightScreen ? 20 : 56),
 
                     // Button with enhanced styling
                     Container(
@@ -136,7 +139,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                       ),
                       child: CustomButton(
                         label: "LET'S GET STARTED",
-                        fontSize: isSmallScreen ? 15 : 20,
+                        fontSize: isSmallScreen || isSmallHeightScreen ? 15 : 20,
                         onPressed: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
@@ -146,7 +149,7 @@ class ScreenIntro2Desktop extends StatelessWidget {
                         },
                       ),
                     ),
-                    const SizedBox(height: 40),
+                     SizedBox(height: isSmallHeightScreen ? 20 : 40),
 
                     // Feature list
                     Wrap(

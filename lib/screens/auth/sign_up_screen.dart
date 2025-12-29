@@ -236,24 +236,34 @@ class _ScreenSignUpState extends State<ScreenSignUp>
     
     // Responsive container height (48-52% of screen, with min/max constraints)
     final double containerHeight = () {
-  if (kIsWeb) {
-    // Web: increased from previous max of 480 → now up to 550
-    return (screenHeight * 0.52).clamp(400.0, 550.0);
-  } else if (isSplitScreen) {
-    // Split screen: increased vertical usage
-    return (screenHeight * 0.62).clamp(350.0, 480.0);
-  } else if (isSmallScreen) {
-    // Small screens: significantly taller
-    return (screenHeight * 0.62).clamp(480.0, 600.0); 
-  } else {
-    // Regular screens: tallest variant
-    return (screenHeight * 0.62).clamp(520.0, 680.0);
-  }
-}();
+      if (kIsWeb) {
+        // Web: increased from previous max of 480 → now up to 550
+        return (screenHeight * 0.52).clamp(400.0, 550.0);
+      } else if (isSplitScreen) {
+        // Split screen: increased vertical usage
+        return (screenHeight * 0.62).clamp(350.0, 480.0);
+      } else if (isSmallScreen) {
+        // Small screens: significantly taller
+        return (screenHeight * 0.62).clamp(480.0, 600.0); 
+      } else {
+        // Regular screens: tallest variant
+        return (screenHeight * 0.62).clamp(520.0, 680.0);
+      }
+    }();
     
-   // Adjust padding based on screen size
+    // Calculate container width based on screen width
+    final double containerWidth;
+    if (screenWidth >= 546) {
+      // Between 546 and 1000: fixed width of 512px (546 - 2*17 padding)
+      containerWidth = 512.0;
+    } else {
+      // Below 546: responsive (full width minus padding)
+      containerWidth = screenWidth - (2 * horizontalPadding);
+    }
+    
+    // Adjust padding based on screen size
     final double containerPaddingHorizontal =
-        screenWidth < 420 ? 17.75 * 0.7 : 16.75* 0.7; 
+        screenWidth < 420 ? 17.75 * 0.7 : 16.75 * 0.7; 
     final double containerPaddingVertical = 
         screenWidth < 420 ? 10.6 * 0.7 : 10.6; 
  
@@ -293,7 +303,7 @@ class _ScreenSignUpState extends State<ScreenSignUp>
                     scale: _breatheAnimation.value,
                     child: Container(
                       height: containerHeight,
-                      width: screenWidth - (2 * horizontalPadding),
+                      width: containerWidth,
                       decoration: BoxDecoration(
                         // Glassmorphism effect
                         color: Colors.black.withOpacity(0.1),
@@ -349,7 +359,7 @@ class _ScreenSignUpState extends State<ScreenSignUp>
             ),
           ), 
         ], 
-      ),
+      ), 
     );
   }
 }

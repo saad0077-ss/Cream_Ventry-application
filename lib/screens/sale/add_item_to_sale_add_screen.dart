@@ -61,12 +61,13 @@ class _AddItemToSaleState extends State<AddItemToSale> {
             isEditMode: _controller.isEditMode,
             onSaveAndNew: () => _controller.saveSaleItem(saveAndNew: true),
             onSave: () => _controller.saveSaleItem(saveAndNew: false),
+            isSmallScreen: screenSize.width <= 1123,
           ),
         ],
       ),           
     );
   }
-
+ 
   @override
   void dispose() {
     _controller.dispose();

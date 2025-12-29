@@ -47,10 +47,10 @@ class DistributionHubContainer extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 6),
-                Row(
+                Row( 
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     SizedBox(width: isSmallScreen ? 30.w : isVerySmallScreen ? 20 : 50.w),
+                     SizedBox(width: isSmallScreen ? 30.w : isVerySmallScreen ? 20 : 10.w),
                     Expanded(
                       child: buildSummaryCard(
                         onTap: onFilterYoullGet,
@@ -68,9 +68,9 @@ class DistributionHubContainer extends StatelessWidget {
                         isVerySmallScreen: isVerySmallScreen,
                       ),
                     ),
-                     SizedBox(width:  isSmallScreen ? 35.w : 60  ),
+                     SizedBox(width:  isSmallScreen ? 35.w : 70  ),
                     Expanded(
-                      child: buildSummaryCard(
+                      child: buildSummaryCard( 
                         onTap: onFilterYoullGive,
                         icon: Icons.arrow_upward_rounded,
                         iconColor: Colors.red,
@@ -82,12 +82,12 @@ class DistributionHubContainer extends StatelessWidget {
                         ).format(totalYoullGive),
                         valueColor: Colors.red.shade400,
                         isSmallScreen: isSmallScreen,
-                        currentFilter: currentFilter,
+                        currentFilter: currentFilter, 
                         isVerySmallScreen:isVerySmallScreen,
-                      ),
+                      ), 
                     ),
-                     SizedBox(width:  isSmallScreen ? 30.w : 50 ),
-                  ],
+                     SizedBox(width:  isSmallScreen ? 30.w : 70 ),
+                  ], 
                 ),
                  SizedBox(height: 10.h),
                 Expanded(child: const PartiesTap()), 

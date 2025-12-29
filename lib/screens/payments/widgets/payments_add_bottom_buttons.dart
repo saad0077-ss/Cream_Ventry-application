@@ -15,45 +15,85 @@ class BottomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = screenWidth < 1123;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Row(
+        mainAxisAlignment: isSmallScreen ? MainAxisAlignment.spaceAround : MainAxisAlignment.center,
         children: isEditMode
             ? [
-                Expanded(
-                  child: CustomActionButton(
+                if (isSmallScreen)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'Delete',
+                      backgroundColor: Colors.red,
+                      onPressed: onSaveAndNewOrDelete,
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'Delete',
                     backgroundColor: Colors.red,
                     onPressed: onSaveAndNewOrDelete,
                   ),
-                ),
                 SizedBox(width: 8),
-                Expanded(
-                  child: CustomActionButton(
+                if (isSmallScreen)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'Update',
+                      backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                      onPressed: onSave,
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'Update',
                     backgroundColor: Color.fromARGB(255, 85, 172, 213),
                     onPressed: onSave,
                   ),
-                ),
               ]
             : [
-                Expanded(
-                  child: CustomActionButton(
+                if (isSmallScreen)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'Save & New',
+                      backgroundColor: const Color.fromARGB(255, 80, 82, 84),
+                      onPressed: onSaveAndNewOrDelete,
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48, 
+                    width: 500,
                     label: 'Save & New',
                     backgroundColor: const Color.fromARGB(255, 80, 82, 84),
                     onPressed: onSaveAndNewOrDelete,
                   ),
-                ),
                 SizedBox(width: 8),
-                Expanded(
-                  child: CustomActionButton(
+                if (isSmallScreen)
+                  Expanded(
+                    child: CustomActionButton(
+                      label: 'Save',
+                      backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                      onPressed: onSave,
+                    ),
+                  )
+                else
+                  CustomActionButton(
+                    height: 48,
+                    width: 500,
                     label: 'Save',
                     backgroundColor: Color.fromARGB(255, 85, 172, 213),
                     onPressed: onSave,
                   ),
-                ),
               ],
       ),
     );
   }
-}
+} 

@@ -650,15 +650,33 @@ class PartyUIComponents {
     required PartyModel? party,
     required VoidCallback onSaveAndNew,
     required VoidCallback onSave,
+    required bool isMediumScreen,
+    required bool isSmallScreen,
   }) {
+    final bool shouldExpand = isSmallScreen || isMediumScreen;
+    
     return SizedBox(
       height: 150,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: shouldExpand ? MainAxisAlignment.spaceAround : MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Expanded(
-            child: CustomActionButton(
+          if (shouldExpand)
+            Expanded(
+              child: CustomActionButton( 
+                label: 'Save & New',
+                backgroundColor: Color.fromARGB(255, 80, 82, 84),
+                onPressed: onSaveAndNew,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                  vertical: screenHeight * 0.013,
+                ),
+              ),
+            )
+          else
+            CustomActionButton(
+              height: 48,
+              width: 500,  
               label: 'Save & New',
               backgroundColor: Color.fromARGB(255, 80, 82, 84),
               onPressed: onSaveAndNew,
@@ -667,10 +685,23 @@ class PartyUIComponents {
                 vertical: screenHeight * 0.013,
               ),
             ),
-          ),
           SizedBox(width: 10),
-          Expanded(
-            child: CustomActionButton(
+          if (shouldExpand)
+            Expanded(
+              child: CustomActionButton(
+                label: party != null ? 'Edit Party' : 'Save Party',
+                backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                onPressed: onSave,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                  vertical: screenHeight * 0.013,
+                ),
+              ),
+            )
+          else
+            CustomActionButton(
+              height: 48, 
+              width: 500,
               label: party != null ? 'Edit Party' : 'Save Party',
               backgroundColor: Color.fromARGB(255, 85, 172, 213),
               onPressed: onSave,
@@ -679,7 +710,6 @@ class PartyUIComponents {
                 vertical: screenHeight * 0.013,
               ),
             ),
-          ),
         ],
       ),
     );

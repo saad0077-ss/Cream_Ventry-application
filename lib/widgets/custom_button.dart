@@ -9,6 +9,7 @@ class CustomActionButton extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Color? borderColor;
   final double? fontSize;
+  final double? height;
 
   const CustomActionButton({
     super.key,
@@ -19,6 +20,7 @@ class CustomActionButton extends StatelessWidget {
     this.padding,
     this.borderColor,
     this.fontSize,
+    this.height,
   }); 
 
   @override
@@ -36,6 +38,7 @@ class CustomActionButton extends StatelessWidget {
 
     return SizedBox(
       width: width ?? 170, 
+      height: height ?? 39,
       child: ElevatedButton(
         onPressed: onPressed, 
         style: ElevatedButton.styleFrom(
