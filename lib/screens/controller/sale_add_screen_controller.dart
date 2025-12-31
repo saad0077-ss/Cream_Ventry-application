@@ -1,5 +1,6 @@
 // sale_screen_controller.dart
 import 'package:cream_ventory/core/constants/sale_add_screen_constant.dart';
+import 'package:cream_ventory/database/functions/party_db.dart';
 import 'package:cream_ventory/database/functions/sale/sale_item_db.dart';
 import 'package:cream_ventory/database/functions/user_db.dart';
 import 'package:cream_ventory/models/party_model.dart';
@@ -25,6 +26,7 @@ class SaleScreenController {
   bool _isReceivedChecked = false;
   double _balanceDue = 0.0;
   List<SaleItemModel> _saleItems = [];
+  PartyModel? _selectedParty;  // ← Add this to track selected party
 
   // Dependencies
   final SaleModel? sale;
@@ -94,9 +96,31 @@ class SaleScreenController {
         transactionType: transactionType,
         updateBalanceDue: _updateBalanceDue,
       );
-      if (_isEditMode) {
+      
+      // ✅ Load the selected party if in edit mode
+      if (_isEditMode && sale != null) {
         _isReceivedChecked = sale!.receivedAmount > 0;
         _balanceDue = sale!.balanceDue;
+        
+        // Load party by ID if available, fallback to name
+        if (sale!.customerId != null && sale!.customerId!.isNotEmpty) {
+          _selectedParty = await PartyDb.getPartyById(sale!.customerId!);
+          if (_selectedParty != null && _isMounted) {
+            setState(() {
+              _customerController.text = _selectedParty!.name;
+            });
+          }
+        } else if (sale!.customerName != null && sale!.customerName!.isNotEmpty) {
+          // Fallback: find by name for old data
+          final parties = PartyDb.partyNotifier.value;
+          try {
+            _selectedParty = parties.firstWhere(
+              (p) => p.name == sale!.customerName,
+            );
+          } catch (e) {
+            debugPrint('Party not found for name: ${sale!.customerName}');
+          }
+        }
       }
     } catch (error) {
       if (_isMounted) {
@@ -142,15 +166,43 @@ class SaleScreenController {
     }
   }
 
+  // ✅ UPDATED saveSale method with customerId support
   Future<void> saveSale({required bool isSaveAndNew}) async {
     try {
       final user = await UserDB.getCurrentUser();
+      
+      // ✅ Determine the customer ID and name
+      String? customerId;
+      String? customerName;
+      
+      if (_selectedParty != null) {
+        // Use the selected party (most reliable)
+        customerId = _selectedParty!.id;
+        customerName = _selectedParty!.name;
+      } else if (_customerController.text.isNotEmpty) {
+        // Try to find party by name (fallback)
+        final parties = PartyDb.partyNotifier.value;
+        try {
+          final party = parties.firstWhere(
+            (p) => p.name == _customerController.text,
+          );
+          customerId = party.id;
+          customerName = party.name;
+        } catch (e) {
+          debugPrint('Party not found for name: ${_customerController.text}');
+          // Use name only (for backward compatibility with old data)
+          customerName = _customerController.text;
+          customerId = null;
+        }
+      }
+      
+      // ✅ Create sale model with customerId
       final saleModel = SaleModel(
         id: _isEditMode ? sale!.id : const Uuid().v4(),
         invoiceNumber: _invoiceController.text,
         date: _dateController.text,
-        customerName:
-            _customerController.text.isEmpty ? null : _customerController.text,
+        customerId: customerId,  // ← Store party ID
+        customerName: customerName,  // ← Keep name for cache/display
         items: _saleItems,
         total: _saleItems.fold(0.0, (sum, item) => sum + item.subtotal),
         receivedAmount: double.tryParse(_receivedController.text) ?? 0.0,
@@ -187,6 +239,7 @@ class SaleScreenController {
         if (_isMounted) {
           setState(() {
             _customerController.clear();
+            _selectedParty = null;  // ← Clear selected party
             _invoiceController.text =
                 (int.parse(_invoiceController.text) + 1).toString();
             _dateController.text =
@@ -236,11 +289,14 @@ class SaleScreenController {
     }
   }
 
+  // ✅ UPDATED onCustomerChanged to track selected party
   void onCustomerChanged(PartyModel? selected) {
     if (selected != null && _isMounted) {
       setState(() {
+        _selectedParty = selected;  // ← Store the party object
         _customerController.text = selected.name;
       });
+      debugPrint('Customer changed: ${selected.name} (ID: ${selected.id})');
     }
   }
 
@@ -306,10 +362,11 @@ class SaleScreenController {
   double get balanceDue => _balanceDue;
   bool get isReceivedChecked => _isReceivedChecked;
   TextEditingController get customerController => _customerController;
-  TextEditingController get invoiceController => _invoiceController;
+  TextEditingController get invoiceController => _invoiceController; 
   TextEditingController get dateController => _dateController;
   TextEditingController get receivedController => _receivedController;
   TextEditingController get dueDateController => _dueDateController;
+  PartyModel? get selectedParty => _selectedParty;  // ← Add getter
 
   bool get _isMounted => context.mounted;
 }

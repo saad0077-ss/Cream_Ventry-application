@@ -18,7 +18,7 @@ enum SaleStatus {
 @HiveType(typeId: 10)
 class SaleModel {
   @HiveField(0)
-  final String id;
+  final String id; 
 
   @HiveField(1)
   final String invoiceNumber;
@@ -56,6 +56,10 @@ class SaleModel {
   @HiveField(12)
   final String userId;
 
+  @HiveField(13) 
+  final String? customerId;  
+
+
 
   SaleModel({
     required this.id,
@@ -70,7 +74,8 @@ class SaleModel {
     this.transactionType,
     this.status = SaleStatus.open,
     this.convertedToSaleId,
-    required this.userId
+    required this.userId,
+    this.customerId
   });
 }
 

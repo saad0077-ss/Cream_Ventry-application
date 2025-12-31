@@ -102,8 +102,10 @@ class _CategoryBottomSheetContentState
                   ),
                   const SizedBox(height: 20), 
                   CustomActionButton(
+                    height: 53,
+                    width: 260,
                     label: widget.isEditing ? "Update" : "Create",
-                    backgroundColor: const Color.fromARGB(255, 85, 172, 213),
+                    backgroundColor:  Colors.blueGrey,
                     onPressed: () async {
                       controller.validateFields();
                       updateState();
@@ -134,7 +136,7 @@ class _CategoryBottomSheetContentState
         fontSize: 22, // screenWidth * 0.055
         fontWeight: FontWeight.bold,
         fontFamily: 'BalooBhaina',
-      ),
+      ), 
     );
   }
 }

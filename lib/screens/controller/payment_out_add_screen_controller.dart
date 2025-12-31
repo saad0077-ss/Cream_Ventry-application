@@ -52,7 +52,7 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
   }
 
   Future<void> initializeForm() async {
-    try {   
+    try {
       if (_isEditMode) {
         final payment = widget.payment!;
         _receiptController.text = payment.receiptNo;
@@ -62,14 +62,13 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
         _paidAmount = payment.paidAmount.toStringAsFixed(2);
         _paidAmountController.text = _paidAmount;
         _selectedPaymentType = payment.paymentType;
+
         if (payment.imagePath != null && payment.imagePath!.isNotEmpty) {
           setState(() {
-            _imagePath = payment.imagePath; // Set the image path
+            _imagePath = payment.imagePath;
             if (kIsWeb) {
               try {
-                _imageBytes = base64Decode(
-                  payment.imagePath!,
-                ); // Decode for web
+                _imageBytes = base64Decode(payment.imagePath!);
               } catch (e) {
                 debugPrint('Error decoding base64 image: $e');
                 _imageBytes = null;
@@ -78,14 +77,27 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
           });
         }
 
-        _partyName = payment.partyName;
-        _partyNameController.text = payment.partyName;
-        final party = await PartyDb.getPartyByIdFromName(payment.partyName);
+        // ✅ Load party by ID (will get current updated name)
+        PartyModel? party;
+
+        if (payment.partyId != null && payment.partyId!.isNotEmpty) {
+          party = await PartyDb.getPartyById(payment.partyId!);
+          debugPrint('Loaded party by ID: ${party?.name}');
+        } else {
+          // Fallback for old payments without partyId
+          party = await PartyDb.getPartyByIdFromName(payment.partyName);
+          debugPrint('Loaded party by name (fallback): ${party?.name}');
+        }
+
         if (party != null) {
           setState(() {
             _selectedParty = party;
+            _partyName = party!.name;
+            _partyNameController.text = party.name;
             _phoneNumberController.text = party.contactNumber;
           });
+        } else {
+          debugPrint('Warning: Could not find party for payment');
         }
       } else {
         _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
@@ -104,7 +116,7 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
           backgroundColor: Colors.red,
         ),
       );
-    }
+    } 
   }
 
   Future<void> _pickImage() async {
@@ -168,21 +180,19 @@ class _PaymentOutScreenState extends State<PaymentOutScreenState> {
                     setState(() {
                       if (value.isNotEmpty) {
                         try {
-
                           _paidAmount = value;
                           _paidAmountController.text = value;
-
                         } catch (e) {
                           _paidAmount = '';
                           _paidAmountController.text = '';
-                        }   
+                        }
                       } else {
                         _paidAmount = '';
-                         _paidAmountController.text = '';
-                      } 
+                        _paidAmountController.text = '';
+                      }
                     });
                   },
-                  onPaymentTypeChanged: (String? newValue) {   
+                  onPaymentTypeChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedPaymentType = newValue;

@@ -23,17 +23,18 @@ class PaymentInModelAdapter extends TypeAdapter<PaymentInModel> {
       partyName: fields[3] as String?,
       phoneNumber: fields[4] as String?,
       receivedAmount: fields[5] as double,
-      paymentType: fields[6] as String, 
+      paymentType: fields[6] as String,
       note: fields[7] as String?,
       imagePath: fields[8] as String?,
       userId: fields[9] as String,
+      partyId: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, PaymentInModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class PaymentInModelAdapter extends TypeAdapter<PaymentInModel> {
       ..writeByte(8)
       ..write(obj.imagePath)
       ..writeByte(9)
-      ..write(obj.userId);
+      ..write(obj.userId)
+      ..writeByte(10)
+      ..write(obj.partyId);
   }
 
   @override

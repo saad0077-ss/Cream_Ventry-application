@@ -102,51 +102,51 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
               ),
               child:
                   (kIsWeb ? selectedImageBytes == null : selectedImage == null)
-                  ? Column(
-                      children: [
-                        Container(
-                          height: 120,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 235, 226, 226),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color.fromARGB(96, 3, 3, 3),
-                              width: 3,
+                      ? Column(
+                          children: [
+                            Container(
+                              height: 120,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 235, 226, 226),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color.fromARGB(96, 3, 3, 3),
+                                  width: 3,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.add_a_photo,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                          child: const Icon(
-                            Icons.add_a_photo,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+                            if (imageError != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  imageError!,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
+                          ],
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: kIsWeb
+                              ? Image.memory(
+                                  selectedImageBytes!,
+                                  height: 120,
+                                  width: 120,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  selectedImage!,
+                                  height: 120,
+                                  width: 120,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
-                        if (imageError != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              imageError!,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                      ],
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: kIsWeb
-                          ? Image.memory(
-                              selectedImageBytes!,
-                              height: 120,
-                              width: 120,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.file(
-                              selectedImage!,
-                              height: 120,
-                              width: 120,
-                              fit: BoxFit.cover,
-                            ),
-                    ),
             ),
             const SizedBox(height: 20),
             ValueListenableBuilder<List<CategoryModel>>(
@@ -164,7 +164,7 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                     selectedCategory = uniqueCategoryList.isNotEmpty
                         ? uniqueCategoryList.first
                         : null;
-                    categoryError = uniqueCategoryList.isEmpty   
+                    categoryError = uniqueCategoryList.isEmpty
                         ? 'No categories available.'
                         : null;
                   });
@@ -175,7 +175,7 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                     DropdownButtonFormField<CategoryModel>(
                       value: selectedCategory,
                       hint: const Text('Select Category'),
-                      isExpanded: true,   
+                      isExpanded: true,
                       decoration: InputDecoration(
                         labelText: 'Category',
                         border: const OutlineInputBorder(),
@@ -191,9 +191,9 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
                           .map<DropdownMenuItem<CategoryModel>>(
                             (CategoryModel category) =>
                                 DropdownMenuItem<CategoryModel>(
-                                  value: category,
-                                  child: Text(category.name),
-                                ),
+                              value: category,
+                              child: Text(category.name),
+                            ),
                           )
                           .toList(),
                     ),
@@ -242,6 +242,7 @@ class AddProductBottomSheetState extends State<AddProductBottomSheet> {
             ),
             const SizedBox(height: 20),
             CustomActionButton(
+              height: 53,
               padding: EdgeInsets.all(12),
               label: widget.existingProduct == null
                   ? 'Create Product'

@@ -29,7 +29,7 @@ class ImageUtils {
 
     // Handle web images (base64)
     if (kIsWeb) {
-      // Check if it's a base64 string with data:image prefix
+      // Check if it's a base64 string with data:image prefix 
       if (path.startsWith('data:image')) {
         try {
           final base64Data = path.split(',').last;

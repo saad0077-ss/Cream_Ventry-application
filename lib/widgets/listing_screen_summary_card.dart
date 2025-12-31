@@ -45,125 +45,140 @@ class _SummaryCardState extends State<SummaryCard>
 
   @override
   Widget build(BuildContext context) {
-
     final isSmallScreen = MediaQuery.of(context).size.width < 360;
     final isTablet = MediaQuery.of(context).size.width > 600;
     final gradientColors = widget.gradientColors ??
         [
           Colors.blue.shade400,
-          Colors.blue.shade600, 
+          Colors.blue.shade600,
         ];
 
-    return Expanded(
-      child: MouseRegion(
-        onEnter: (_) {
-          setState(() => _isHovered = true);
-          _controller.forward();
-        },
-        onExit: (_) {
-          setState(() => _isHovered = false);
-          _controller.reverse();
-        },
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Card(
-            elevation: _isHovered ? 12 : 6,
-            shadowColor: gradientColors.first.withOpacity(0.3),
-            shape: RoundedRectangleBorder(
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Card(
+          elevation: _isHovered ? 12 : 6,
+          shadowColor: gradientColors.first.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors,
+              ),
               borderRadius: BorderRadius.circular(24),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: gradientColors,
+              boxShadow: [
+                BoxShadow(
+                  color: gradientColors.first.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradientColors.first.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  // Decorative circles
-                  Positioned(
-                    right: -20,
-                    top: -20,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.1),
-                      ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Decorative circles
+                Positioned(
+                  right: -20,
+                  top: -20,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.1),
                     ),
                   ),
-                  Positioned(
-                    left: -10,
-                    bottom: -10,
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.08),
-                      ),
+                ),
+                Positioned(
+                  left: -10,
+                  bottom: -10,
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.08),
                     ),
                   ),
-                  // Content 
-                  Padding(
-                    padding: EdgeInsets.all(isTablet ? 28.0 : isSmallScreen ? 15.0 : 20.0), 
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Icon
-                        if (widget.icon != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              widget.icon,
-                              color: Colors.white,
-                              size: isTablet ? 28 : isSmallScreen ? 15 : 20,
-                            ),
+                ),
+                // Content
+                Padding(
+                  padding: EdgeInsets.all(isTablet
+                      ? 28.0
+                      : isSmallScreen
+                          ? 15.0
+                          : 20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Icon
+                      if (widget.icon != null)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        SizedBox(height: widget.icon != null ? 16 : 8),
-                        // Title
-                        Text( 
-                          widget.title,
-                          style: AppTextStyles.summaryCard.copyWith(
-                            fontSize: isTablet ? 18 :isSmallScreen?12: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withOpacity(0.95),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Value
-                        Text(
-                          widget.value,
-                          style: AppTextStyles.summaryCard.copyWith(
-                            fontSize: isTablet ? 32 :isSmallScreen?20: 28, 
-                            fontWeight: FontWeight.bold,
+                          child: Icon(
+                            widget.icon,
                             color: Colors.white,
-                            letterSpacing: 0.5,
-                            height: 1.2,
+                            size: isTablet
+                                ? 28
+                                : isSmallScreen
+                                    ? 15
+                                    : 20,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ], 
-              ),
+                      SizedBox(height: widget.icon != null ? 16 : 8),
+                      // Title
+                      Text(
+                        widget.title,
+                        style: AppTextStyles.summaryCard.copyWith(
+                          fontSize: isTablet
+                              ? 18
+                              : isSmallScreen
+                                  ? 12
+                                  : 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.95),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Value
+                      Text(
+                        widget.value,
+                        style: AppTextStyles.summaryCard.copyWith(
+                          fontSize: isTablet
+                              ? 32
+                              : isSmallScreen
+                                  ? 20 
+                                  : widget.value.length > 8
+                                      ? 22
+                                      : 25, 
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                          height: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),  
+                ),
+              ],
             ),
           ),
         ),

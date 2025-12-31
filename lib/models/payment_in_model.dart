@@ -1,6 +1,8 @@
 import 'package:hive/hive.dart';
 
-part '../database/adapters/payment/payment_in_model.g.dart';
+ part '../database/adapters/payment/payment_in_model.g.dart';
+
+
 
 @HiveType(typeId: 12)
 class PaymentInModel extends HiveObject {
@@ -34,6 +36,9 @@ class PaymentInModel extends HiveObject {
   @HiveField(9)
   String userId;
 
+   @HiveField(10)  
+  String? partyId;
+
   PaymentInModel({
     required this.id,
     required this.receiptNo,
@@ -44,6 +49,7 @@ class PaymentInModel extends HiveObject {
     required this.paymentType,
     this.note,
     this.imagePath,
-    required this.userId
+    required this.userId,
+    this.partyId,
   });
 }

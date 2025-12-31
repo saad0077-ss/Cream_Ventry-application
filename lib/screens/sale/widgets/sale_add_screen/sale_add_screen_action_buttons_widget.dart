@@ -8,7 +8,7 @@ class SaleActionButtonsWidget {
   static Widget buildActionButtons({
     required bool isEditMode,
     required bool isEditable,
-    required VoidCallback? onDelete, 
+    required VoidCallback? onDelete,
     required VoidCallback? onUpdate,
     required VoidCallback? onSaveAndNew,
     required VoidCallback? onSave,
@@ -16,24 +16,29 @@ class SaleActionButtonsWidget {
     required bool isMediumScreen,
   }) {
     final bool shouldExpand = isSmallScreen || isMediumScreen;
-    
+
     return Padding(
-      padding: EdgeInsets.only(top: 16.0.h, bottom: 16.0.h, left: 16.0.w, right: 16.0.w),
+      padding: EdgeInsets.only(
+          top: 16.0.h, bottom: 16.0.h, left: 16.0.w, right: 16.0.w),
       child: Row(
-        mainAxisAlignment:shouldExpand? MainAxisAlignment.spaceAround: MainAxisAlignment.center, 
+        mainAxisAlignment: shouldExpand
+            ? MainAxisAlignment.spaceAround
+            : MainAxisAlignment.center,
         children: isEditMode
             ? [
                 if (shouldExpand)
-                  Expanded(    
-                    child: CustomActionButton( 
+                  Expanded(
+                    child: CustomActionButton(
+                      height: 53,
                       label: 'DELETE',
                       backgroundColor: Colors.red,
                       onPressed: onDelete,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     ),
                   )
                 else
-                  CustomActionButton( 
+                  CustomActionButton(
                     height: 48,
                     width: 500,
                     label: 'DELETE',
@@ -45,11 +50,13 @@ class SaleActionButtonsWidget {
                 if (shouldExpand)
                   Expanded(
                     child: CustomActionButton(
+                      height: 53,
                       label: 'UPDATE',
                       backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                       onPressed: isEditable ? onUpdate : null,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                    ), 
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ),
                   )
                 else
                   CustomActionButton(
@@ -65,10 +72,12 @@ class SaleActionButtonsWidget {
                 if (shouldExpand)
                   Expanded(
                     child: CustomActionButton(
+                      height: 53,
                       label: 'SAVE & NEW',
                       backgroundColor: const Color.fromARGB(255, 80, 82, 84),
                       onPressed: onSaveAndNew,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     ),
                   )
                 else
@@ -76,7 +85,7 @@ class SaleActionButtonsWidget {
                     height: 48,
                     width: 500,
                     label: 'SAVE & NEW',
-                    backgroundColor: const Color.fromARGB(255, 80, 82, 84),
+                    backgroundColor: const Color.fromARGB(255, 80, 82, 84), 
                     onPressed: onSaveAndNew,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   ),
@@ -84,10 +93,12 @@ class SaleActionButtonsWidget {
                 if (shouldExpand)
                   Expanded(
                     child: CustomActionButton(
+                      height: 53,
                       label: 'SAVE',
                       backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                       onPressed: onSave,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     ),
                   )
                 else

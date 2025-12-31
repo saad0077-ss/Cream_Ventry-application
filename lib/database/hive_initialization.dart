@@ -85,17 +85,17 @@ class HiveInitialization {
     if (!Hive.isAdapterRegistered(StockTransactionModelAdapter().typeId)) {
       Hive.registerAdapter(StockTransactionModelAdapter());
     }
-    if (!Hive.isAdapterRegistered(StockTransactionTypeAdapter().typeId)) {
+    if (!Hive.isAdapterRegistered(StockTransactionTypeAdapter().typeId)) { 
       Hive.registerAdapter(StockTransactionTypeAdapter());
     }
   }
-
+ 
   /// Open all Hive boxes
-  static Future<void> _openBoxes() async {
+  static Future<void> _openBoxes() async { 
     await Hive.openBox<UserModel>('userBox');
-    await Hive.openBox<ProductModel>('productBox');
+    await Hive.openBox<ProductModel>('productBox'); 
     await Hive.openBox<CategoryModel>('categoryBox');
-    await Hive.openBox<PartyModel>('partyBox');
+    await Hive.openBox<PartyModel>('partyBox'); 
     await Hive.openBox<ExpenseModel>('expenseBox');
     await Hive.openBox<ExpenseCategoryModel>('expenseCategoryBox');
     await Hive.openBox<SaleItemModel>('saleItems');
@@ -133,7 +133,7 @@ class HiveInitialization {
       
       debugPrint('✅ Notifications initialized with startup checks completed'); 
     } catch (e) {
-      debugPrint('❌ Error initializing notifications: $e');
+      debugPrint('❌ Error initializing notifications: $e');   
     }
   }
 

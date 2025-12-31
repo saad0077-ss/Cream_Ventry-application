@@ -31,7 +31,11 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = MediaQuery.of(context).size.width > 600;
+    
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isDesktop = screenWidth >= 1000;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1000;
 
     final Color effectiveTextColor = textColor ?? Colors.white;
     final Color effectiveFillColor =
@@ -70,8 +74,8 @@ class CustomTextFormField extends StatelessWidget {
         border: OutlineInputBorder(
 
           borderRadius: BorderRadius.circular(
-            isDesktop ? 2.w : 12.w,
-          ),
+            isDesktop ? 2.w : isTablet ? 6.w : 12.w, 
+          ), 
           borderSide: BorderSide(
             width: 4 
           ),

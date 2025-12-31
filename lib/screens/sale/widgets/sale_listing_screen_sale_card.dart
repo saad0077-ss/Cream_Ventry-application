@@ -1,7 +1,10 @@
+import 'package:cream_ventory/database/functions/party_db.dart';
+import 'package:cream_ventory/models/party_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cream_ventory/models/sale_model.dart';
 
-class SaleCard extends StatelessWidget {
+class SaleCard extends StatefulWidget {
+  final String? customerId;  
   final String customerName;
   final double total;
   final double receivedAmount;
@@ -11,9 +14,10 @@ class SaleCard extends StatelessWidget {
   final TransactionType transactionType;
   final SaleStatus status;
   final VoidCallback onTap;
-
+ 
   const SaleCard({
     super.key,
+    this.customerId,  
     required this.customerName,
     required this.total,
     required this.receivedAmount,
@@ -25,9 +29,32 @@ class SaleCard extends StatelessWidget {
     required this.onTap,
   });
 
-  // Helper methods (unchanged, just moved up)
+  @override
+  State<SaleCard> createState() => _SaleCardState();
+
+  factory SaleCard.fromSaleModel({   
+    required SaleModel sale, 
+    required VoidCallback onTap,
+  }) {
+    return SaleCard(
+      customerId: sale.customerId,  // ← Pass customer ID
+      customerName: sale.customerName ?? 'Walk-in Customer',
+      total: sale.total,
+      receivedAmount: sale.receivedAmount,
+      balanceDue: sale.balanceDue,
+      date: sale.date,
+      invoiceNumber: sale.invoiceNumber,
+      transactionType: sale.transactionType ?? TransactionType.sale,
+      status: sale.status,
+      onTap: onTap,
+    );
+  }
+}
+
+class _SaleCardState extends State<SaleCard> {
+  // Helper methods
   Color _getStatusBorderColor() {
-    switch (status) {
+    switch (widget.status) {
       case SaleStatus.open:
         return Colors.blue.shade300;
       case SaleStatus.closed:
@@ -38,22 +65,22 @@ class SaleCard extends StatelessWidget {
   }
 
   String _getTypeLabel() =>
-      transactionType == TransactionType.sale ? 'Sale' : 'Sale Order';
+      widget.transactionType == TransactionType.sale ? 'Sale' : 'Sale Order';
 
-  Color _getTypeColor() => transactionType == TransactionType.sale
+  Color _getTypeColor() => widget.transactionType == TransactionType.sale
       ? Colors.green.shade700
       : Colors.orange.shade700;
 
-  Color _getTypeBackgroundColor() => transactionType == TransactionType.sale
+  Color _getTypeBackgroundColor() => widget.transactionType == TransactionType.sale
       ? Colors.green.shade50
       : Colors.orange.shade50;
 
-  Color _getTypeBorderColor() => transactionType == TransactionType.sale
+  Color _getTypeBorderColor() => widget.transactionType == TransactionType.sale
       ? Colors.green.shade300
       : Colors.orange.shade300;
 
   String _getStatusLabel() {
-    switch (status) {
+    switch (widget.status) {
       case SaleStatus.open:
         return 'Open';
       case SaleStatus.closed:
@@ -64,7 +91,7 @@ class SaleCard extends StatelessWidget {
   }
 
   Color _getStatusColor() {
-    switch (status) {
+    switch (widget.status) {
       case SaleStatus.open:
         return Colors.blue.shade700;
       case SaleStatus.closed:
@@ -75,7 +102,7 @@ class SaleCard extends StatelessWidget {
   }
 
   Color _getStatusBackgroundColor() {
-    switch (status) {
+    switch (widget.status) {
       case SaleStatus.open:
         return Colors.blue.shade50;
       case SaleStatus.closed:
@@ -86,7 +113,7 @@ class SaleCard extends StatelessWidget {
   }
 
   IconData _getStatusIcon() {
-    switch (status) {
+    switch (widget.status) {
       case SaleStatus.open:
         return Icons.lock_open;
       case SaleStatus.closed:
@@ -100,14 +127,14 @@ class SaleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 900;
-    final isCancelled = status == SaleStatus.cancelled;
+    final isCancelled = widget.status == SaleStatus.cancelled;
 
     return Opacity(
-      opacity: isCancelled ? 0.6 : 1.0, // Dim cancelled cards
+      opacity: isCancelled ? 0.6 : 1.0,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: widget.onTap,
           borderRadius: BorderRadius.circular(16),
           child: Container(
             decoration: BoxDecoration(
@@ -158,7 +185,7 @@ class SaleCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                invoiceNumber,
+                                widget.invoiceNumber,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: isDesktop ? 13 : 12,
@@ -185,7 +212,7 @@ class SaleCard extends StatelessWidget {
                               ),
                             ),
                             // Status Badge (only for Sale Orders)
-                            if (transactionType == TransactionType.saleOrder)
+                            if (widget.transactionType == TransactionType.saleOrder)
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 6),
@@ -222,34 +249,54 @@ class SaleCard extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Customer Name
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Icon(Icons.person_outline,
-                            size: isDesktop ? 22 : 20,
-                            color: Colors.blue.shade700),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          customerName,
-                          style: TextStyle(
-                            fontSize: isDesktop ? 16 : 15,
-                            fontWeight: FontWeight.w600,
-                            color: isCancelled
-                                ? Colors.grey.shade600
-                                : Colors.grey.shade900,
+                  // ✅ Customer Name - Display current party name
+                  ValueListenableBuilder<List<PartyModel>>(
+                    valueListenable: PartyDb.partyNotifier,
+                    builder: (context, parties, child) {
+                      String displayName = widget.customerName;
+                      
+                      // Find current party by ID to get updated name
+                      if (widget.customerId != null && widget.customerId!.isNotEmpty) {
+                        try {
+                          final party = parties.firstWhere(
+                            (p) => p.id == widget.customerId,
+                          );
+                          displayName = party.name;  // ← Current name from database
+                        } catch (e) {
+                          // Party not found, use cached name
+                          debugPrint('Party not found with ID: ${widget.customerId}');
+                        }
+                      }
+                      
+                      return Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Icon(Icons.person_outline,
+                                size: isDesktop ? 22 : 20,
+                                color: Colors.blue.shade700),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              displayName,
+                              style: TextStyle(
+                                fontSize: isDesktop ? 16 : 15,
+                                fontWeight: FontWeight.w600,
+                                color: isCancelled
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade900,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 16),
@@ -278,7 +325,7 @@ class SaleCard extends StatelessWidget {
                                     fontSize: isDesktop ? 13 : 12,
                                     color: Colors.grey.shade700)),
                             Text(
-                              '₹${total.toStringAsFixed(2)}',
+                              '₹${widget.total.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontSize: isDesktop ? 18 : 17,
                                 fontWeight: FontWeight.w700,
@@ -306,7 +353,7 @@ class SaleCard extends StatelessWidget {
                               ],
                             ),
                             Text(
-                              '₹${receivedAmount.toStringAsFixed(2)}',
+                              '₹${widget.receivedAmount.toStringAsFixed(2)}',
                               style: TextStyle(
                                   fontSize: isDesktop ? 16 : 15,
                                   fontWeight: FontWeight.w600,
@@ -314,7 +361,7 @@ class SaleCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        if (balanceDue > 0) ...[
+                        if (widget.balanceDue > 0) ...[
                           const SizedBox(height: 6),
                           // Balance Due
                           Row(
@@ -333,7 +380,7 @@ class SaleCard extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                '₹${balanceDue.toStringAsFixed(2)}',
+                                '₹${widget.balanceDue.toStringAsFixed(2)}',
                                 style: TextStyle(
                                     fontSize: isDesktop ? 16 : 15,
                                     fontWeight: FontWeight.w700,
@@ -355,7 +402,7 @@ class SaleCard extends StatelessWidget {
                       Icon(Icons.calendar_today,
                           size: 14, color: Colors.grey.shade600),
                       const SizedBox(width: 6),
-                      Text(date,
+                      Text(widget.date,
                           style: TextStyle(
                               fontSize: isDesktop ? 13 : 12,
                               color: Colors.grey.shade700,
@@ -365,27 +412,9 @@ class SaleCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
+          ), 
         ),
       ),
     );
   }
-
-  // Updated Factory Constructor
-  factory SaleCard.fromSaleModel({
-    required SaleModel sale,
-    required VoidCallback onTap,
-  }) {
-    return SaleCard(
-      customerName: sale.customerName ?? 'Walk-in Customer',
-      total: sale.total,
-      receivedAmount: sale.receivedAmount,
-      balanceDue: sale.balanceDue,
-      date: sale.date,
-      invoiceNumber: sale.invoiceNumber,
-      transactionType: sale.transactionType ?? TransactionType.sale,
-      status: sale.status,
-      onTap: onTap,
-    );
-  }
-}
+} 

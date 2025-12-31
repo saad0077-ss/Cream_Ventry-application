@@ -4,7 +4,6 @@ import 'package:cream_ventory/models/party_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/sale_add_screen_constant.dart';
-
 class SaleCustomerDropdownWidget {
   /// Builds the customer dropdown or text field if no customers are available
   static Widget buildCustomerDropdown({
@@ -21,7 +20,7 @@ class SaleCustomerDropdownWidget {
             decoration: InputDecoration(
               labelText: AppConstants.customerLabel,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12), 
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -46,23 +45,27 @@ class SaleCustomerDropdownWidget {
           );
         }
 
+        // ✅ Find party by ID if available, fallback to name
         PartyModel? selectedParty;
         if (customerController.text.isNotEmpty) {
-          selectedParty = parties.firstWhere(
-            (party) => party.name == customerController.text,
-            orElse: () => parties[0],
-          );
+          try {
+            selectedParty = parties.firstWhere(
+              (party) => party.name == customerController.text,
+            );
+          } catch (e) {
+            debugPrint('Party not found: ${customerController.text}');
+          }
         }
 
-        return DropdownButtonFormField<PartyModel>(
-          value: selectedParty,
+        return DropdownButtonFormField<String>(  // ← Use String (party ID)
+          value: selectedParty?.id,  // ← Use party ID
           hint: Text(
             AppConstants.selectCustomerHint,
             style: TextStyle(color: Colors.grey.shade600),
           ),
           items: parties.map((party) {
-            return DropdownMenuItem<PartyModel>(
-              value: party,
+            return DropdownMenuItem<String>(  // ← Use String
+              value: party.id,  // ← Use party ID as value
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
@@ -110,7 +113,14 @@ class SaleCustomerDropdownWidget {
               );
             }).toList();
           },
-          onChanged: isEditable ? onChanged : null,
+          onChanged: isEditable 
+              ? (String? partyId) {  // ← Receive party ID
+                  if (partyId != null && onChanged != null) {
+                    final party = parties.firstWhere((p) => p.id == partyId);
+                    onChanged(party);  // ← Pass full party object
+                  }
+                }
+              : null,
           decoration: InputDecoration(
             labelText: AppConstants.customerLabel,
             labelStyle: TextStyle(

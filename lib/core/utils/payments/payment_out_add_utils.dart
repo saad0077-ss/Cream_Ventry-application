@@ -185,17 +185,16 @@ class PaymentOutUtils {
       return;
     }
 
-    
-
     final user = await UserDB.getCurrentUser();
     final double parsedAmount = double.parse(paidAmount);
     final formattedAmount = parsedAmount.toStringAsFixed(2);
 
     final payment = PaymentOutModel(
-      id: isEditMode ? existingPayment!.id : '', 
+      id: isEditMode ? existingPayment!.id : '',
       receiptNo: receiptController.text,
       date: dateController.text,
-      partyName: selectedParty.name,
+      partyId: selectedParty.id, // ← IMPORTANT: Store party ID
+      partyName: selectedParty.name, // ← Keep for cache/fallback
       phoneNumber: phoneNumberController.text.trim(),
       paidAmount: double.parse(formattedAmount),
       paymentType: selectedPaymentType,
@@ -209,15 +208,18 @@ class PaymentOutUtils {
     try {
       if (isEditMode && existingPayment != null) {
         await PaymentOutDb.updatePayment(payment);
-      } else { 
+      } else {
         await PaymentOutDb.savePayment(payment);
       }
 
-      await PartyDb.updateBalanceAfterPayment(
-        payment.partyName,
-        payment.paidAmount,
-        false, // false = Payment Out (you give money)
-      );
+      // Update balance using party ID instead of name
+      if (payment.partyId != null) {
+        await PartyDb.updateBalanceAfterPaymentById(
+          payment.partyId!,
+          payment.paidAmount,
+          false, // false = Payment Out (you give money)
+        );
+      }
 
       showTopSnackBar(
         Overlay.of(context),
@@ -256,57 +258,67 @@ class PaymentOutUtils {
 
   // Delete payment with confirmation
   static void deletePayment({
-    required BuildContext context,
-    required bool isEditMode,
-    required PaymentOutModel? payment,
-  }) {
-    if (!isEditMode || payment == null) return;
+  required BuildContext context,
+  required bool isEditMode,
+  required PaymentOutModel? payment,
+}) {
+  if (!isEditMode || payment == null) return;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete this payment?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              try {
-                await PaymentOutDb.deletePayment(payment.id);
-                await PartyDb.updateBalanceAfterPayment(
-                  payment.partyName,
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this payment?'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
+        TextButton(
+          onPressed: () async {
+            try {
+              await PaymentOutDb.deletePayment(payment.id);
+              
+              // Use party ID if available, fallback to name
+              if (payment.partyId != null && payment.partyId!.isNotEmpty) {
+                await PartyDb.updateBalanceAfterPaymentById(
+                  payment.partyId!,
                   payment.paidAmount,
                   true, // true = reverse the "you gave" → add back to balance
                 );
-
-                Navigator.pop(context); // Close dialog
-                if (context.mounted) Navigator.pop(context); // Close screen
-
-                showTopSnackBar(
-                  Overlay.of(context),
-                  const CustomSnackBar.success(
-                    message: "Payment deleted successfully!",
-                    icon: Icon(Icons.delete_forever,
-                        color: Colors.white, size: 40),
-                  ),
-                );
-              } catch (e) {
-                debugPrint('Error deleting payment out: $e');
-                showTopSnackBar(
-                  Overlay.of(context),
-                  CustomSnackBar.error(
-                    message: "Failed to delete payment",
-                    backgroundColor: Colors.red.shade600,
-                  ),
+              } else {
+                await PartyDb.updateBalanceAfterPayment(
+                  payment.partyName,
+                  payment.paidAmount,
+                  true,
                 );
               }
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
+
+              Navigator.pop(context); // Close dialog
+              if (context.mounted) Navigator.pop(context); // Close screen
+
+              showTopSnackBar(
+                Overlay.of(context),
+                const CustomSnackBar.success(
+                  message: "Payment deleted successfully!",
+                  icon: Icon(Icons.delete_forever,
+                      color: Colors.white, size: 40),
+                ),
+              );
+            } catch (e) {
+              debugPrint('Error deleting payment out: $e');
+              showTopSnackBar(
+                Overlay.of(context),
+                CustomSnackBar.error(
+                  message: "Failed to delete payment", 
+                  backgroundColor: Colors.red.shade600,
+                ),
+              );
+            }
+          },
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+}
 }

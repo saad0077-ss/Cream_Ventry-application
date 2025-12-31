@@ -75,14 +75,15 @@ class PartyDb {
   /// Update notifier with current box values
   static Future<void> _updateNotifier() async {
     final user = await UserDB.getCurrentUser();
-    final userId = user.id;
+    final userId = user.id; 
     final box = await _getPartyBox();
     final parties =
         box.values.where((parties) => parties.userId == userId).toList();
-    if (partyNotifier.value != parties) {
-      partyNotifier.value = parties;
-      _log('Notifier updated with ${partyNotifier.value.length} parties');
-    }
+
+    // ✅ ALWAYS create a new list to trigger ValueListenableBuilder
+    partyNotifier.value = List.from(parties); // ← Create new list instance
+       
+    _log('Notifier updated with ${partyNotifier.value.length} parties');
   }
 
   /// Add a new party
@@ -103,32 +104,79 @@ class PartyDb {
   /// Update an existing party (without recalculating balance)
   static Future<bool> updatePartyBasic(PartyModel updatedParty) async {
     try {
-      final user = await UserDB.getCurrentUser();
-      final userId = user.id;
+      await UserDB.getCurrentUser();
       final box = await _getPartyBox();
       final existingParty = await getPartyById(updatedParty.id);
+
       if (existingParty == null) {
         throw PartyDbException('Party with ID ${updatedParty.id} not found');
       }
+
+      // IMPORTANT: Only update profile fields, preserve ALL financial data
       final partyToSave = PartyModel(
-        id: updatedParty.id,
+        id: existingParty.id, // Use existing ID (don't trust input)
         name: updatedParty.name,
         contactNumber: updatedParty.contactNumber,
-        openingBalance: existingParty.openingBalance,
-        asOfDate: updatedParty.asOfDate,
+        openingBalance: existingParty.openingBalance, // ✅ Preserve
+        asOfDate: existingParty.asOfDate, // ✅ Preserve (don't update)
         billingAddress: updatedParty.billingAddress,
         email: updatedParty.email,
-        paymentType: updatedParty.paymentType,
+        paymentType: existingParty.paymentType, // ✅ Preserve (don't update)
         imagePath: updatedParty.imagePath,
-        partyBalance: existingParty.partyBalance,
-        userId: userId,
+        partyBalance: existingParty.partyBalance, // ✅ Preserve
+        userId: existingParty.userId, // ✅ Preserve original userId
       );
-      await box.put(updatedParty.id, partyToSave);
+
+      await box.put(existingParty.id,
+          partyToSave); // Use existingParty.id not updatedParty.id
       await _updateNotifier();
       _log('Updated party basic info: ${updatedParty.name}');
       return true;
     } catch (e) {
       _log('Error updating party: $e');
+      rethrow;
+    }
+  }
+
+  // In PartyDb class
+  static Future<void> updateBalanceAfterPaymentById(
+    String partyId,
+    double amount,
+    bool isAddingPayment,
+  ) async {
+    try {
+      final box = await _getPartyBox();
+      final party = box.get(partyId);
+
+      if (party == null) {
+        _log('Warning: Party not found with ID: $partyId');
+        return;
+      }
+
+      final newBalance = isAddingPayment
+          ? party.partyBalance - amount
+          : party.partyBalance + amount;
+
+      final updatedParty = PartyModel(
+        id: party.id,
+        name: party.name,
+        contactNumber: party.contactNumber,
+        openingBalance: party.openingBalance,
+        asOfDate: party.asOfDate,
+        billingAddress: party.billingAddress,
+        email: party.email,
+        paymentType: party.paymentType,
+        imagePath: party.imagePath,
+        partyBalance: newBalance,
+        userId: party.userId,
+      );
+
+      await box.put(partyId, updatedParty);
+      await _updateNotifier();
+      _log(
+          'Updated party balance by ID: ${party.name}, new balance: $newBalance');
+    } catch (e) {
+      _log('Error updating party balance by ID: $e');
       rethrow;
     }
   }
@@ -176,39 +224,49 @@ class PartyDb {
       if (party == null) {
         throw PartyDbException('Party with ID $id not found');
       }
+
       final sales = await SaleDB.getSales();
+
+      // ✅ Delete sales by party ID (customerId)
       final salesToDelete = sales
           .where(
-            (sale) =>
-                sale.customerName?.toLowerCase() == party.name.toLowerCase(),
+            (sale) => sale.customerId == id, // ← Use customerId
           )
           .toList();
+
       for (var sale in salesToDelete) {
         await SaleDB.deleteSale(sale.id);
         _log('Deleted sale ${sale.id} for ${party.name}');
       }
+
       final paymentsIn = await PaymentInDb.getAllPayments();
+
+      // ✅ Delete payments by party ID
       final paymentsInToDelete = paymentsIn
           .where(
-            (payment) =>
-                payment.partyName?.toLowerCase() == party.name.toLowerCase(),
+            (payment) => payment.partyId == id, // ← Use partyId
           )
           .toList();
+
       for (var payment in paymentsInToDelete) {
         await PaymentInDb.deletePayment(payment.id);
         _log('Deleted payment in ${payment.id} for ${party.name}');
       }
+
       final paymentsOut = await PaymentOutDb.getAllPayments();
+
+      // ✅ Delete payments by party ID
       final paymentsOutToDelete = paymentsOut
           .where(
-            (payment) =>
-                payment.partyName.toLowerCase() == party.name.toLowerCase(),
+            (payment) => payment.partyId == id, // ← Use partyId
           )
           .toList();
+
       for (var payment in paymentsOutToDelete) {
         await PaymentOutDb.deletePayment(payment.id);
         _log('Deleted payment out ${payment.id} for ${party.name}');
       }
+
       await box.delete(id);
       await _updateNotifier();
       _log('Deleted party ID: $id');
@@ -253,6 +311,7 @@ class PartyDb {
   }
 
   /// Calculate party summary
+  /// Calculate party summary - FIXED to use party ID
   static Future<double> calculatePartySummary(String partyId) async {
     try {
       await _getPartyBox();
@@ -263,25 +322,28 @@ class PartyDb {
       await SaleDB.refreshSales();
       await PaymentInDb.refreshPayments();
       await PaymentOutDb.refreshPayments();
-      final partyNameLower = party.name.toLowerCase();
+
       double balance = party.openingBalance;
 
-      // Filter sales: exclude canceled sale orders
+      // ✅ Filter sales by party ID (customerId), not by name
       final sales = SaleDB.saleNotifier.value.where(
         (s) =>
-            s.customerName?.toLowerCase() == partyNameLower &&
+            s.customerId ==
+                partyId && // ← Use customerId instead of customerName
             (s.transactionType == TransactionType.saleOrder ||
                 s.transactionType == TransactionType.sale) &&
-            // Exclude canceled sale orders using the SaleStatus enum
+            // Exclude canceled sale orders
             !(s.transactionType == TransactionType.saleOrder &&
                 s.status == SaleStatus.cancelled),
       );
 
+      // ✅ Filter payments by party ID, not by name
       final paymentsIn = PaymentInDb.paymentInNotifier.value.where(
-        (p) => p.partyName?.toLowerCase() == partyNameLower,
+        (p) => p.partyId == partyId, // ← Use partyId instead of partyName
       );
+
       final paymentsOut = PaymentOutDb.paymentOutNotifier.value.where(
-        (p) => p.partyName.toLowerCase() == partyNameLower,
+        (p) => p.partyId == partyId, // ← Use partyId instead of partyName
       );
 
       balance += sales.fold(0.0, (sum, s) => sum + (s.balanceDue));
@@ -319,34 +381,45 @@ class PartyDb {
 
   /// Update party balance after a sale
   static Future<void> updateBalanceAfterSale(SaleModel sale) async {
-    if (sale.customerName == null) {
-      _log('Invalid sale data: no customer name');
-      return;
+    // ✅ Use customerId if available, fallback to customerName
+    String? partyId = sale.customerId;
+
+    if (partyId == null || partyId.isEmpty) {
+      // Fallback: find party by name for old data
+      if (sale.customerName == null) {
+        _log('Invalid sale data: no customer ID or name');
+        return;
+      }
+      final party = await getPartyByIdFromName(sale.customerName!);
+      if (party == null) {
+        _log('Party not found for name: ${sale.customerName}');
+        return;
+      }
+      partyId = party.id;
     }
-    final party = await getPartyByIdFromName(sale.customerName!);
-    if (party == null) {
-      _log('Party not found for name: ${sale.customerName}');
-      return;
-    }
-    await calculatePartySummary(party.id);
-    _log('Updated balance after sale for ${sale.customerName}');
+
+    await calculatePartySummary(partyId);
+    _log('Updated balance after sale for party ID: $partyId');
   }
 
   /// Update party balance after a payment
   static Future<void> updateBalanceAfterPayment(
     String partyName,
     double amount,
-    bool isPaymentIn,
+    bool isAddingPayment,
   ) async {
-    final party = await getPartyByIdFromName(partyName);
-    if (party == null) {
-      _log('Party not found for name: $partyName');
-      return;
+    try {
+      final box = await _getPartyBox();
+      final party = box.values.firstWhere(
+        (p) => p.name == partyName,
+        orElse: () => throw PartyDbException('Party not found: $partyName'),
+      );
+
+      await updateBalanceAfterPaymentById(party.id, amount, isAddingPayment);
+    } catch (e) {
+      _log('Error updating party balance by name: $e');
+      rethrow;
     }
-    await calculatePartySummary(party.id);
-    _log(
-      'Updated balance after ${isPaymentIn ? "payment in" : "payment out"} for $partyName',
-    );
   }
 
   /// Helper method to get party by name

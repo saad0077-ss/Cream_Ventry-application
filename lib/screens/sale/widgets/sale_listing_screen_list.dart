@@ -1,17 +1,18 @@
+import 'package:cream_ventory/database/functions/party_db.dart';
+import 'package:cream_ventory/models/party_model.dart';
 import 'package:cream_ventory/models/sale_model.dart';
 import 'package:cream_ventory/screens/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screens/sale/widgets/sale_listing_screen_sale_card.dart';
 import 'package:cream_ventory/core/constants/font_helper.dart';
-import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
 import 'package:flutter/material.dart';
 
-class SaleList extends StatelessWidget {
+class SaleListSliver extends StatelessWidget {
   final List<SaleModel> sales;
 
-  const SaleList({super.key, required this.sales});
+  const SaleListSliver({super.key, required this.sales});
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 900;
 
@@ -22,90 +23,88 @@ class SaleList extends StatelessWidget {
 
     final gridCrossAxisCount = isDesktop ? 2 : 1;
 
-    return Expanded(
-      child: Container(
-        margin:
-            EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 8),
-        child: Stack(
-          children: [
-            // ----- Empty State -----
-            if (sales.isEmpty)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(isDesktop ? 32 : 16),
-                  child: Text(
-                    'No sales to display.',
-                    style: AppTextStyles.emptyListText.copyWith(
-                      fontSize: emptyTextSize,
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            else if (isDesktop)
-              GridView.builder(
-                padding: EdgeInsets.only(
-                  left: horizontalPadding,
-                  right: horizontalPadding,
-                  top: verticalPadding, 
-                  bottom: bottomPadding,
-                ),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridCrossAxisCount,
-                  mainAxisExtent: 300, // Increased height for status badge
-                  mainAxisSpacing: 17,
-                  crossAxisSpacing: 17,
-                ),
-                itemCount: sales.length,
-                itemBuilder: (context, index) {
-                  final sale = sales[index];
-                  return SaleCard(
-                    balanceDue: sale.balanceDue,
-                    receivedAmount: sale.receivedAmount,
-                    onTap: () => _navigateToDetail(context, sale),
-                    customerName: sale.customerName ?? 'No Customer',
-                    total: sale.total,
-                    date: FormatUtils.formatDate(sale.date),
-                    invoiceNumber: sale.invoiceNumber,
-                    transactionType:
-                        sale.transactionType ?? TransactionType.sale,
-                    status: sale.status,
-                  );
-                },
-              )
-            else
-              ListView.builder(
-                padding: EdgeInsets.only(
-                  left: horizontalPadding,
-                  right: horizontalPadding,
-                  top: verticalPadding,
-                  bottom: bottomPadding,
-                ),
-                itemCount: sales.length,
-                itemBuilder: (context, index) {
-                  final sale = sales[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: SaleCard(
-                      balanceDue: sale.balanceDue,
-                      receivedAmount: sale.receivedAmount,
-                      onTap: () => _navigateToDetail(context, sale),
-                      customerName: sale.customerName ?? 'No Customer',
-                      total: sale.total,
-                      date: FormatUtils.formatDate(sale.date),
-                      invoiceNumber: sale.invoiceNumber,
-                      transactionType:
-                          sale.transactionType ?? TransactionType.sale,
-                      status: sale.status,
-                    ),
-                  );
-                },
+    // Empty State
+    if (sales.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(isDesktop ? 32 : 16),
+            child: Text(
+              'No sales to display.',
+              style: AppTextStyles.emptyListText.copyWith(
+                fontSize: emptyTextSize,
+                color: const Color.fromARGB(255, 0, 0, 0),
+                fontWeight: FontWeight.w500,
               ),
-          ],
+              textAlign: TextAlign.center,
+            ),
+          ),
         ),
-      ),
+      );
+    }
+ 
+    // ✅ ADD: Listen to party changes to rebuild cards
+    return ValueListenableBuilder<List<PartyModel>>(
+      valueListenable: PartyDb.partyNotifier,
+      builder: (context, parties, child) {
+        // Desktop Grid View
+        if (isDesktop) {
+          return SliverPadding(
+            padding: EdgeInsets.only(
+              left: horizontalPadding,
+              right: horizontalPadding,
+              top: verticalPadding,
+              bottom: bottomPadding,
+            ),
+            sliver: SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridCrossAxisCount,
+                mainAxisExtent: 300,
+                mainAxisSpacing: 17,
+                crossAxisSpacing: 17,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final sale = sales[index];
+                  // ✅ Use factory constructor to pass customerId
+                  return SaleCard.fromSaleModel(
+                    sale: sale,
+                    onTap: () => _navigateToDetail(context, sale),
+                  );
+                },
+                childCount: sales.length,
+              ),
+            ),
+          );
+        }
+
+        // Mobile List View
+        return SliverPadding(
+          padding: EdgeInsets.only(
+            left: horizontalPadding,
+            right: horizontalPadding,
+            top: verticalPadding,
+            bottom: bottomPadding,
+          ),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final sale = sales[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  // ✅ Use factory constructor to pass customerId
+                  child: SaleCard.fromSaleModel(
+                    sale: sale, 
+                    onTap: () => _navigateToDetail(context, sale),
+                  ),
+                );
+              },
+              childCount: sales.length,
+            ),
+          ),
+        );
+      },
     );
   }
 

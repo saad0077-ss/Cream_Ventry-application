@@ -53,7 +53,7 @@ class _PaymentInScreenState extends State<PaymentInScreenState> {
   }
 
   Future<void> initializeForm() async {
-    try {
+    try { 
       if (_isEditMode) {
         final payment = widget.payment!;
         _receiptController.text = payment.receiptNo;
@@ -63,14 +63,13 @@ class _PaymentInScreenState extends State<PaymentInScreenState> {
         _receivedAmount = payment.receivedAmount.toStringAsFixed(2);
         _receivedAmountController.text = _receivedAmount;
         _selectedPaymentType = payment.paymentType;
+
         if (payment.imagePath != null && payment.imagePath!.isNotEmpty) {
           setState(() {
-            _imagePath = payment.imagePath; // Set the image path
+            _imagePath = payment.imagePath;
             if (kIsWeb) {
               try {
-                _imageBytes = base64Decode(
-                  payment.imagePath!,
-                ); // Decode for web display
+                _imageBytes = base64Decode(payment.imagePath!);
               } catch (e) {
                 debugPrint('Error decoding base64 image: $e');
                 _imageBytes = null;
@@ -79,16 +78,27 @@ class _PaymentInScreenState extends State<PaymentInScreenState> {
           });
         }
 
-        if (payment.partyName != null) {
-          _partyName = payment.partyName;
-          _partyNameController.text = payment.partyName!;
-          final party = await PartyDb.getPartyByIdFromName(payment.partyName!);
-          if (party != null) {
-            setState(() {
-              _selectedParty = party; 
-              _phoneNumberController.text = party.contactNumber;
-            });
-          }
+        // ✅ Load party by ID (will get current updated name)
+        PartyModel? party;
+
+        if (payment.partyId != null && payment.partyId!.isNotEmpty) {
+          party = await PartyDb.getPartyById(payment.partyId!);
+          debugPrint('Loaded party by ID: ${party?.name}');
+        } else if (payment.partyName != null) {
+          // Fallback for old payments without partyId
+          party = await PartyDb.getPartyByIdFromName(payment.partyName!);
+          debugPrint('Loaded party by name (fallback): ${party?.name}');
+        }
+
+        if (party != null) {
+          setState(() {
+            _selectedParty = party; // ← This will now match in dropdown by ID
+            _partyName = party!.name;
+            _partyNameController.text = party.name;
+            _phoneNumberController.text = party.contactNumber;
+          });
+        } else {
+          debugPrint('Warning: Could not find party for payment');
         }
       } else {
         _dateController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
@@ -166,24 +176,24 @@ class _PaymentInScreenState extends State<PaymentInScreenState> {
                 TransactionDetailsCard(
                   isPaymentIn: true,
                   amount: _receivedAmount,
-                  selectedPaymentType: _selectedPaymentType,   
+                  selectedPaymentType: _selectedPaymentType,
                   onAmountChanged: (value) {
                     setState(() {
                       if (value.isNotEmpty) {
                         try {
                           _receivedAmount = value;
                           _receivedAmountController.text = value;
-                        } catch (e) {    
+                        } catch (e) {
                           _receivedAmount = '';
                           _receivedAmountController.text = '';
                         }
-                      } else {   
+                      } else {
                         _receivedAmount = '';
                         _receivedAmountController.text = '';
                       }
-                    });   
+                    });
                   },
-                  onPaymentTypeChanged: (String? newValue) {   
+                  onPaymentTypeChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedPaymentType = newValue;

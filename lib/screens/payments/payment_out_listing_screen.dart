@@ -14,48 +14,108 @@ import 'package:intl/intl.dart';
 class BodyOfPaymentOut extends StatelessWidget {
   final List<PaymentOutModel> payments;
   final double totalPayment;
-  final void Function(DateTime startDate, DateTime endDate)? onDateRangeChanged;  
-  
+  final void Function(DateTime startDate, DateTime endDate)? onDateRangeChanged;
+ 
   const BodyOfPaymentOut({
     super.key,
     required this.payments,
     required this.totalPayment,
-    this.onDateRangeChanged,  
+    this.onDateRangeChanged, 
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        DateRangeSelector(
-          onDateRangeChanged: onDateRangeChanged,
+    final isTablet = MediaQuery.of(context).size.width > 700;
+
+    return CustomScrollView(
+      slivers: [
+        // Date range selector - scrolls normally
+        SliverToBoxAdapter(
+          child: DateRangeSelector(
+            onDateRangeChanged: onDateRangeChanged,
+          ),
         ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SummaryCard(
-                key: ValueKey('txn_count_${payments.length}'),
-                title: "No Of Payments",
-                value: payments.length.toString(),
-              ),
-              SummaryCard(
-                key: ValueKey('total_payment_$totalPayment'), 
-                title: "Total PaymentOut",
-                value: FormatUtils.formatAmount(totalPayment),
-              ),
-            ],
-          ),  
+
+        SliverToBoxAdapter(
+          child: const SizedBox(height: 10),
         ),
-        const SizedBox(height: 10), 
-        PaymentOutList(payments: payments),
+
+        // Summary Cards - becomes sticky when scrolled up
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _PaymentOutSummaryDelegate(
+            payments: payments,
+            totalPayment: totalPayment,
+            isTablet: isTablet,
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: const SizedBox(height: 10),
+        ),
+
+        // Payment List - now converted to sliver
+        PaymentOutListSliver(payments: payments),
       ],
     );
   }
 }
 
+class _PaymentOutSummaryDelegate extends SliverPersistentHeaderDelegate {
+  final List<PaymentOutModel> payments;
+  final double totalPayment;
+  final bool isTablet;
+
+  _PaymentOutSummaryDelegate({
+    required this.payments,
+    required this.totalPayment,
+    required this.isTablet,
+  });
+
+  @override
+  double get minExtent => isTablet ? 200 : 160;
+ 
+  @override
+  double get maxExtent => isTablet ? 200 : 160;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0), 
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: SummaryCard(
+              key: ValueKey('txn_count_${payments.length}'),
+              title: "No Of Payments",
+              value: payments.length.toString(),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SummaryCard(
+              key: ValueKey('total_payment_$totalPayment'),
+              title: "Total PaymentOut",
+              value: FormatUtils.formatAmount(totalPayment),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_PaymentOutSummaryDelegate oldDelegate) {
+    return payments.length != oldDelegate.payments.length ||
+        totalPayment != oldDelegate.totalPayment ||
+        isTablet != oldDelegate.isTablet;
+  }
+}
 
 class PaymentOutTransaction extends StatefulWidget {
   const PaymentOutTransaction({super.key});

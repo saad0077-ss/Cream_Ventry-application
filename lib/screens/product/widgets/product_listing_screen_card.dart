@@ -44,7 +44,7 @@ class ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ProductImage(imagePath: product.imagePath),
-                const SizedBox(width: 16),
+                const SizedBox(width: 16), 
                 Expanded(child: ProductDetails(product: product)),
                 ProductActionsMenu(product: product, index: index),
               ],

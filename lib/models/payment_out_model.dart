@@ -24,7 +24,7 @@ class PaymentOutModel extends HiveObject {
                    
   @HiveField(6)
   String paymentType;
-  
+   
   @HiveField(7)
   String? note;
 
@@ -33,8 +33,9 @@ class PaymentOutModel extends HiveObject {
 
   @HiveField(9)
   String userId;
- 
 
+  @HiveField(10)  
+  String? partyId; 
 
   PaymentOutModel({
     required this.id,
@@ -46,12 +47,13 @@ class PaymentOutModel extends HiveObject {
     required this.paymentType,
     this.note,
     this.imagePath,
-    required this.userId
+    required this.userId,
+    this.partyId,  
   });
 
   @override
   String toString() {
-    return '====PaymentOutModel(id: $id, receiptNo: $receiptNo, date: $date, partyName: $partyName, userId : $userId ====='
+    return '====PaymentOutModel(id: $id, receiptNo: $receiptNo, date: $date, partyName: $partyName, partyId: $partyId, userId: $userId ====='
         'phoneNumber: $phoneNumber, paidAmount: $paidAmount, paymentType: $paymentType, '
         'note: $note, imagePath: $imagePath)';
   }

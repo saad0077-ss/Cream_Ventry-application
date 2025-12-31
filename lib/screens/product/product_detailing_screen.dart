@@ -304,20 +304,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
 
       // Adjust Stock Button
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CustomActionButton(
-          label: 'Adjust Stock',
-          backgroundColor: Colors.black,
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AddStock(product: currentProduct),
-              ),
-            );
-            _refreshProduct();
-          },
-        ),
+      floatingActionButton: CustomActionButton(  
+        height: 53, 
+        width: 260, 
+        label: 'Adjust Stock',
+        backgroundColor: Colors.blueGrey,
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddStock(product: currentProduct),
+            ),
+          );
+          _refreshProduct();
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

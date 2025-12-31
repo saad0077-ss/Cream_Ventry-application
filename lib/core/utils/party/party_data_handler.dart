@@ -14,93 +14,103 @@ class PartyDataHandler {
   final _uuid = const Uuid();
 
   Future<void> saveParty({
-    required BuildContext context,
-    required GlobalKey<FormState> formKey,
-    required PartyModel? party,
-    required String partyName,
-    required String contactNumber,
-    required String openingBalance,
-    required String paymentType,
-    required DateTime? selectedDate,
-    required String billingAddress,   
-    required String email,
-    required Uint8List? imageBytes, 
-    required String imagePath,
-    required bool clearFields,
-    required VoidCallback clearForm,
-  }) async {
-    if (!formKey.currentState!.validate()) return;
+  required BuildContext context,
+  required GlobalKey<FormState> formKey,
+  required PartyModel? party,
+  required String partyName,
+  required String contactNumber,
+  required String openingBalance,
+  required String paymentType,
+  required DateTime? selectedDate,
+  required String billingAddress,   
+  required String email,
+  required Uint8List? imageBytes, 
+  required String imagePath,
+  required bool clearFields,
+  required VoidCallback clearForm,
+}) async {
+  if (!formKey.currentState!.validate()) return;
 
-    if (partyName.isEmpty || contactNumber.isEmpty) {
-      _showError(context, "Party Name and Contact Number are required!");
-      return;
-    }
-
-    // Parse opening balance safely
-    double parsedBalance = 0.0;
-    if (openingBalance.trim().isNotEmpty) {
-      parsedBalance = double.tryParse(openingBalance) ?? 0.0;
-    }
-
-    // Determine sign based on payment type
-    double finalOpeningBalance =
-        paymentType == "You'll Give" ? -parsedBalance.abs() : parsedBalance.abs();
-
-    final user = await UserDB.getCurrentUser();
-    final userId = user.id;
-
-    // Handle image path (Web vs Native)
-    String finalImagePath = '';
-    if (kIsWeb && imageBytes != null) {
-      finalImagePath = base64Encode(imageBytes);
-    } else {
-      finalImagePath = imagePath.isNotEmpty ? imagePath : (party?.imagePath ?? '');
-    }
-
-
-
-    final newParty = PartyModel(
-      id: party?.id ?? _uuid.v4(),
-      name: partyName,
-      contactNumber: contactNumber,
-      openingBalance: finalOpeningBalance,
-      asOfDate: (selectedDate ?? DateTime.now()).toIso8601String(),
-      billingAddress: billingAddress,
-      email: email,
-      paymentType: paymentType,
-      imagePath: finalImagePath,
-      partyBalance: 0.0,
-      userId: userId,
-    );
-
-    try {
-      if (party != null) {
-        // Update existing party
-        bool success = await PartyDb.updatePartyBasic(newParty);
-        if (success) {
-          _showSuccess(context, "Party updated successfully!");
-        } else {
-          throw Exception("Failed to update party: Not found");
-        }
-      } else {
-        // Add new party
-        await PartyDb.addParty(newParty);
-        _showSuccess(context, "Party added successfully!");
-      }
-
-      // Navigate or clear form
-      if (clearFields) {
-        clearForm();
-      } else {
-        if (context.mounted) {
-          Navigator.of(context).pop(newParty);
-        }
-      }
-    } catch (e) {
-      debugPrint("Error saving party: $e");
-      _showError(context, "Failed to save party. Please try again.");
-    }
+  if (partyName.isEmpty || contactNumber.isEmpty) {
+    _showError(context, "Party Name and Contact Number are required!");
+    return;
   }
+
+  final user = await UserDB.getCurrentUser();
+  final userId = user.id;
+
+  // Handle image path (Web vs Native)
+  String finalImagePath = '';
+  if (kIsWeb && imageBytes != null) {
+    finalImagePath = base64Encode(imageBytes);
+  } else {
+    finalImagePath = imagePath.isNotEmpty ? imagePath : (party?.imagePath ?? '');
+  }
+
+  try {
+    if (party != null) {
+      // EDIT MODE: Create a party object with only updatable fields
+      // (The updatePartyBasic method will preserve financial fields)
+      final updatedParty = PartyModel(
+        id: party.id,
+        name: partyName,
+        contactNumber: contactNumber,
+        openingBalance: party.openingBalance,  // Will be overridden by DB method
+        asOfDate: party.asOfDate,  // Will be overridden by DB method
+        billingAddress: billingAddress,
+        email: email, 
+        paymentType: party.paymentType,  // Will be overridden by DB method
+        imagePath: finalImagePath,
+        partyBalance: party.partyBalance,  // Will be overridden by DB method
+        userId: party.userId,  // Will be overridden by DB method
+      );
+      
+      bool success = await PartyDb.updatePartyBasic(updatedParty);
+      if (success) {
+        _showSuccess(context, "Party updated successfully!");
+      } else {
+        throw Exception("Failed to update party: Not found");
+      }
+    } else {
+      // NEW PARTY MODE
+      double finalOpeningBalance = 0.0;
+      if (openingBalance.trim().isNotEmpty) {
+        double parsedBalance = double.tryParse(openingBalance) ?? 0.0;
+        finalOpeningBalance =
+            paymentType == "You'll Give" ? -parsedBalance.abs() : parsedBalance.abs();
+      }
+      
+      final newParty = PartyModel(
+        id: _uuid.v4(),
+        name: partyName,
+        contactNumber: contactNumber,
+        openingBalance: finalOpeningBalance,
+        asOfDate: (selectedDate ?? DateTime.now()).toIso8601String(),
+        billingAddress: billingAddress,
+        email: email,
+        paymentType: paymentType,
+        imagePath: finalImagePath,
+        partyBalance: 0.0,
+        userId: userId,
+      );
+      
+      await PartyDb.addParty(newParty);
+      _showSuccess(context, "Party added successfully!");
+    }
+
+    // Navigate or clear form
+    if (clearFields) {
+      clearForm(); 
+    } else {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  } catch (e) {
+    debugPrint("Error saving party: $e");
+    _showError(context, "Failed to save party. Please try again.");
+  }
+}
 
   // Success feedback
   void _showSuccess(BuildContext context, String message) {
@@ -113,11 +123,11 @@ class PartyDataHandler {
         backgroundColor: Colors.green.shade600,
       ),
     );
-  }
+  } 
 
   // Error feedback
   void _showError(BuildContext context, String message) {
-    if (!context.mounted) return;
+    if (!context.mounted) return; 
     showTopSnackBar(
       Overlay.of(context),
       CustomSnackBar.error(

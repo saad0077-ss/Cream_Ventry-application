@@ -24,16 +24,19 @@ class ActionButtonsWidget extends StatelessWidget {
       children: [
         isEditing
           ? CustomActionButton(
+             height: 53,
               onPressed: () => logic.deleteExpense(context, existingExpense!.id),
               backgroundColor: Colors.red,
               label: 'Delete',
             )
           : CustomActionButton(
+             height: 53,
               onPressed: () => logic.saveAndNew(onSaveAndNew ?? (()=>{}), context),
               backgroundColor:  Color.fromARGB(255, 80, 82, 84),
               label: 'Save & New',
-            ),
+            ), 
         CustomActionButton( 
+           height: 53,
           onPressed: isEditing && existingExpense != null
             ? () => logic.updateExpense(existingExpense!, context)
             : () => logic.save(context),

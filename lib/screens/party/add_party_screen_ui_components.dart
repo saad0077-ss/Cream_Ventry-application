@@ -57,7 +57,7 @@ class PartyUIComponents {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.12),
                   blurRadius: 20,
-                  offset: Offset(0, 10), 
+                  offset: Offset(0, 10),
                   spreadRadius: -5,
                 ),
                 BoxShadow(
@@ -91,7 +91,7 @@ class PartyUIComponents {
                       width: 2,
                     ),
                   ),
-                  child: Icon(icon, size: 36 , color: iconColor),
+                  child: Icon(icon, size: 36, color: iconColor),
                 ),
                 SizedBox(height: 20.h),
 
@@ -114,7 +114,7 @@ class PartyUIComponents {
                   child: Text(
                     content,
                     style: TextStyle(
-                      fontSize: 15 ,
+                      fontSize: 15,
                       color: Colors.black.withOpacity(0.78),
                       height: 1.6,
                       letterSpacing: 0.3,
@@ -129,7 +129,7 @@ class PartyUIComponents {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom( 
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: iconColor,
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 14),
@@ -147,7 +147,7 @@ class PartyUIComponents {
                         letterSpacing: 0.8,
                       ),
                     ),
-                  ),  
+                  ),
                 ),
               ],
             ),
@@ -289,7 +289,7 @@ class PartyUIComponents {
     required DateTime? selectedDate,
     required bool isEditMode,
     required Future<void> Function(BuildContext) pickDate,
-    required BuildContext context, 
+    required BuildContext context,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +354,7 @@ class PartyUIComponents {
                         SizedBox(width: 6),
                         Text(
                           'Opening Balance',
-                          style: TextStyle( 
+                          style: TextStyle(
                             fontSize: 13,
                             color: Colors.black.withOpacity(0.8),
                             fontWeight: FontWeight.w500,
@@ -654,21 +654,24 @@ class PartyUIComponents {
     required bool isSmallScreen,
   }) {
     final bool shouldExpand = isSmallScreen || isMediumScreen;
-    
+
     return SizedBox(
       height: 150,
       child: Row(
-        mainAxisAlignment: shouldExpand ? MainAxisAlignment.spaceAround : MainAxisAlignment.center,
+        mainAxisAlignment: shouldExpand
+            ? MainAxisAlignment.spaceAround
+            : MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (shouldExpand)
             Expanded(
-              child: CustomActionButton( 
+              child: CustomActionButton(
+                height: 53,
                 label: 'Save & New',
                 backgroundColor: Color.fromARGB(255, 80, 82, 84),
                 onPressed: onSaveAndNew,
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
+                  horizontal: screenWidth * 0.08,
                   vertical: screenHeight * 0.013,
                 ),
               ),
@@ -676,7 +679,7 @@ class PartyUIComponents {
           else
             CustomActionButton(
               height: 48,
-              width: 500,  
+              width: 500,
               label: 'Save & New',
               backgroundColor: Color.fromARGB(255, 80, 82, 84),
               onPressed: onSaveAndNew,
@@ -689,8 +692,9 @@ class PartyUIComponents {
           if (shouldExpand)
             Expanded(
               child: CustomActionButton(
+                height: 53,
                 label: party != null ? 'Edit Party' : 'Save Party',
-                backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                backgroundColor: Color.fromARGB(255, 85, 172, 213), 
                 onPressed: onSave,
                 padding: EdgeInsets.symmetric(
                   horizontal: screenWidth * 0.05,
@@ -700,7 +704,7 @@ class PartyUIComponents {
             )
           else
             CustomActionButton(
-              height: 48, 
+              height: 48,
               width: 500,
               label: party != null ? 'Edit Party' : 'Save Party',
               backgroundColor: Color.fromARGB(255, 85, 172, 213),

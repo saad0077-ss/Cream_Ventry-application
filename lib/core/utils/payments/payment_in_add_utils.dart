@@ -151,160 +151,173 @@ class PaymentInUtils {
 
   // Save payment
   static Future<void> savePayment({
-    required BuildContext context,
-    required bool saveAndNew,
-    required bool isEditMode,
-    required PaymentInModel? existingPayment,
-    required PartyModel? selectedParty,
-    required String receivedAmount,
-    required TextEditingController receiptController,
-    required TextEditingController dateController,
-    required TextEditingController phoneNumberController,
-    required TextEditingController noteController,
-    required TextEditingController receivedAmountController,
-    required TextEditingController partyNameController,
-    required String selectedPaymentType,
-    required String? imagePath,
-    required Function setState,
-    required Function popNavigator,
-  }) async {
-    // Validation
-    if (selectedParty == null) {
-      showTopSnackBar(Overlay.of(context),
-          const CustomSnackBar.error(message: "Please select a party"));
-      return;
-    }
-    if (phoneNumberController.text.trim().isEmpty) {
-      showTopSnackBar(Overlay.of(context),
-          const CustomSnackBar.error(message: "Please enter a phone number"));
-      return;
-    }
-    if (receivedAmount.isEmpty || receivedAmount == '0.00') {
-      showTopSnackBar(Overlay.of(context),
-          const CustomSnackBar.error(message: "Please enter a valid amount"));
-      return;
-    }
+  required BuildContext context,
+  required bool saveAndNew,
+  required bool isEditMode,
+  required PaymentInModel? existingPayment,
+  required PartyModel? selectedParty,
+  required String receivedAmount,
+  required TextEditingController receiptController,
+  required TextEditingController dateController,
+  required TextEditingController phoneNumberController,
+  required TextEditingController noteController,
+  required TextEditingController receivedAmountController,
+  required TextEditingController partyNameController,
+  required String selectedPaymentType,
+  required String? imagePath,
+  required Function setState,
+  required Function popNavigator,
+}) async {
+  // Validation
+  if (selectedParty == null) {
+    showTopSnackBar(Overlay.of(context),
+        const CustomSnackBar.error(message: "Please select a party"));
+    return;
+  }
+  if (phoneNumberController.text.trim().isEmpty) {
+    showTopSnackBar(Overlay.of(context),
+        const CustomSnackBar.error(message: "Please enter a phone number"));
+    return;
+  }
+  if (receivedAmount.isEmpty || receivedAmount == '0.00') {
+    showTopSnackBar(Overlay.of(context),
+        const CustomSnackBar.error(message: "Please enter a valid amount"));
+    return;
+  }
 
-    final user = await UserDB.getCurrentUser();
-    final double parsedAmount = double.parse(receivedAmount);
-    final formattedAmount = parsedAmount.toStringAsFixed(2);
+  final user = await UserDB.getCurrentUser();
+  final double parsedAmount = double.parse(receivedAmount);
+  final formattedAmount = parsedAmount.toStringAsFixed(2);
 
-    final payment = PaymentInModel(
-      id: isEditMode ? existingPayment!.id : _uuid.v4(),
-      receiptNo: receiptController.text,
-      date: dateController.text,
-      partyName: selectedParty.name,
-      phoneNumber: phoneNumberController.text.trim(),
-      receivedAmount: double.parse(formattedAmount),
-      paymentType: selectedPaymentType,
-      note: noteController.text.trim().isEmpty
-          ? null
-          : noteController.text.trim(),
-      imagePath: imagePath,
-      userId: user.id,
-    );
+  final payment = PaymentInModel(
+    id: isEditMode ? existingPayment!.id : _uuid.v4(),
+    receiptNo: receiptController.text,
+    date: dateController.text,
+    partyId: selectedParty.id,  // ← IMPORTANT: Store party ID
+    partyName: selectedParty.name,  // ← Keep for backward compatibility/cache
+    phoneNumber: phoneNumberController.text.trim(),
+    receivedAmount: double.parse(formattedAmount), 
+    paymentType: selectedPaymentType,
+    note: noteController.text.trim().isEmpty
+        ? null
+        : noteController.text.trim(),
+    imagePath: imagePath,
+    userId: user.id, 
+  );
 
-    try {
-      if (isEditMode && existingPayment != null) {
-        // UPDATE existing
-        await PaymentInDb.updatePayment(payment);
-      } else {
-        // INSERT new 
-        await PaymentInDb.savePayment(payment); // this will generate new ID
-      } 
-      await PartyDb.updateBalanceAfterPayment(
-        payment.partyName!,
+  try {
+    if (isEditMode && existingPayment != null) {
+      await PaymentInDb.updatePayment(payment);
+    } else {
+      await PaymentInDb.savePayment(payment);
+    }
+    
+    // Update balance using party ID instead of name
+    if (payment.partyId != null) {
+      await PartyDb.updateBalanceAfterPaymentById(
+        payment.partyId!,
         payment.receivedAmount,
         true,
       );
-
-      showTopSnackBar(
-        Overlay.of(context),
-        CustomSnackBar.success(
-          message: isEditMode
-              ? "Payment updated successfully"
-              : "Payment saved successfully",
-          icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
-        ),
-      );
-
-      if (saveAndNew) {
-        setState(() {
-          partyNameController.clear();
-          phoneNumberController.clear();
-          noteController.clear();
-          receivedAmountController.text = '0.00';
-          imagePath = null;
-        });
-        await generateReceiptNumber(receiptController, setState);
-      } else {
-        popNavigator();
-      }
-    } catch (e) {
-      debugPrint('Error saving payment: $e');
-      showTopSnackBar(
-        Overlay.of(context),
-        CustomSnackBar.error(
-          message: "Failed to save payment",
-          backgroundColor: Colors.red.shade600,
-        ),
-      );
     }
+
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.success(
+        message: isEditMode
+            ? "Payment updated successfully"
+            : "Payment saved successfully",
+        icon: const Icon(Icons.check_circle, color: Colors.white, size: 40),
+      ),
+    );
+
+    if (saveAndNew) {
+      setState(() {
+        partyNameController.clear();
+        phoneNumberController.clear();
+        noteController.clear();
+        receivedAmountController.text = '0.00';
+        imagePath = null;
+      });
+      await generateReceiptNumber(receiptController, setState);
+    } else {
+      popNavigator();
+    }
+  } catch (e) {
+    debugPrint('Error saving payment: $e');
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.error(
+        message: "Failed to save payment",
+        backgroundColor: Colors.red.shade600,
+      ),
+    );
   }
+}
 
   // Delete payment with confirmation
   static void deletePayment({
-    required BuildContext context,
-    required bool isEditMode,
-    required PaymentInModel? payment,
-  }) {
-    if (!isEditMode || payment == null) return;
+  required BuildContext context,
+  required bool isEditMode,
+  required PaymentInModel? payment,
+}) {
+  if (!isEditMode || payment == null) return;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete this payment?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              try {
-                await PaymentInDb.deletePayment(payment.id);
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this payment?'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
+        TextButton(
+          onPressed: () async {
+            try {
+              await PaymentInDb.deletePayment(payment.id);
+              
+              // Use party ID if available, fallback to name
+              if (payment.partyId != null && payment.partyId!.isNotEmpty) {
+                await PartyDb.updateBalanceAfterPaymentById(
+                  payment.partyId!,
+                  payment.receivedAmount,
+                  false,
+                );
+              } else if (payment.partyName != null) {
                 await PartyDb.updateBalanceAfterPayment(
                   payment.partyName!,
                   payment.receivedAmount,
                   false,
                 );
-
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Close screen
-
-                showTopSnackBar(
-                  Overlay.of(context),
-                  const CustomSnackBar.success(
-                    message: "Payment deleted successfully!",
-                    icon: Icon(Icons.delete_forever,
-                        color: Colors.white, size: 40),
-                  ),
-                );
-              } catch (e) {
-                debugPrint('Error deleting payment: $e');
-                showTopSnackBar(
-                  Overlay.of(context),
-                  CustomSnackBar.error(
-                    message: "Failed to delete payment",
-                    backgroundColor: Colors.red.shade600,
-                  ),
-                );
               }
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
+
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Close screen
+
+              showTopSnackBar(
+                Overlay.of(context),
+                const CustomSnackBar.success(
+                  message: "Payment deleted successfully!",
+                  icon: Icon(Icons.delete_forever,
+                      color: Colors.white, size: 40),
+                ),
+              );
+            } catch (e) {
+              debugPrint('Error deleting payment: $e');
+              showTopSnackBar(
+                Overlay.of(context),
+                CustomSnackBar.error(
+                  message: "Failed to delete payment",
+                  backgroundColor: Colors.red.shade600,
+                ),
+              );
+            }  
+          },
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ), 
+      ],
+    ),
+  );
+}
 }

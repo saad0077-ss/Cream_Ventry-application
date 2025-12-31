@@ -14,50 +14,101 @@ class BodyOfSale extends StatelessWidget {
     required this.sales,
     required this.totalSale,
     this.onDateRangeChanged,
-
   });
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final isTablet = MediaQuery.of(context).size.width > 700;
 
-    return Column(
-      children: [
-        // Date range selector for filtering sales
-        Padding(
-          padding: EdgeInsets.all(isTablet ? 12 : 8),
-          child: DateRangeSelector(
-            onDateRangeChanged: onDateRangeChanged,
+    return CustomScrollView(
+      slivers: [
+        // Date range selector - scrolls normally
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(isTablet ? 12 : 2),
+            child: DateRangeSelector(
+              onDateRangeChanged: onDateRangeChanged,
+            ),
           ),
         ),
 
-        // Summary Cards
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isTablet ? 16 : 12,
-            vertical: 8,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SummaryCard(
-                key: ValueKey('txn_count_${sales.length}'), 
-                title: "No. of Sales",
-                value: sales.length.toString(),
-              ),
-              SizedBox(width: isTablet ? 16 : 12),
-              SummaryCard(
-                key: ValueKey('total_sale_$totalSale'),
-                title: "Total Sale",
-                value: '₹${totalSale.toStringAsFixed(2)}',
-              ),
-            ],
+        // Summary Cards - becomes sticky when scrolled up
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _SummaryCardDelegate(
+            sales: sales,
+            totalSale: totalSale,
+            isTablet: isTablet,
           ),
         ),
 
-        // Sale List
-        SaleList(sales: sales),
+        // Sale List - now converted to sliver
+        SaleListSliver(sales: sales),
       ],
     );
+  }
+}
+
+class _SummaryCardDelegate extends SliverPersistentHeaderDelegate {
+  final List<SaleModel> sales;
+  final double totalSale;
+  final bool isTablet;
+
+  _SummaryCardDelegate({
+    required this.sales,
+    required this.totalSale,
+    required this.isTablet,
+  });
+
+  @override
+  double get minExtent => isTablet ? 200 : 160; // Increased height
+
+  @override
+  double get maxExtent => isTablet ? 200 : 160; // Increased height
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Material( 
+      color: Colors.transparent,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final spacing = isTablet ? 16.0 : 10.0;          
+          return Padding(
+            padding: const EdgeInsets.all(16.0), 
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SummaryCard(
+                    key: ValueKey('txn_count_${sales.length}'),
+                    title: "No. of Sales",
+                    value: sales.length.toString(),
+                  ),
+                ),
+                SizedBox(width: spacing),
+                Expanded(
+                  child: SummaryCard(
+                    key: ValueKey('total_sale_$totalSale'),
+                    title: "Total Sale",
+                    value: '₹${totalSale.toStringAsFixed(2)}',
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ); 
+  }
+
+  @override
+  bool shouldRebuild(_SummaryCardDelegate oldDelegate) {
+    return sales.length != oldDelegate.sales.length ||
+        totalSale != oldDelegate.totalSale ||
+        isTablet != oldDelegate.isTablet;
   }
 }

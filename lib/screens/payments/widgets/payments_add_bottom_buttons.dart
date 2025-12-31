@@ -17,16 +17,19 @@ class BottomButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isSmallScreen = screenWidth < 1123;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Row(
-        mainAxisAlignment: isSmallScreen ? MainAxisAlignment.spaceAround : MainAxisAlignment.center,
+        mainAxisAlignment: isSmallScreen
+            ? MainAxisAlignment.spaceAround
+            : MainAxisAlignment.center,
         children: isEditMode
             ? [
                 if (isSmallScreen)
                   Expanded(
                     child: CustomActionButton(
+                      height: 53,
                       label: 'Delete',
                       backgroundColor: Colors.red,
                       onPressed: onSaveAndNewOrDelete,
@@ -44,6 +47,7 @@ class BottomButtons extends StatelessWidget {
                 if (isSmallScreen)
                   Expanded(
                     child: CustomActionButton(
+                      height: 53,
                       label: 'Update',
                       backgroundColor: Color.fromARGB(255, 85, 172, 213),
                       onPressed: onSave,
@@ -62,6 +66,7 @@ class BottomButtons extends StatelessWidget {
                 if (isSmallScreen)
                   Expanded(
                     child: CustomActionButton(
+                       height: 53,
                       label: 'Save & New',
                       backgroundColor: const Color.fromARGB(255, 80, 82, 84),
                       onPressed: onSaveAndNewOrDelete,
@@ -69,7 +74,7 @@ class BottomButtons extends StatelessWidget {
                   )
                 else
                   CustomActionButton(
-                    height: 48, 
+                    height: 48,
                     width: 500,
                     label: 'Save & New',
                     backgroundColor: const Color.fromARGB(255, 80, 82, 84),
@@ -79,6 +84,7 @@ class BottomButtons extends StatelessWidget {
                 if (isSmallScreen)
                   Expanded(
                     child: CustomActionButton(
+                       height: 53,
                       label: 'Save',
                       backgroundColor: Color.fromARGB(255, 85, 172, 213),
                       onPressed: onSave,
@@ -89,11 +95,11 @@ class BottomButtons extends StatelessWidget {
                     height: 48,
                     width: 500,
                     label: 'Save',
-                    backgroundColor: Color.fromARGB(255, 85, 172, 213),
+                    backgroundColor: Color.fromARGB(255, 85, 172, 213), 
                     onPressed: onSave,
                   ),
               ],
       ),
     );
   }
-} 
+}

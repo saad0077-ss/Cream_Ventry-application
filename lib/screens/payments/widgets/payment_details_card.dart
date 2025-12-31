@@ -11,7 +11,7 @@ class PaymentDetailsCard extends StatelessWidget {
   final VoidCallback onDateTap;
 
   const PaymentDetailsCard({
-    super.key,           
+    super.key,
     required this.receiptController,
     required this.dateController,
     required this.phoneNumberController,
@@ -96,37 +96,54 @@ class PaymentDetailsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<PartyModel>(
-              value: selectedParty,
-              decoration: InputDecoration(
-                labelText: 'Party Name',
-                labelStyle: const TextStyle(color: Colors.black54),
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 16,
-                ),
-              ),
-              items: PartyDb.partyNotifier.value.map((PartyModel party) {
-                return DropdownMenuItem<PartyModel>(
-                  value: party,
-                  child: Text(
-                    party.name,
-                    style: const TextStyle(fontSize: 16),
+            ValueListenableBuilder<List<PartyModel>>(
+              valueListenable: PartyDb.partyNotifier,
+              builder: (context, parties, child) {
+                return DropdownButtonFormField<String>(
+                  // ← Change to String (party ID)
+                  value: selectedParty?.id, // ← Use party ID
+                  decoration: InputDecoration(                  
+                    labelText: 'Party Name', 
+                    labelStyle: const TextStyle(color: Colors.black54),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                  ), 
+                  items: parties.map((PartyModel party) {
+                    return DropdownMenuItem<String>(
+                      // ← Change to String
+                      value: party.id, // ← Use party ID as value
+                      child: Text(
+                        party
+                            .name, // ← Display party name (will show updated name)
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? partyId) {
+                    // ← Receive party ID
+                    if (partyId != null) {
+                      // Find the party object by ID
+                      final party = parties.firstWhere((p) => p.id == partyId);
+                      onPartyChanged(
+                          party); // ← Pass the full party object to callback
+                    }
+                  },
+                  hint: const Text(
+                    'Select Party',
+                    style: TextStyle(color: Colors.black54),
                   ),
+                  validator: (value) =>
+                      value == null ? 'Please select a party' : null,
                 );
-              }).toList(),
-              onChanged: onPartyChanged,
-              hint: const Text(
-                'Select Party',
-                style: TextStyle(color: Colors.black54),
-              ),
-              validator: (value) => value == null ? 'Please select a party' : null,
+              },
             ),
             const SizedBox(height: 16),
             TextField(

@@ -40,9 +40,9 @@ class CategoryImageWidget extends StatelessWidget {
     if (category.isAsset) {
       return Image.asset(
         category.imagePath,
-        fit: BoxFit.cover,
+        fit: BoxFit.values.firstWhere((e) => e == BoxFit.cover) ,
         errorBuilder: (context, error, stackTrace) => const ErrorImageWidget(),
-      );
+      ); 
     }
 
     // 2. Web: Base64 Image

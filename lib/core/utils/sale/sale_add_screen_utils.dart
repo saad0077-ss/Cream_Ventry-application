@@ -103,10 +103,10 @@ class SaleAddUtils {
           // Check if product is now low stock or out of stock
           if (product.stock == 0) {
             debugPrint('🚨 OUT OF STOCK: ${product.name}');
-            lowStockProducts.add(product); // ✅ Add ProductModel object
+            lowStockProducts.add(product); //  Add ProductModel object
           } else if (product.stock <= 5) { // Assuming threshold is 5
             debugPrint('⚠️ LOW STOCK: ${product.name} (${product.stock} units)');
-            lowStockProducts.add(product); // ✅ Add ProductModel object
+            lowStockProducts.add(product); //  Add ProductModel object
           }
         }
       }
@@ -114,7 +114,7 @@ class SaleAddUtils {
       // Send notifications if any products are low/out of stock
       if (lowStockProducts.isNotEmpty) {
         await InventoryNotificationService.checkAndNotifyLowStock(
-          lowStockProducts, // ✅ Now passing List<ProductModel>
+          lowStockProducts, //  Now passing List<ProductModel>
           lowStockThreshold: 5,
         );
         debugPrint('✅ Stock notifications sent for ${lowStockProducts.length} products');

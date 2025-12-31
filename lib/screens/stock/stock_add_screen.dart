@@ -66,7 +66,7 @@ class _AddStockState extends State<AddStock> {
         dateController.text = DateFormat('dd MMM yyyy').format(picked);
       });
     }
-  } 
+  }
 
   Future<void> _saveAdjustment() async {
     if (_isSaving) return;
@@ -105,7 +105,7 @@ class _AddStockState extends State<AddStock> {
       // Apply stock change using ProductDB methods with transaction tracking
       if (isAddStockSelected) {
         // Add stock (Restock)
-        final notes = notesController.text.trim().isEmpty 
+        final notes = notesController.text.trim().isEmpty
             ? 'Stock added on ${DateFormat('dd MMM yyyy').format(selectedDate)}'
             : notesController.text.trim();
 
@@ -217,7 +217,7 @@ class _AddStockState extends State<AddStock> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, 
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Product Info Card
               Card(
@@ -303,8 +303,8 @@ class _AddStockState extends State<AddStock> {
                           isAddStockSelected = true;
                           // Reset price to purchase price when switching to add
                           if (quantityController.text.isEmpty) {
-                            priceController.text = widget.product.purchasePrice
-                                .toStringAsFixed(2);
+                            priceController.text =
+                                widget.product.purchasePrice.toStringAsFixed(2);
                           }
                         }),
                         activeColor: Colors.green,
@@ -324,8 +324,8 @@ class _AddStockState extends State<AddStock> {
                           isAddStockSelected = false;
                           // Reset price to sale price when switching to reduce
                           if (quantityController.text.isEmpty) {
-                            priceController.text = widget.product.salePrice
-                                .toStringAsFixed(2);
+                            priceController.text =
+                                widget.product.salePrice.toStringAsFixed(2);
                           }
                         }),
                         activeColor: Colors.orange,
@@ -367,7 +367,7 @@ class _AddStockState extends State<AddStock> {
                 keyboardType: TextInputType.number,
                 suffixIcon: const Icon(Icons.inventory_2, color: Colors.blue),
               ),
-              const SizedBox(height: 20),  
+              const SizedBox(height: 20),
 
               // Price per unit
               CustomTextField(
@@ -442,18 +442,19 @@ class _AddStockState extends State<AddStock> {
                 child: _isSaving
                     ? const CircularProgressIndicator()
                     : CustomActionButton(
+                        height: 53,
+                        width: 260,
                         label: widget.editData != null
                             ? 'Update'
                             : isAddStockSelected
-                            ? 'Add Stock'
-                            : 'Reduce Stock',
-                        backgroundColor: isAddStockSelected
-                            ? Colors.green
-                            : Colors.orange,
+                                ? 'Add Stock'
+                                : 'Reduce Stock',
+                        backgroundColor:
+                            isAddStockSelected ? Colors.green : Colors.orange,
                         onPressed: _saveAdjustment,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
-                          horizontal: 18 ,
+                          horizontal: 18,
                         ),
                       ),
               ),
@@ -461,7 +462,7 @@ class _AddStockState extends State<AddStock> {
             ],
           ),
         ),
-      ),
+      ), 
     );
   }
 

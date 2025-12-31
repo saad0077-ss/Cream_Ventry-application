@@ -18,15 +18,17 @@ class ScreenSignUpDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+
+    final bool isDesktopScreen = screenWidth >= 1000 && screenWidth < 1160;
     // Desktop-specific responsive values
     final double maxContentWidth = 1200.0;
     final double formWidth = 520.0; // Slightly wider for sign-up form
     final double formHeight = 629.0; // Taller for more fields
-    final double horizontalSpacing = 80.0;
-
-
-    final double screenWidth = MediaQuery.of(context).size.width;
-
+    final double horizontalSpacing = isDesktopScreen ? 15.0 : 80.0; 
+ 
 
     final bool isSmallScreen = screenWidth < 1160;
 

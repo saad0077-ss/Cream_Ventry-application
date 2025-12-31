@@ -66,9 +66,9 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
   
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isMediumScreen = screenWidth >= 699 ; 
-    final bool isMMScreen = screenWidth >=508 && screenWidth <=698;  
+    final bool isMMScreen = screenWidth >=507 && screenWidth <=698;  
     final bool isSmallScreen = screenWidth >= 490 && screenWidth < 507; 
-    final bool isSmallerrrScreen = screenWidth >= 427 && screenWidth < 489;  
+    final bool isSmallerrrScreen = screenWidth >= 427 && screenWidth <= 489;  
     final bool isSmallerScreen = screenWidth >= 416 && screenWidth < 427;
     final bool isVerySmallScreen = screenWidth < 416; 
     
@@ -86,7 +86,7 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
                         : isSmallerrrScreen
                             ? 25   
                             : isMMScreen
-                                ? 30  
+                                ? 28  
                                 : 36;
                    
     // Responsive padding
@@ -208,106 +208,6 @@ class _CenterTextSignUpState extends State<CenterTextSignUp>
     );
   }
 }
-// class WelcomeText extends StatefulWidget {
-//   const WelcomeText({super.key});
-
-//   @override
-//   State<WelcomeText> createState() => _WelcomeTextState();
-// }
-
-// class _WelcomeTextState extends State<WelcomeText>
-//     with SingleTickerProviderStateMixin {
-//   late AnimationController _controller;
-//   late Animation<double> _fadeAnimation;
-//   late Animation<Offset> _slideAnimation;
-//   late Animation<double> _scaleAnimation;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = AnimationController(
-//       duration: const Duration(milliseconds: 1000),
-//       vsync: this,
-//     );
-
-//     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-//       CurvedAnimation(
-//         parent: _controller,
-//         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-//       ),
-//     );
-
-//     _slideAnimation = Tween<Offset>(
-//       begin: const Offset(-0.3, 0),
-//       end: Offset.zero,
-//     ).animate(CurvedAnimation(
-//       parent: _controller,
-//       curve: Curves.easeOutCubic,
-//     ));
-
-//     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-//       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-//     );
-
-//     _controller.forward();
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isSmallScreen = MediaQuery.of(context).size.width < 425;
-    
-//     return FadeTransition(
-//       opacity: _fadeAnimation,
-//       child: SlideTransition(
-//         position: _slideAnimation,
-//         child: ScaleTransition(
-//           scale: _scaleAnimation,
-//           alignment: Alignment.centerLeft,
-//           child: Container(
-//             padding: isSmallScreen 
-//                 ? const EdgeInsets.all(8)
-//                 : const EdgeInsets.all(12),
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(isSmallScreen ? 10 : 12),
-//               gradient: LinearGradient(
-//                 colors: [
-//                   Colors.white.withOpacity(0.2),
-//                   Colors.white.withOpacity(0.08),
-//                 ],
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: Colors.black.withOpacity(0.15),
-//                   blurRadius: isSmallScreen ? 12 : 15,
-//                   spreadRadius: -3,
-//                 ),
-//               ],
-//             ),
-//             child: Text(
-//               'WELCOME BACK 😊 \nHappy to see you again!',
-//               style: AppTextStyles.welcomeTitle.copyWith(
-//                 fontSize: isSmallScreen ? 14 : null,
-//                 shadows: [
-//                   Shadow(
-//                     color: Colors.black.withOpacity(0.4),
-//                     offset: const Offset(0, 2),
-//                     blurRadius: 6,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class CenterTextSignIn extends StatefulWidget {
   const CenterTextSignIn({super.key});
@@ -374,7 +274,7 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
     
     // Responsive font size
     final double fontSize = isMediumScreen 
-        ? 40 
+        ? 32 
         : isSmallScreen  
             ? 40   
             : isSmallerScreen     
@@ -385,7 +285,7 @@ class _CenterTextSignInState extends State<CenterTextSignIn>
                         ? 25
                         : isSmallerrrScreen
                             ? 28  
-                            : 36;
+                            : 30;
     
     // Responsive padding
     final EdgeInsets padding = isSmallScreen

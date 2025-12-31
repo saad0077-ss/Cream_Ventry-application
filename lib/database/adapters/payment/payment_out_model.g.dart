@@ -27,13 +27,14 @@ class PaymentOutModelAdapter extends TypeAdapter<PaymentOutModel> {
       note: fields[7] as String?,
       imagePath: fields[8] as String?,
       userId: fields[9] as String,
+      partyId: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, PaymentOutModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class PaymentOutModelAdapter extends TypeAdapter<PaymentOutModel> {
       ..writeByte(8)
       ..write(obj.imagePath)
       ..writeByte(9)
-      ..write(obj.userId);
+      ..write(obj.userId)
+      ..writeByte(10)
+      ..write(obj.partyId);
   }
 
   @override

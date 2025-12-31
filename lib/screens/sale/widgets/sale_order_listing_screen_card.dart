@@ -1,3 +1,5 @@
+import 'package:cream_ventory/database/functions/party_db.dart';
+import 'package:cream_ventory/models/party_model.dart';
 import 'package:cream_ventory/models/sale_model.dart';
 import 'package:cream_ventory/screens/sale/sale_add_screen.dart';
 import 'package:cream_ventory/screens/sale/widgets/sale_order_listing_screen__info_column.dart';
@@ -12,6 +14,7 @@ class SaleOrderCard extends StatelessWidget {
   final String balance;
   final String dueDate;
   final String customerName;
+  final String? customerId;  // ← Add customerId
   final String? closeButtonText;
   final String? cancelButtonText;
   final VoidCallback? onCloseButtonPressed;
@@ -28,6 +31,7 @@ class SaleOrderCard extends StatelessWidget {
     required this.balance,
     required this.dueDate,
     required this.customerName,
+    this.customerId,  // ← Add to constructor
     required this.closeButtonText,
     this.cancelButtonText,
     required this.onCloseButtonPressed,
@@ -120,14 +124,36 @@ class SaleOrderCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              customerName,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            
+                            // ✅ Display current party name
+                            ValueListenableBuilder<List<PartyModel>>(
+                              valueListenable: PartyDb.partyNotifier,
+                              builder: (context, parties, child) {
+                                String displayName = customerName;
+                                
+                                // Find current party by ID to get updated name
+                                if (customerId != null && customerId!.isNotEmpty) {
+                                  try {
+                                    final party = parties.firstWhere(
+                                      (p) => p.id == customerId,
+                                    );
+                                    displayName = party.name;  // ← Current name
+                                  } catch (e) {
+                                    // Party not found, use cached name
+                                    debugPrint('Party not found with ID: $customerId');
+                                  }
+                                }
+                                
+                                return Text(
+                                  displayName,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -267,14 +293,14 @@ class SaleOrderCard extends StatelessWidget {
                             ),
                           ),
                       ],
-                    ),
+                    ), 
                   ],
                 ],
-              ),
+              ), 
             ),
           ),
         ),
       ),   
     );
   }
-}  
+}

@@ -29,9 +29,9 @@ class ActionButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (shouldExpand)
-            Expanded(
+            Expanded( 
               child: CustomActionButton( 
-                height: null,
+                height: 53,
                 width: null,
                 label: 'Take Payment',
                 backgroundColor: const Color.fromARGB(255, 80, 82, 84),
@@ -60,8 +60,8 @@ class ActionButtons extends StatelessWidget {
           if (shouldExpand)
             Expanded(
               child: CustomActionButton(
-                height: null,
-                width: null,
+                height:53,
+                width: null, 
                 label: 'Add Sale', 
                 backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                 onPressed: onAddSale,

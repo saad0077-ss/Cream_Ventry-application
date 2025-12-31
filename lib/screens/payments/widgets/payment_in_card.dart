@@ -1,4 +1,6 @@
 import 'package:cream_ventory/core/utils/expence/date_amount_format.dart';
+import 'package:cream_ventory/database/functions/party_db.dart';
+import 'package:cream_ventory/models/party_model.dart';
 import 'package:cream_ventory/models/payment_in_model.dart';
 import 'package:flutter/material.dart';
 
@@ -142,16 +144,36 @@ class PaymentInCard extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  payment.partyName ?? 'Unknown Party',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F2937),
-                                    letterSpacing: -0.3,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                // ✅ FIX: Display current party name
+                                ValueListenableBuilder<List<PartyModel>>(
+                                  valueListenable: PartyDb.partyNotifier,
+                                  builder: (context, parties, child) {
+                                    String partyName = payment.partyName ?? 'Unknown Party';
+                                    
+                                    // Find current party by ID to get updated name
+                                    if (payment.partyId != null && payment.partyId!.isNotEmpty) {
+                                      try {
+                                        final party = parties.firstWhere(
+                                          (p) => p.id == payment.partyId,
+                                        );
+                                        partyName = party.name;  // ← Current name
+                                      } catch (e) {
+                                        // Party not found, use cached name
+                                      }
+                                    }
+                                    
+                                    return Text(
+                                      partyName,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1F2937),
+                                        letterSpacing: -0.3,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    );
+                                  },
                                 ),
                                 const SizedBox(height: 1),
                                 Text(
@@ -273,7 +295,7 @@ class PaymentInCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        ), 
       ),
     );
   }

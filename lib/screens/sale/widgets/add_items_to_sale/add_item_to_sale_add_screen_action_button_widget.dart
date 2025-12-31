@@ -17,6 +17,7 @@ class AddItemActionButtonsWidget {
           if (isSmallScreen)
             Expanded(
               child: CustomActionButton(
+                height: 53, 
                 label: 'Save & New',
                 backgroundColor: const Color.fromARGB(255, 80, 82, 84),
                 onPressed: onSaveAndNew,
@@ -36,8 +37,9 @@ class AddItemActionButtonsWidget {
           if (isSmallScreen)
             Expanded(
               child: CustomActionButton(
+                height: 53,
                 label: isEditMode ? 'Update' : 'Save',
-                backgroundColor: const Color.fromARGB(255, 85, 172, 213), 
+                backgroundColor: const Color.fromARGB(255, 85, 172, 213),
                 onPressed: onSave,
               ),
             )
@@ -46,7 +48,7 @@ class AddItemActionButtonsWidget {
               height: 48,
               width: 500,
               label: isEditMode ? 'Update' : 'Save',
-              backgroundColor: const Color.fromARGB(255, 85, 172, 213), 
+              backgroundColor: const Color.fromARGB(255, 85, 172, 213),
               onPressed: onSave,
             ),
         ],
