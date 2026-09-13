@@ -182,14 +182,35 @@ Operating an ice cream distribution and wholesale supply chain requires balancin
 ---
 
 ## 🛠️ Tech Stack
-
 - **UI Framework:** [Flutter](https://flutter.dev/) (Channel Stable, Material Design 3)
 - **Language:** [Dart](https://dart.dev/)
-- **Local Persistence:** [Hive](https://pub.dev/packages/hive) & [hive_flutter](https://pub.dev/packages/hive_flutter) (NoSQL)
+- **Local Persistence:** [Hive](https://pub.dev/packages/hive) & [hive_flutter](https://pub.dev/packages/hive_flutter)
+- **Backend & Cloud Services:** [Firebase](https://firebase.google.com/) (`firebase_options.dart`)
+- **Notifications:** In-App & Local Push Notification Services
 - **Code Generation:** [build_runner](https://pub.dev/packages/build_runner) & [hive_generator](https://pub.dev/packages/hive_generator)
-- **PDF & Printing:** [pdf](https://pub.dev/packages/pdf) & [printing](https://pub.dev/packages/printing)
+- **PDF & Document Printing:** [pdf](https://pub.dev/packages/pdf) & [printing](https://pub.dev/packages/printing)
 - **Visualizations:** Custom interactive trend & line charts
 
----
+--
+
+## 🚀 Getting Started
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (`>= 3.0.0`)
+- [Dart SDK](https://dart.dev/get-dart)
+- Android Studio / VS Code with Flutter extension
+- An Android device, emulator, or iOS simulator
+
 
 ## 📂 Project Architecture
+Creamventory adheres to a **modular, feature-first clean architecture** with dedicated separations between presentation views, domain utilities, and an offline-first NoSQL database layer.
+### 🏛️ Architectural Data Flow
+```mermaid
+graph TD
+    UI["📱 Presentation Layer\n(Screens & Custom Widgets)"]
+    CORE["⚙️ Core Framework\n(Constants, Themes, Notifications & Domain Utils)"]
+    DB["🗄️ Database & Storage Layer\n(Hive NoSQL Adapters & Functions)"]
+    CLOUD["☁️ Cloud & Services\n(Firebase Options)"]
+    UI --> CORE
+    UI --> DB
+    CORE --> DB
+    UI --> CLOUD
